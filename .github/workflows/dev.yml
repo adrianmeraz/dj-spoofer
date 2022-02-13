@@ -1,0 +1,98 @@
+name: Dev Push
+on:
+  push:
+    branches:
+      - dev
+    paths:
+      - '**.py'
+      - '**.yml'
+
+jobs:
+  tests:
+    runs-on: ubuntu-20.04
+    env:
+      PYTHON: '3.8'
+      DATABASE_URL: ${{secrets.DATABASE_URL}}
+      DJANGO_SETTINGS_MODULE: ${{secrets.DJANGO_SETTINGS_MODULE}}
+      LOGLEVEL: ${{secrets.LOGLEVEL}}
+      PYTHONUNBUFFERED: ${{secrets.PYTHONUNBUFFERED}}
+      SECRET_KEY: ${{secrets.SECRET_KEY}}
+    services:
+      postgres:
+        image: postgres:13.4
+        env:
+          POSTGRES_DB: postgres
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        # needed because the postgres container does not provide a healthcheck
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@5a4ac9002d0be2fb38bd78e4b4dbde5606d7042f # v2
+      with:
+        fetch-depth: ‘2’
+
+    - name: Setup Python
+      uses: actions/setup-python@70e2063f710ccef775ec81349f16fb39eecee9ef # v2.2.2
+      with:
+        python-version: 3.8
+
+    # https://www.peterbe.com/plog/install-python-poetry-github-actions-faster
+    - name: Load cached ~/.local
+      uses: actions/cache@c64c572235d810460d0d6876e9c705ad5002b353 #v2.1.6
+      with:
+        path: ~/.local
+        key: dotlocal-${{ runner.os }}-${{ hashFiles('.github/workflows/dev.yml') }}
+
+    - name: Install poetry
+      uses: snok/install-poetry@44d50c1274bf7fe0860f5c0531e36c9092c15b23 # v1.2.1
+      with:
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+
+    - name: Load cached venv
+      id: cache-virtualenv
+      uses: actions/cache@c64c572235d810460d0d6876e9c705ad5002b353 # v2.1.6
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}-${{ hashFiles('.github/workflows/dev.yml') }}
+
+    - name: Install poetry dependencies
+      if: steps.cache-virtualenv.outputs.cache-hit != 'true'
+      run: poetry install
+
+    - name: Migrate database
+      run: poetry run python manage.py migrate
+
+    - name: Generate Coverage Report
+      run: |
+        poetry run coverage run manage.py test --settings=config.settings.dev --no-input --timing
+        poetry run coverage xml
+
+    - name: Upload Coverage to Codecov
+      uses: codecov/codecov-action@f32b3a3741e1053eb607407145bc9619351dc93b # v2.1.0 => Moved to v2 per: [https://github.com/codecov/codecov-action]
+      with:
+        files: coverage.xml
+        fail_ci_if_error: true
+        token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+
+  mainPromotion:
+    runs-on: ubuntu-latest
+    needs: tests
+    steps:
+    - name: Checkout Main Branch
+      uses: actions/checkout@v2
+      with:
+        ref: main
+    - name: Reset main branch
+      run: |
+        git fetch origin dev:dev
+        git reset --hard dev
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v3
+      with:
+        branch: main-promotion
+        delete-branch: true
+        title: Promote dev to main branch
