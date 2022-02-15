@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from httpx import Client
 
-from spoof import utils as spoof_utils
+from djspoofer import utils as spoof_utils
 from ... import models
 
 

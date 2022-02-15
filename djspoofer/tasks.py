@@ -1,20 +1,11 @@
 import logging
-from json import JSONDecodeError
 
-from httpx import Client, RequestError
-from urllib3.exceptions import HTTPError
-
-from djspoofer import exceptions
-from . import models, intoli
+from djspoofer.exceptions import DJSpooferError
+from intoli import intoli_api
+from intoli.clients import IntoliClient
+from . import models
 
 logger = logging.getLogger(__name__)
-
-_warn_exceptions = (
-    exceptions.ApiError,
-    JSONDecodeError,
-    RequestError,
-    HTTPError
-)
 
 
 def get_profiles(*args, **kwargs):
@@ -27,8 +18,8 @@ class GetProfiles:
 
     @staticmethod
     def start():
-        with Client() as client:
-            profiles = intoli.get_profiles(client)
+        with IntoliClient() as i_client:
+            profiles = intoli_api.get_profiles(i_client)
         new_profiles = []
 
         for profile in profiles:
@@ -49,6 +40,6 @@ class GetProfiles:
         try:
             models.Profile.objects.bulk_create(new_profiles)
         except Exception as e:
-            raise exceptions.AppError(info=f'Error adding user agents: {str(e)}')
+            raise DJSpooferError(info=f'Error adding user agents: {str(e)}')
         else:
             logger.info(f'Deleted {models.Profile.objects.older_than_n_minutes().delete()[0]} Old Intoli Profiles')
