@@ -1,32 +1,11 @@
 import logging
 import random
-from collections import OrderedDict
 
 from faker import Faker
-from httpx import Client
 
-from . import models, providers
+from . import providers
 
 logger = logging.getLogger(__name__)
-
-
-class SpoofSession(Client):
-    def __init__(self, proxy_str=None, user_agent=None):
-        self.proxies = {
-            'http://': f'http://{proxy_str}/',
-            'https://': f'https://{proxy_str}/'
-        }
-        self.headers = {
-            'User-Agent': user_agent or models.Profile.objects.weighted_desktop_user_agent()
-        }
-        super().__init__(proxies=self.proxies, headers=self.headers)
-
-    def update_headers(self, new_headers):
-        self.headers = OrderedDict({**self.headers, **self.clean_headers(new_headers)})
-
-    @classmethod
-    def clean_headers(cls, headers):
-        return OrderedDict({k: v for k, v in headers.items() if v})
 
 
 fake = Faker('en_US')

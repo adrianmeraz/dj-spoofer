@@ -1,28 +1,30 @@
-from unittest import mock
 from importlib.resources import open_binary
+from unittest import mock
 
 import httpx
-import json
 from django.test import TestCase
-from httpx import Request, Response, codes
+from httpx import Request
 
-from intoli import intoli_api, clients
+from intoli import intoli_api
 
 
-class GetBroadcastsTests(TestCase):
+class GetProfilesTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.request = Request(url='', method='')  # Must add a non null request to avoid raising Runtime exception
 
-    @mock.patch.object(clients, 'IntoliClient')
+    @mock.patch.object(httpx, 'Client')
     def test_ok(self, mock_client):
         with open_binary('intoli.tests.schemas.intoli', 'user-agents.json.gz') as intoli_gz:
-            mock_client.stream.return_value = Response(
-                request=self.request,
-                status_code=codes.OK,
-                content=intoli_gz
-            )
+
+            mock_client.stream.return_value.__enter__.return_value = mock.Mock()
+            mock_client.stream.return_value.__enter__.return_value.status_code = 200
+            mock_client.stream.return_value.__enter__.return_value.iter_bytes.return_value = [
+                intoli_gz.read()
+            ]
 
         r_profiles = intoli_api.get_profiles(
             mock_client,
         )
+        self.assertEquals(len(r_profiles.profiles), 5594)
+        self.assertEquals(len(r_profiles.valid_profiles), 3195)

@@ -52,11 +52,11 @@ class ProxyTests(TestCase):
 
     def test_set_last_used(self):
         proxy = Proxy.objects.create(**self.proxy_data)
-        self.assertEquals(proxy.used_ct, 0)
+        self.assertEquals(proxy.used_count, 0)
         self.assertIsNone(proxy.last_used)
 
         proxy.set_last_used()
-        self.assertEquals(proxy.used_ct, 1)
+        self.assertEquals(proxy.used_count, 1)
         self.assertIsNotNone(proxy.last_used)
 
     # def test_dupe_username(self):

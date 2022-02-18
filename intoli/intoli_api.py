@@ -11,10 +11,11 @@ logger = logging.getLogger(__name__)
 
 BASE_URL = 'https://raw.githubusercontent.com/intoli/user-agents/master/src/user-agents.json.gz'
 UA_BAD_CHARS = '\"\''
-UA_BLACKLIST = ('coc_coc_browser', 'QQBrowser', 'WeChat', 'YaBrowser', 'zh-CN', 'zhihu')
+UA_BLACKLIST = ('coc_coc_browser', 'QQBrowser', 'WeChat', 'YaBrowser', 'zh-CN', 'zh_CN', 'zhihu')
 UA_LEN_RANGE = (40, 160)
 DEVICE_CATEGORY_LEN_RANGE = (4, 16)
 PLATFORM_LEN_RANGE = (4, 16)
+MIN_WEIGHT = .0001
 
 
 @decorators.wrap_exceptions(raise_as=IntoliError)
@@ -58,6 +59,16 @@ class IntoliProfile:
         self.weight = data.get('weight')
 
     @property
+    def is_valid_profile(self):
+        return all([
+            self.is_valid_user_agent,
+            not self.is_user_agent_blacklisted,
+            self.is_valid_device_category,
+            self.is_valid_platform,
+            self.is_valid_weight
+        ])
+
+    @property
     def is_valid_user_agent(self):
         return UA_LEN_RANGE[0] <= len(self.user_agent) <= UA_LEN_RANGE[1]
 
@@ -74,10 +85,5 @@ class IntoliProfile:
         return PLATFORM_LEN_RANGE[0] <= len(self.platform) <= PLATFORM_LEN_RANGE[1]
 
     @property
-    def is_valid_profile(self):
-        return all([
-            self.is_valid_user_agent,
-            not self.is_user_agent_blacklisted,
-            self.is_valid_device_category,
-            self.is_valid_platform
-        ])
+    def is_valid_weight(self):
+        return self.weight > MIN_WEIGHT

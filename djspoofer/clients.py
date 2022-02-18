@@ -1,8 +1,9 @@
 import logging
 
-from django.conf import settings
 from djstarter import decorators
 from httpx import Client, Timeout, TransportError
+
+from djspoofer.models import Profile
 
 logger = logging.getLogger(__name__)
 
@@ -12,9 +13,27 @@ RETRY_EXCEPTIONS = (
 )
 
 
-class DJSpooferClient(Client):
+class SpoofedDesktopSession(Client):
+    def __init__(self, proxy_url=None, user_agent=None):
+        self.proxies = {
+            'http://': f'http://{proxy_url}/',
+            'https://': f'https://{proxy_url}/'
+        }
+        self.user_agent = user_agent or Profile.objects.weighted_desktop_profile().user_agent
+        self.headers = {
+            'user-agent': self.user_agent
+        }
+        super().__init__(proxies=self.proxies, headers=self.headers)
+
+    @decorators.retry(retry_exceptions=RETRY_EXCEPTIONS)
+    @decorators.api_error_check
+    def send(self, *args, **kwargs):
+        return super().send(*args, **kwargs)
+
+
+class SpooferClient(Client):
     """
-    DJSpoofer Http Client
+    Spoofer Http Client
     """
 
     def __init__(self, *args, **kwargs):
@@ -23,8 +42,7 @@ class DJSpooferClient(Client):
     @staticmethod
     def get_headers():
         return {
-            'Accept': 'application/json',
-            'User-Agent': settings.USER_AGENT,
+            'accept': 'application/json',
         }
 
     @decorators.retry(retry_exceptions=RETRY_EXCEPTIONS)

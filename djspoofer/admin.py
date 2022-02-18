@@ -26,7 +26,7 @@ class ProfileAdmin(core_admin.BaseAdmin):
 
 @admin.register(models.Proxy)
 class ProxyAdmin(core_admin.BaseAdmin):
-    list_display = ['url', 'mode', 'cooldown', 'last_used', 'used_ct', 'country', 'city']
+    list_display = ['url', 'mode', 'cooldown', 'last_used', 'used_count', 'country', 'city']
     list_filter = ('mode', 'country', 'city')
     ordering = ['mode', 'url']
     search_fields = ['url']

@@ -41,6 +41,14 @@ class Profile(BaseModel):
     def __str__(self):
         return f'Profile: {self.user_agent}'
 
+    @property
+    def is_desktop(self):
+        return self.device_category == 'desktop'
+
+    @property
+    def is_mobile(self):
+        return self.device_category == 'mobile'
+
 
 class Proxy(BaseModel):
     objects = managers.ProxyManager()
@@ -50,7 +58,7 @@ class Proxy(BaseModel):
     country = models.CharField(max_length=3, blank=True, null=True)
     city = models.CharField(max_length=64, blank=True, null=True)
     last_used = models.DateTimeField(blank=True, null=True)
-    used_ct = models.IntegerField(default=0)
+    used_count = models.IntegerField(default=0)
     cooldown = models.DurationField(default=datetime.timedelta(minutes=10))
 
     class Meta:
@@ -69,5 +77,5 @@ class Proxy(BaseModel):
 
     def set_last_used(self):
         self.last_used = timezone.now()
-        self.used_ct += 1
+        self.used_count += 1
         self.save()

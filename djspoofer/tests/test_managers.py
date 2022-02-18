@@ -15,7 +15,6 @@ class ProfileManagerTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.profile_data = {
-            'device_category': 'mobile',
             'platform': 'US',
             'screen_height': 1920,
             'screen_width': 1080,
@@ -39,47 +38,35 @@ class ProfileManagerTests(TestCase):
             ['My User Agent 1.0', 'The 2nd User Agent 2.0']
         )
 
-    def test_rand_desktop_user_agent(self):
+    def test_random_desktop_profile(self):
         with self.assertRaises(exceptions.DJSpooferError):
-            Profile.objects.rand_desktop_user_agent()
+            Profile.objects.random_desktop_profile()
 
-        Profile.objects.create(**self.profile_data)
+        Profile.objects.create(device_category='desktop', **self.profile_data)
 
-        with self.assertRaises(exceptions.DJSpooferError):
-            Profile.objects.rand_desktop_user_agent()
+        profile = Profile.objects.random_desktop_profile()
 
-        new_data = self.profile_data.copy()
-        new_data['device_category'] = 'desktop'
-        new_profile = Profile.objects.create(**new_data)
-
-        user_agent = Profile.objects.rand_desktop_user_agent()
-
-        self.assertEquals(new_profile.user_agent, user_agent)
+        self.assertEquals(profile.user_agent, 'My User Agent 1.0')
 
     def test_weighted_desktop_user_agent(self):
-        Profile.objects.create(**self.profile_data)
-
         with self.assertRaises(exceptions.DJSpooferError):
-            Profile.objects.weighted_desktop_user_agent()
+            Profile.objects.weighted_desktop_profile()
 
-        new_data = self.profile_data.copy()
-        new_data['device_category'] = 'desktop'
-        new_profile = Profile.objects.create(**new_data)
+        Profile.objects.create(device_category='desktop', **self.profile_data)
 
-        user_agent = Profile.objects.weighted_desktop_user_agent()
+        profile = Profile.objects.weighted_desktop_profile()
 
-        self.assertEquals(new_profile.user_agent, user_agent)
+        self.assertEquals(profile.user_agent, 'My User Agent 1.0')
 
-    def test_desktop_profile_exists(self):
-        Profile.objects.create(**self.profile_data)
+    def test_weighted_mobile_user_agent(self):
+        with self.assertRaises(exceptions.DJSpooferError):
+            Profile.objects.weighted_mobile_profile()
 
-        self.assertFalse(Profile.objects.desktop_profile_exists())
+        Profile.objects.create(device_category='mobile', **self.profile_data)
 
-        new_data = self.profile_data.copy()
-        new_data['device_category'] = 'desktop'
-        Profile.objects.create(**new_data)
+        profile = Profile.objects.weighted_mobile_profile()
 
-        self.assertTrue(Profile.objects.desktop_profile_exists())
+        self.assertEquals(profile.user_agent, 'My User Agent 1.0')
 
     def test_older_than_n_minutes(self):
         profile = Profile.objects.create(**self.profile_data)

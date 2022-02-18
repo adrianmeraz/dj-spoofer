@@ -3,7 +3,7 @@ import logging
 from djspoofer.exceptions import DJSpooferError
 from intoli import intoli_api
 from intoli.clients import IntoliClient
-from . import models
+from .models import Profile
 
 logger = logging.getLogger(__name__)
 
@@ -16,15 +16,26 @@ class GetProfiles:
     def __init__(self, *args, **kwargs):
         pass
 
-    @staticmethod
-    def start():
+    def start(self):
         with IntoliClient() as i_client:
-            profiles = intoli_api.get_profiles(i_client)
-        new_profiles = []
+            r_profiles = intoli_api.get_profiles(i_client)
 
-        for profile in profiles:
+        old_oids = self.get_old_profile_oids()
+        new_profiles = self.build_profiles(r_profiles)
+
+        try:
+            Profile.objects.bulk_create(new_profiles)
+        except Exception as e:
+            raise DJSpooferError(info=f'Error adding user agents: {str(e)}')
+        else:
+            logger.info(f'Deleted Old Intoli Profiles: {Profile.objects.bulk_delete(oids=old_oids)[0]}')
+
+    @staticmethod
+    def build_profiles(r_profiles):
+        new_profiles = list()
+        for profile in r_profiles.valid_profiles:
             new_profiles.append(
-                models.Profile(
+                Profile(
                     device_category=profile.device_category,
                     platform=profile.platform,
                     screen_height=profile.screen_height,
@@ -35,11 +46,11 @@ class GetProfiles:
                     weight=profile.weight,
                 )
             )
+        logger.info(f'New Intoli Profiles: {len(new_profiles)}')
+        return new_profiles
 
-        logger.info(f'Got {len(new_profiles)} New Intoli Profiles')
-        try:
-            models.Profile.objects.bulk_create(new_profiles)
-        except Exception as e:
-            raise DJSpooferError(info=f'Error adding user agents: {str(e)}')
-        else:
-            logger.info(f'Deleted {models.Profile.objects.older_than_n_minutes().delete()[0]} Old Intoli Profiles')
+    @staticmethod
+    def get_old_profile_oids():
+        oids = Profile.objects.all_oids()
+        logger.info(f'Old Intoli Profiles: {len(oids)}')
+        return oids

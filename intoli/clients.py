@@ -1,6 +1,5 @@
 import logging
 
-from django.conf import settings
 from djstarter import decorators
 from httpx import Client, Timeout, TransportError
 
@@ -23,11 +22,12 @@ class IntoliClient(Client):
     @staticmethod
     def get_headers():
         return {
-            'Accept': 'application/json',
-            'User-Agent': settings.USER_AGENT,
+            'accept': 'application/json',
         }
 
     @decorators.retry(retry_exceptions=RETRY_EXCEPTIONS)
     @decorators.api_error_check
     def send(self, *args, **kwargs):
         return super().send(*args, **kwargs)
+
+
