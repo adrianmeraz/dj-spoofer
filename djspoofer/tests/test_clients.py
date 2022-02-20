@@ -3,10 +3,11 @@ from unittest import mock
 from django.test import TestCase
 from httpx import Request
 
-from djspoofer.clients import SpoofedDesktopSession
+from djspoofer.clients import SpoofedDesktopClient
+from djspoofer.models import Fingerprint, Proxy
 
 
-class FXClientTests(TestCase):
+class SpoofedDesktopClientTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         super().setUpTestData()
@@ -14,10 +15,14 @@ class FXClientTests(TestCase):
         cls.mocked_sleep = mock.patch('time.sleep', return_value=None).start()
 
     def test_ok(self):
-        proxy_url = 'https://user123:password456@example.com:4582'
+
+        proxy_url = 'user123:password456@example.com:4582'
         user_agent = 'My User Agent 1.0'
-        with SpoofedDesktopSession(proxy_url=proxy_url, user_agent=user_agent) as session:
-            self.assertEquals(session.proxies['http://'], f'http://{proxy_url}/')
-            self.assertEquals(session.proxies['https://'], f'https://{proxy_url}/')
+
+        Proxy.objects.create('')
+
+        with SpoofedDesktopClient(proxy_url=proxy_url, user_agent=user_agent) as session:
+            self.assertEquals(session.proxies['http://'], 'http://user123:password456@example.com:4582')
+            self.assertEquals(session.proxies['https://'], 'https://user123:password456@example.com:4582')
 
             self.assertEquals(session.headers['User-Agent'], user_agent)

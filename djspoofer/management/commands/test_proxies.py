@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from httpx import Client
 
 from djspoofer.clients import SpooferClient
-from ... import models
+from djspoofer.models import Proxy
 
 
 class Command(BaseCommand):
@@ -28,7 +28,7 @@ class Command(BaseCommand):
                 with Client() as client:
                     client.get(url)
             else:
-                with SpooferClient(proxy_str=models.Proxy.objects.get_rotating_proxy().url) as client:
+                with SpooferClient(proxy_str=Proxy.objects.get_rotating_proxy().url) as client:
                     client.get(url)
 
         except Exception as e:

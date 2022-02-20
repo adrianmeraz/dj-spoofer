@@ -3,7 +3,7 @@ import logging
 from djstarter import decorators
 from httpx import Client, Timeout, TransportError
 
-from djspoofer.models import Profile
+from djspoofer.models import Fingerprint
 
 logger = logging.getLogger(__name__)
 
@@ -13,17 +13,17 @@ RETRY_EXCEPTIONS = (
 )
 
 
-class SpoofedDesktopSession(Client):
-    def __init__(self, proxy_url=None, user_agent=None):
+class SpoofedDesktopClient(Client):
+    def __init__(self, fingerprint):
+        self.fingerprint = fingerprint
         self.proxies = {
-            'http://': f'http://{proxy_url}/',
-            'https://': f'https://{proxy_url}/'
+            'http://': f'http://{fingerprint.proxy}',
+            'https://': f'https://{fingerprint.proxy}'
         }
-        self.user_agent = user_agent or Profile.objects.weighted_desktop_profile().user_agent
         self.headers = {
-            'user-agent': self.user_agent
+            'user-agent': self.fingerprint.user_agent
         }
-        super().__init__(proxies=self.proxies, headers=self.headers)
+        super().__init__(headers=self.headers, proxies=self.proxies, timeout=TIMEOUT)
 
     @decorators.retry(retry_exceptions=RETRY_EXCEPTIONS)
     @decorators.api_error_check

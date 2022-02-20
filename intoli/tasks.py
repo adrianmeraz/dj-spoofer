@@ -1,13 +1,16 @@
 import logging
 
-from djspoofer.exceptions import DJSpooferError
 from intoli import intoli_api
 from intoli.clients import IntoliClient
-from .models import Profile
+from intoli.exceptions import IntoliError
+from intoli.models import Profile
+
+from djstarter import decorators
 
 logger = logging.getLogger(__name__)
 
 
+@decorators.db_conn_close
 def get_profiles(*args, **kwargs):
     GetProfiles(*args, **kwargs).start()
 
@@ -26,7 +29,7 @@ class GetProfiles:
         try:
             Profile.objects.bulk_create(new_profiles)
         except Exception as e:
-            raise DJSpooferError(info=f'Error adding user agents: {str(e)}')
+            raise IntoliError(info=f'Error adding user agents: {str(e)}')
         else:
             logger.info(f'Deleted Old Intoli Profiles: {Profile.objects.bulk_delete(oids=old_oids)[0]}')
 
