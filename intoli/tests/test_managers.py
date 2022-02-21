@@ -21,6 +21,11 @@ class ProfileManagerTests(TestCase):
             'weight': .005,
         }
 
+    def test_all_oids(self):
+        profile = Profile.objects.create(device_category='desktop', **self.profile_data)
+
+        self.assertEquals(list(Profile.objects.all_oids()), [profile.oid])
+
     def test_all_user_agents(self):
         Profile.objects.create(**self.profile_data)
 
@@ -45,6 +50,16 @@ class ProfileManagerTests(TestCase):
 
         self.assertEquals(profile.user_agent, 'My User Agent 1.0')
 
+    def test_random_mobile_profile(self):
+        with self.assertRaises(exceptions.IntoliError):
+            Profile.objects.random_mobile_profile()
+
+        Profile.objects.create(device_category='mobile', **self.profile_data)
+
+        profile = Profile.objects.random_mobile_profile()
+
+        self.assertEquals(profile.user_agent, 'My User Agent 1.0')
+
     def test_weighted_desktop_user_agent(self):
         with self.assertRaises(exceptions.IntoliError):
             Profile.objects.weighted_desktop_profile()
@@ -64,3 +79,11 @@ class ProfileManagerTests(TestCase):
         profile = Profile.objects.weighted_mobile_profile()
 
         self.assertEquals(profile.user_agent, 'My User Agent 1.0')
+
+    def test_bulk_delete(self):
+        profile = Profile.objects.create(device_category='desktop', **self.profile_data)
+
+        Profile.objects.bulk_delete(oids=[profile.oid])
+
+        with self.assertRaises(Profile.DoesNotExist):
+            profile.refresh_from_db()

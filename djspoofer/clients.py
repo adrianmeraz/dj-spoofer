@@ -12,30 +12,48 @@ RETRY_EXCEPTIONS = (
 
 
 class SpoofedDesktopClient(Client):
-    def __init__(self, fingerprint):
+    def __init__(self, fingerprint, *args, **kwargs):
         self.fingerprint = fingerprint
         self.proxies = {
             'http://': fingerprint.proxy.http_url,
             'https://': fingerprint.proxy.https_url
         }
-        self.headers = {
-            'user-agent': self.fingerprint.user_agent
-        }
-        super().__init__(headers=self.headers, proxies=self.proxies, timeout=TIMEOUT)
+        super().__init__(
+            follow_redirects=True,
+            headers=self.get_headers(),
+            http2=True,
+            proxies=self.proxies,
+            timeout=TIMEOUT,
+            *args,
+            **kwargs
+        )
 
     @decorators.retry(retry_exceptions=RETRY_EXCEPTIONS)
     @decorators.api_error_check
     def send(self, *args, **kwargs):
         return super().send(*args, **kwargs)
 
+    def get_headers(self):
+        return {
+            'accept': 'application/json',
+            'user-agent': self.fingerprint.user_agent
+        }
+
 
 class SpooferClient(Client):
     """
-    Spoofer Http Client
+    Http/2 Client
     """
 
     def __init__(self, *args, **kwargs):
-        super().__init__(headers=self.get_headers(), timeout=TIMEOUT, *args, **kwargs)
+        super().__init__(
+            follow_redirects=True,
+            http2=True,
+            headers=self.get_headers(),
+            timeout=TIMEOUT,
+            *args,
+            **kwargs
+        )
 
     @staticmethod
     def get_headers():

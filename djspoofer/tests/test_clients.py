@@ -1,10 +1,12 @@
 from unittest import mock
 
 from django.test import TestCase
-from httpx import Request
+import httpx
+from httpx import Request, Response, codes
 
 from djspoofer.clients import SpoofedDesktopClient
 from djspoofer.models import Fingerprint, Proxy
+from djspoofer import clients
 
 
 class SpoofedDesktopClientTests(TestCase):
@@ -28,9 +30,13 @@ class SpoofedDesktopClientTests(TestCase):
             proxy=proxy
         )
 
-    def test_ok(self):
-        with SpoofedDesktopClient(fingerprint=self.fingerprint) as session:
-            self.assertEquals(session.proxies['http://'], 'http://user123:password456@example.com:4582')
-            self.assertEquals(session.proxies['https://'], 'https://user123:password456@example.com:4582')
-
-            self.assertEquals(session.headers['user-agent'], 'Test User Agent 1.0')
+    @mock.patch.object(SpoofedDesktopClient, '_send_handling_auth')
+    def test_ok(self, mock_sd_send):
+        mock_sd_send.return_value = Response(
+            request=self.request,
+            status_code=codes.OK,
+            text='ok'
+        )
+        with SpoofedDesktopClient(fingerprint=self.fingerprint) as sd_client:
+            sd_client.get('http://example.com')
+            self.assertEquals(mock_sd_send.call_count, 1)

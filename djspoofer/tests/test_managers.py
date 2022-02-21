@@ -1,9 +1,6 @@
-import datetime
-
 from django.test import TestCase
-from django.utils import timezone
 
-from djspoofer import const, exceptions
+from djspoofer import const
 from djspoofer.models import Proxy
 
 

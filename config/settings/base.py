@@ -1,4 +1,5 @@
 import os
+import logging.config
 
 import environ
 
@@ -6,6 +7,58 @@ env = environ.Env()
 environ.Env.read_env(env_file='.env')
 
 SECRET_KEY = env('SECRET_KEY')
+
+LOGLEVEL = env('LOGLEVEL').upper()
+
+LOGGING_CFG = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '[{levelname}] {message}',
+            'style': '{',
+        },
+        'verbose': {
+            'format': '[{levelname}/{processName} {threadName}] {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        '': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'django': {
+            'level': 'INFO',
+            'handlers': ['console'],
+            'propagate': True,
+        },
+        'django.db.backends': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+            'propagate': True,
+        },
+        'environ': {
+            'level': 'INFO',
+            'handlers': ['console'],
+            'propagate': True,
+        },
+        'faker': {
+            'handlers': ['console'],
+            'level': 'WARNING',
+            'propagate': False,
+        },
+    },
+}
+logging.config.dictConfig(LOGGING_CFG)
 
 db_from_env = env.db_url()
 db_from_env.update({
