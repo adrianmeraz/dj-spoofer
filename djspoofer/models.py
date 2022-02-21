@@ -24,7 +24,15 @@ class Proxy(BaseModel):
         app_label = 'djspoofer'
 
     def __str__(self):
-        return f'Proxy: {self.url} - {self.pretty_mode}'
+        return f'Proxy -> url: {self.url}, mode: {self.pretty_mode}'
+
+    @property
+    def http_url(self):
+        return f'http://{self.url}'
+
+    @property
+    def https_url(self):
+        return f'https://{self.url}'
 
     @property
     def is_on_cooldown(self):

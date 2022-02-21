@@ -3,8 +3,6 @@ import logging
 from djstarter import decorators
 from httpx import Client, Timeout, TransportError
 
-from djspoofer.models import Fingerprint
-
 logger = logging.getLogger(__name__)
 
 TIMEOUT = Timeout(connect=5, read=10, write=5, pool=5)
@@ -17,8 +15,8 @@ class SpoofedDesktopClient(Client):
     def __init__(self, fingerprint):
         self.fingerprint = fingerprint
         self.proxies = {
-            'http://': f'http://{fingerprint.proxy}',
-            'https://': f'https://{fingerprint.proxy}'
+            'http://': fingerprint.proxy.http_url,
+            'https://': fingerprint.proxy.https_url
         }
         self.headers = {
             'user-agent': self.fingerprint.user_agent

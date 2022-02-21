@@ -1,11 +1,11 @@
 import logging
 
+from djstarter import decorators
+
 from intoli import intoli_api
 from intoli.clients import IntoliClient
 from intoli.exceptions import IntoliError
 from intoli.models import Profile
-
-from djstarter import decorators
 
 logger = logging.getLogger(__name__)
 
@@ -23,14 +23,15 @@ class GetProfiles:
         with IntoliClient() as i_client:
             r_profiles = intoli_api.get_profiles(i_client)
 
-        old_oids = self.get_old_profile_oids()
-        new_profiles = self.build_profiles(r_profiles)
+        old_oids = list(Profile.objects.all_oids())
+        profiles = self.build_profiles(r_profiles)
 
         try:
-            Profile.objects.bulk_create(new_profiles)
+            new_profiles = Profile.objects.bulk_create(profiles)
         except Exception as e:
             raise IntoliError(info=f'Error adding user agents: {str(e)}')
         else:
+            logger.info(f'Created New Intoli Profiles: {len(new_profiles)}')
             logger.info(f'Deleted Old Intoli Profiles: {Profile.objects.bulk_delete(oids=old_oids)[0]}')
 
     @staticmethod
@@ -49,11 +50,4 @@ class GetProfiles:
                     weight=profile.weight,
                 )
             )
-        logger.info(f'New Intoli Profiles: {len(new_profiles)}')
         return new_profiles
-
-    @staticmethod
-    def get_old_profile_oids():
-        oids = Profile.objects.all_oids()
-        logger.info(f'Old Intoli Profiles: {len(oids)}')
-        return oids

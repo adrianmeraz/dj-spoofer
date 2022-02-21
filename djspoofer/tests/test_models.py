@@ -40,7 +40,7 @@ class ProxyTests(TestCase):
 
     def test_user_str(self):
         proxy = Proxy.objects.create(**self.proxy_data)
-        self.assertEqual(str(proxy), 'Proxy: user123:password456@example.com:4582 - GENERAL')
+        self.assertEqual(str(proxy), 'Proxy -> url: user123:password456@example.com:4582, mode: GENERAL')
 
     def test_on_cooldown(self):
         proxy = Proxy.objects.create(**self.proxy_data)

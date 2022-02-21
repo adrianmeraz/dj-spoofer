@@ -13,4 +13,3 @@ class Command(BaseCommand):
             raise e
         else:
             self.stdout.write(self.style.MIGRATE_LABEL('Finished getting profiles from Intoli'))
-
