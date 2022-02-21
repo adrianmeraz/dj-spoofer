@@ -1,39 +1,20 @@
 import logging
 
-from djstarter import decorators
-from httpx import Client, Timeout, TransportError
+from djstarter.clients import Http2Client
 
 logger = logging.getLogger(__name__)
 
-TIMEOUT = Timeout(connect=5, read=10, write=5, pool=5)
-RETRY_EXCEPTIONS = (
-    TransportError
-)
 
-
-class SpoofedDesktopClient(Client):
+class SpoofedDesktopClient(Http2Client):
     def __init__(self, fingerprint, *args, **kwargs):
         self.fingerprint = fingerprint
         self.proxies = {
             'http://': fingerprint.proxy.http_url,
             'https://': fingerprint.proxy.https_url
         }
-        super().__init__(
-            follow_redirects=True,
-            headers=self.get_headers(),
-            http2=True,
-            proxies=self.proxies,
-            timeout=TIMEOUT,
-            *args,
-            **kwargs
-        )
+        super().__init__(proxies=self.proxies, *args, **kwargs)
 
-    @decorators.retry(retry_exceptions=RETRY_EXCEPTIONS)
-    @decorators.api_error_check
-    def send(self, *args, **kwargs):
-        return super().send(*args, **kwargs)
-
-    def get_headers(self):
+    def init_headers(self):
         return {
             'accept': 'application/json',
             'user-agent': self.fingerprint.user_agent
