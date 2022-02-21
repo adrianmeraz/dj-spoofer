@@ -38,30 +38,3 @@ class SpoofedDesktopClient(Client):
             'accept': 'application/json',
             'user-agent': self.fingerprint.user_agent
         }
-
-
-class SpooferClient(Client):
-    """
-    Http/2 Client
-    """
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(
-            follow_redirects=True,
-            http2=True,
-            headers=self.get_headers(),
-            timeout=TIMEOUT,
-            *args,
-            **kwargs
-        )
-
-    @staticmethod
-    def get_headers():
-        return {
-            'accept': 'application/json',
-        }
-
-    @decorators.retry(retry_exceptions=RETRY_EXCEPTIONS)
-    @decorators.api_error_check
-    def send(self, *args, **kwargs):
-        return super().send(*args, **kwargs)
