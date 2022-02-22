@@ -27,7 +27,7 @@ class SpoofedDesktopClientTests(TestCase):
             user_agent='Test User Agent 1.0',
             viewport_height=1080,
             viewport_width=1920,
-            proxy=proxy
+            # proxy=proxy
         )
 
     @mock.patch.object(SpoofedDesktopClient, '_send_handling_auth')
@@ -40,3 +40,8 @@ class SpoofedDesktopClientTests(TestCase):
         with SpoofedDesktopClient(fingerprint=self.fingerprint) as sd_client:
             sd_client.get('http://example.com')
             self.assertEquals(mock_sd_send.call_count, 1)
+
+    def test_ok_one(self):
+        with SpoofedDesktopClient(fingerprint=self.fingerprint) as sd_client:
+            r_get = sd_client.get('http://reddit.com')
+            print(f'test_ok_one: {r_get}')
