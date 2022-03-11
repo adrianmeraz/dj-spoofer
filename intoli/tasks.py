@@ -1,5 +1,6 @@
 import logging
 
+from ua_parser import user_agent_parser
 from djstarter import decorators
 
 from intoli import intoli_api
@@ -50,4 +51,6 @@ class GetProfiles:
                     weight=profile.weight,
                 )
             )
+            ua_parser = user_agent_parser.Parse(profile.user_agent)
+            print(f'user_agent: {profile.user_agent}\nua_parser: {ua_parser}')
         return new_profiles
