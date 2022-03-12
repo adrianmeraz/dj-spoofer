@@ -3,7 +3,7 @@ from unittest import mock
 from django.test import TestCase
 from httpx import Request, Response, codes
 
-from djspoofer.clients import SpoofedChromeClient
+from djspoofer.clients import DesktopChromeClient
 from djspoofer.models import Fingerprint, Proxy
 
 
@@ -28,13 +28,13 @@ class SpoofedDesktopClientTests(TestCase):
             # proxy=proxy
         )
 
-    @mock.patch.object(SpoofedChromeClient, '_send_handling_auth')
+    @mock.patch.object(DesktopChromeClient, '_send_handling_auth')
     def test_ok(self, mock_sd_send):
         mock_sd_send.return_value = Response(
             request=self.request,
             status_code=codes.OK,
             text='ok'
         )
-        with SpoofedChromeClient(fingerprint=self.fingerprint) as sd_client:
+        with DesktopChromeClient(fingerprint=self.fingerprint) as sd_client:
             sd_client.get('http://example.com')
             self.assertEquals(mock_sd_send.call_count, 1)

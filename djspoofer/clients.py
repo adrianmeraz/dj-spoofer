@@ -1,17 +1,49 @@
 import logging
+from abc import ABC
 
+import httpx
 from djstarter.clients import Http2Client
 from ua_parser import user_agent_parser
 
 logger = logging.getLogger(__name__)
 
 
-class SpoofedChromeClient(Http2Client):
+class DesktopClient(ABC, Http2Client):
+    CIPHERS = ('ECDH+AESGCM:ECDH+CHACHA20:DH+AESGCM:DH+CHACHA20:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+HIGH'
+               ':DH+HIGH:RSA+AESGCM:RSA+AES:RSA+HIGH:!aNULL:!eNULL:!MD5:!3DES')
+
     def __init__(self, fingerprint, *args, **kwargs):
         self.fingerprint = fingerprint
         self.user_agent = fingerprint.user_agent
         self.proxies = self.init_proxies()
-        super().__init__(proxies=self.proxies, *args, **kwargs)
+        super().__init__(proxies=self.proxies, verify=self.ssl_context(), *args, **kwargs)
+
+    def send(self, *args, **kwargs):
+        self.headers.pop('Accept-Encoding', None)
+        self.headers.pop('Connection', None)
+        return super().send(*args, **kwargs)
+
+    def ssl_context(self):
+        context = httpx.create_ssl_context(http2=True)
+        context.set_alpn_protocols(['h2'])
+        context.set_ciphers(self.CIPHERS)
+        return context
+
+    def init_proxies(self):
+        if proxy := self.fingerprint.proxy:
+            return {
+                'http://': proxy.http_url,
+                'https://': proxy.https_url
+            }
+        return dict()
+
+
+class DesktopChromeClient(DesktopClient):
+    CIPHERS = ('ECDH+AESGCM:ECDH+CHACHA20:DH+AESGCM:DH+CHACHA20:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+HIGH'
+               ':DH+HIGH:RSA+AESGCM:RSA+AES:RSA+HIGH:!aNULL:!eNULL:!MD5:!3DES')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def init_headers(self):
         return {
@@ -24,19 +56,6 @@ class SpoofedChromeClient(Http2Client):
             'accept-language': 'en-US,en;q=0.9',
         }
 
-    def init_proxies(self):
-        if proxy := self.fingerprint.proxy:
-            return {
-                'http://': proxy.http_url,
-                'https://': proxy.https_url
-            }
-        return dict()
-
-    def send(self, *args, **kwargs):
-        self.headers.pop('Accept-Encoding', None)
-        self.headers.pop('Connection', None)
-        return super().send(*args, **kwargs)
-
     @property
     def sec_ch_ua(self):
         version = UserAgentParser(self.user_agent).browser_major_version
@@ -48,12 +67,12 @@ class SpoofedChromeClient(Http2Client):
         return f'"{platform}"'
 
 
-class SpoofedFirefoxClient(Http2Client):
-    def __init__(self, fingerprint, *args, **kwargs):
-        self.fingerprint = fingerprint
-        self.user_agent = fingerprint.user_agent
-        self.proxies = self.init_proxies()
-        super().__init__(proxies=self.proxies, *args, **kwargs)
+class DesktopFirefoxClient(DesktopClient):
+    CIPHERS = ('ECDH+AESGCM:ECDH+CHACHA20:DH+AESGCM:DH+CHACHA20:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+HIGH'
+               ':DH+HIGH:RSA+AESGCM:RSA+AES:RSA+HIGH:!aNULL:!eNULL:!MD5:!3DES')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
     def init_headers(self):
         return {
@@ -61,19 +80,6 @@ class SpoofedFirefoxClient(Http2Client):
             'Accept': '*/*',
             'Accept-Language': 'en-US,en;q=0.5',
         }
-
-    def init_proxies(self):
-        if proxy := self.fingerprint.proxy:
-            return {
-                'http://': proxy.http_url,
-                'https://': proxy.https_url
-            }
-        return dict()
-
-    def send(self, *args, **kwargs):
-        self.headers.pop('Accept-Encoding', None)
-        self.headers.pop('Connection', None)
-        return super().send(*args, **kwargs)
 
 
 class UserAgentParser:
