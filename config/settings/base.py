@@ -87,6 +87,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'djstarter',
     'djspoofer',
+    'howsmyssl',
     'intoli',
 ]
 

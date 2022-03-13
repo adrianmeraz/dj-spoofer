@@ -1,16 +1,28 @@
 import logging
+import random
 from abc import ABC
 
 import httpx
 from djstarter.clients import Http2Client
 from ua_parser import user_agent_parser
+from ssl import TLSVersion
 
 logger = logging.getLogger(__name__)
 
 
 class DesktopClient(ABC, Http2Client):
-    CIPHERS = ('ECDH+AESGCM:ECDH+CHACHA20:DH+AESGCM:DH+CHACHA20:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+HIGH'
-               ':DH+HIGH:RSA+AESGCM:RSA+AES:RSA+HIGH:!aNULL:!eNULL:!MD5:!3DES')
+    CIPHERS = ':'.join([
+        "ECDHE+AESGCM",
+        "ECDHE+CHACHA20",
+        "DHE+AESGCM",
+        "DHE+CHACHA20",
+        "ECDH+AESGCM",
+        "DH+AESGCM",
+        "ECDH+AES",
+        "DH+AES",
+        "RSA+AESGCM",
+        "RSA+AES",
+    ])
 
     def __init__(self, fingerprint, *args, **kwargs):
         self.fingerprint = fingerprint
@@ -26,6 +38,7 @@ class DesktopClient(ABC, Http2Client):
     def ssl_context(self):
         context = httpx.create_ssl_context(http2=True)
         context.set_alpn_protocols(['h2'])
+        context.minimum_version = TLSVersion.TLSv1_2
         context.set_ciphers(self.CIPHERS)
         return context
 
@@ -38,9 +51,30 @@ class DesktopClient(ABC, Http2Client):
         return dict()
 
 
+def grease_cipher():
+    val = random.randint(1, 8)
+    return f'TLS_GREASE_IS_THE_WORD_{val}A'
+
+
 class DesktopChromeClient(DesktopClient):
-    CIPHERS = ('ECDH+AESGCM:ECDH+CHACHA20:DH+AESGCM:DH+CHACHA20:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+HIGH'
-               ':DH+HIGH:RSA+AESGCM:RSA+AES:RSA+HIGH:!aNULL:!eNULL:!MD5:!3DES')
+    CIPHERS = ':'.join([
+        grease_cipher(),
+        'AES128-GCM-SHA256',
+        'AES256-GCM-SHA384',
+        'CHACHA20-POLY1305-SHA256',     # TODO Not implemented in ssl module
+        'ECDHE-ECDSA-AES128-GCM-SHA256',
+        'ECDHE-RSA-AES128-GCM-SHA256',
+        'ECDHE-ECDSA-AES256-GCM-SHA384',
+        'ECDHE-RSA-AES256-GCM-SHA384',
+        'ECDHE-ECDSA-CHACHA20-POLY1305',
+        'ECDHE-RSA-CHACHA20-POLY1305',
+        'ECDHE-RSA-AES128-SHA',
+        'ECDHE-RSA-AES256-SHA',
+        'AES128-GCM-SHA256',
+        'AES256-GCM-SHA384',
+        'AES128-SHA',
+        'AES256-SHA',
+    ])
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -68,8 +102,25 @@ class DesktopChromeClient(DesktopClient):
 
 
 class DesktopFirefoxClient(DesktopClient):
-    CIPHERS = ('ECDH+AESGCM:ECDH+CHACHA20:DH+AESGCM:DH+CHACHA20:ECDH+AES256:DH+AES256:ECDH+AES128:DH+AES:ECDH+HIGH'
-               ':DH+HIGH:RSA+AESGCM:RSA+AES:RSA+HIGH:!aNULL:!eNULL:!MD5:!3DES')
+    CIPHERS = ':'.join([
+        'AES128-GCM-SHA256',
+        'CHACHA20-POLY1305-SHA256',     # TODO Not implemented in ssl module
+        'AES256-GCM-SHA384',
+        'ECDHE-ECDSA-AES128-GCM-SHA256',
+        'ECDHE-RSA-AES128-GCM-SHA256',
+        'ECDHE-ECDSA-CHACHA20-POLY1305',
+        'ECDHE-RSA-CHACHA20-POLY1305',
+        'ECDHE-ECDSA-AES256-GCM-SHA384',
+        'ECDHE-RSA-AES256-GCM-SHA384',
+        'ECDHE-ECDSA-AES256-SHA',
+        'ECDHE-ECDSA-AES128-SHA',
+        'ECDHE-RSA-AES128-SHA',
+        'ECDHE-RSA-AES256-SHA',
+        'AES128-GCM-SHA256',
+        'AES256-GCM-SHA384',
+        'AES128-SHA',
+        'AES256-SHA',
+    ])
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
