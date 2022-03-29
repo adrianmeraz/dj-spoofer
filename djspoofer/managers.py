@@ -10,6 +10,10 @@ class FingerprintManager(models.Manager):
     pass
 
 
+class TLSFingerprintManager(models.Manager):
+    pass
+
+
 class ProxyManager(models.Manager):
 
     def create_general_proxy(self, *args, **kwargs):

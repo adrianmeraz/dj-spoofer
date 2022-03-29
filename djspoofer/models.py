@@ -50,6 +50,23 @@ class Proxy(BaseModel):
         self.save()
 
 
+class TLSFingerprint(BaseModel):
+    objects = managers.TLSFingerprintManager()
+
+    extensions = models.IntegerField()
+    ciphers = models.TextField()
+
+    class Meta:
+        db_table = 'djspoofer_tls_fingerprint'
+        ordering = ['-created']
+        app_label = 'djspoofer'
+
+        indexes = [
+            models.Index(fields=['extensions', ], name='tls_fp_extensions_index'),
+            models.Index(fields=['ciphers', ], name='tls_fp_ciphers_index'),
+        ]
+
+
 class Fingerprint(BaseModel):
     objects = managers.FingerprintManager()
 
@@ -60,7 +77,20 @@ class Fingerprint(BaseModel):
     user_agent = models.TextField()
     viewport_height = models.IntegerField()
     viewport_width = models.IntegerField()
-    proxy = models.ForeignKey(to=Proxy, related_name='fingerprints', on_delete=models.CASCADE, blank=True, null=True)
+    proxy = models.ForeignKey(
+        to=Proxy,
+        related_name='fingerprints',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True
+    )
+    tls_fingerprint = models.ForeignKey(
+        to=TLSFingerprint,
+        related_name='fingerprints',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True
+    )
 
     class Meta:
         db_table = 'djspoofer_fingerprint'

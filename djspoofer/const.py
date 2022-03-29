@@ -1,5 +1,4 @@
 import random
-from enum import Enum
 
 from djstarter import utils as core_utils
 

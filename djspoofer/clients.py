@@ -58,9 +58,9 @@ class DesktopClient(ABC, Http2Client):
 
         return context
 
-    def shuffled_ciphers(self, start_shuffle=0, min_k=6):
-        first_ciphers = self.CIPHERS[:start_shuffle]
-        rem_ciphers = self.CIPHERS[start_shuffle:]
+    def shuffled_ciphers(self, start_idx=0, min_k=6):
+        first_ciphers = self.CIPHERS[:start_idx]
+        rem_ciphers = self.CIPHERS[start_idx:]
         k = random.randint(min_k, len(rem_ciphers))
         return first_ciphers + random.sample(rem_ciphers, k=k)
 
@@ -124,7 +124,7 @@ class DesktopChromeClient(DesktopClient):
 
     @property
     def cipher_string(self):
-        return ':'.join([c.value for c in self.shuffled_ciphers(start_shuffle=4)])
+        return ':'.join([c.value for c in self.shuffled_ciphers(start_idx=4)])
 
 
 class DesktopFirefoxClient(DesktopClient):
@@ -153,7 +153,7 @@ class DesktopFirefoxClient(DesktopClient):
 
     @property
     def cipher_string(self):
-        return ':'.join([c.value for c in self.shuffled_ciphers(start_shuffle=3)])
+        return ':'.join([c.value for c in self.shuffled_ciphers(start_idx=3)])
 
 
 class UserAgentParser:
