@@ -89,6 +89,7 @@ INSTALLED_APPS = [
     'djspoofer',
     'howsmyssl',
     'intoli',
+    'ja3er',
 ]
 
 MIDDLEWARE = [

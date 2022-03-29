@@ -1,6 +1,6 @@
 import logging
 
-from djstarter import decorators, utils
+from djstarter import decorators
 
 from .exceptions import HowsMySSLError
 
@@ -14,13 +14,13 @@ def ssl_check(client, *args, **kwargs):
     url = f'{BASE_URL}/a/check'
     r = client.get(url, *args, **kwargs)
     r.raise_for_status()
-    logger.debug(f'r.json(): {utils.pretty_dict(r.json())}')
     return SSLCheckResponse(r.json())
 
 
 class SSLCheckResponse:
 
     def __init__(self, data):
+        self.data = data
         self.given_cipher_suites = data['given_cipher_suites']
         self.ephemeral_keys_supported = data['ephemeral_keys_supported']
         self.session_ticket_supported = data['session_ticket_supported']

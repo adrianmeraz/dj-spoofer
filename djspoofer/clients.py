@@ -1,17 +1,18 @@
 import logging
 import random
 from abc import ABC
+from ssl import Options, TLSVersion
 
 import httpx
 from djstarter.clients import Http2Client
 from ua_parser import user_agent_parser
-from ssl import TLSVersion
+from .const import Ciphers
 
 logger = logging.getLogger(__name__)
 
 
 class DesktopClient(ABC, Http2Client):
-    CIPHERS = ':'.join([
+    CIPHERS = [
         "ECDHE+AESGCM",
         "ECDHE+CHACHA20",
         "DHE+AESGCM",
@@ -22,25 +23,46 @@ class DesktopClient(ABC, Http2Client):
         "DH+AES",
         "RSA+AESGCM",
         "RSA+AES",
-    ])
+    ]
+
+    TLS_EXTENSIONS = (
+        Options.OP_NO_SSLv2,
+        Options.OP_NO_SSLv3,
+        Options.OP_NO_TLSv1,
+        Options.OP_NO_TLSv1_1,
+        Options.OP_CIPHER_SERVER_PREFERENCE,
+        Options.OP_SINGLE_DH_USE,
+        Options.OP_SINGLE_ECDH_USE,
+        Options.OP_NO_COMPRESSION,
+        Options.OP_NO_TICKET,
+        Options.OP_NO_RENEGOTIATION,
+        Options.OP_ENABLE_MIDDLEBOX_COMPAT,
+    )
 
     def __init__(self, fingerprint, *args, **kwargs):
         self.fingerprint = fingerprint
         self.user_agent = fingerprint.user_agent
         self.proxies = self.init_proxies()
-        super().__init__(proxies=self.proxies, verify=self.ssl_context(), *args, **kwargs)
+        super().__init__(proxies=self.proxies, verify=self.new_ssl_context(), *args, **kwargs)
 
     def send(self, *args, **kwargs):
         self.headers.pop('Accept-Encoding', None)
         self.headers.pop('Connection', None)
         return super().send(*args, **kwargs)
 
-    def ssl_context(self):
+    def new_ssl_context(self):
         context = httpx.create_ssl_context(http2=True)
-        context.set_alpn_protocols(['h2'])
         context.minimum_version = TLSVersion.TLSv1_2
-        context.set_ciphers(self.CIPHERS)
+        context.set_ciphers(self.cipher_string)
+        context.options = self.random_tls_extension_int()
+
         return context
+
+    def shuffled_ciphers(self, start_shuffle=0, min_k=6):
+        first_ciphers = self.CIPHERS[:start_shuffle]
+        rem_ciphers = self.CIPHERS[start_shuffle:]
+        k = random.randint(min_k, len(rem_ciphers))
+        return first_ciphers + random.sample(rem_ciphers, k=k)
 
     def init_proxies(self):
         if proxy := self.fingerprint.proxy:
@@ -50,45 +72,41 @@ class DesktopClient(ABC, Http2Client):
             }
         return dict()
 
+    def random_tls_extension_int(self, min_k=4):
+        k = random.randint(min_k, len(self.TLS_EXTENSIONS))
+        ext_val = 0
+        for ext in random.sample(self.TLS_EXTENSIONS, k=k):
+            ext_val |= ext
+        return ext_val
 
-def grease_cipher():
-    val = random.randint(1, 8)
-    return f'TLS_GREASE_IS_THE_WORD_{val}A'
+    @property
+    def cipher_string(self):
+        raise NotImplemented
 
 
 class DesktopChromeClient(DesktopClient):
-    CIPHERS = ':'.join([
-        grease_cipher(),
-        'AES128-GCM-SHA256',
-        'AES256-GCM-SHA384',
-        'CHACHA20-POLY1305-SHA256',     # TODO Not implemented in ssl module
-        'ECDHE-ECDSA-AES128-GCM-SHA256',
-        'ECDHE-RSA-AES128-GCM-SHA256',
-        'ECDHE-ECDSA-AES256-GCM-SHA384',
-        'ECDHE-RSA-AES256-GCM-SHA384',
-        'ECDHE-ECDSA-CHACHA20-POLY1305',
-        'ECDHE-RSA-CHACHA20-POLY1305',
-        'ECDHE-RSA-AES128-SHA',
-        'ECDHE-RSA-AES256-SHA',
-        'AES128-GCM-SHA256',
-        'AES256-GCM-SHA384',
-        'AES128-SHA',
-        'AES256-SHA',
-    ])
+
+    CIPHERS = [
+        Ciphers.TLS_GREASE,
+        Ciphers.TLS_AES_128_GCM_SHA256,
+        Ciphers.TLS_AES_256_GCM_SHA384,
+        Ciphers.TLS_CHACHA20_POLY1305_SHA256,
+        Ciphers.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+        Ciphers.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+        Ciphers.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+        Ciphers.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+        Ciphers.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
+        Ciphers.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
+        Ciphers.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+        Ciphers.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+        Ciphers.TLS_RSA_WITH_AES_128_GCM_SHA256,
+        Ciphers.TLS_RSA_WITH_AES_256_GCM_SHA384,
+        Ciphers.TLS_RSA_WITH_AES_128_CBC_SHA,
+        Ciphers.TLS_RSA_WITH_AES_256_CBC_SHA,
+    ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-    def init_headers(self):
-        return {
-            'sec_ch_ua': self.sec_ch_ua,
-            'sec-ch-ua-mobile': '?0',
-            'sec-ch-ua-platform': self.sec_ch_ua_platform,
-            'upgrade-insecure-requests': '1',
-            'user-agent': self.user_agent,
-            'accept': '*/*',
-            'accept-language': 'en-US,en;q=0.9',
-        }
 
     @property
     def sec_ch_ua(self):
@@ -96,41 +114,46 @@ class DesktopChromeClient(DesktopClient):
         return f'" Not;A Brand";v="99", "Google Chrome";v="{version}", "Chromium";v="{version}"'
 
     @property
+    def sec_ch_ua_mobile(self):
+        return '?0'
+
+    @property
     def sec_ch_ua_platform(self):
         platform = UserAgentParser(self.user_agent).platform
         return f'"{platform}"'
 
+    @property
+    def cipher_string(self):
+        return ':'.join([c.value for c in self.shuffled_ciphers(start_shuffle=4)])
+
 
 class DesktopFirefoxClient(DesktopClient):
-    CIPHERS = ':'.join([
-        'AES128-GCM-SHA256',
-        'CHACHA20-POLY1305-SHA256',     # TODO Not implemented in ssl module
-        'AES256-GCM-SHA384',
-        'ECDHE-ECDSA-AES128-GCM-SHA256',
-        'ECDHE-RSA-AES128-GCM-SHA256',
-        'ECDHE-ECDSA-CHACHA20-POLY1305',
-        'ECDHE-RSA-CHACHA20-POLY1305',
-        'ECDHE-ECDSA-AES256-GCM-SHA384',
-        'ECDHE-RSA-AES256-GCM-SHA384',
-        'ECDHE-ECDSA-AES256-SHA',
-        'ECDHE-ECDSA-AES128-SHA',
-        'ECDHE-RSA-AES128-SHA',
-        'ECDHE-RSA-AES256-SHA',
-        'AES128-GCM-SHA256',
-        'AES256-GCM-SHA384',
-        'AES128-SHA',
-        'AES256-SHA',
-    ])
+    CIPHERS = [
+        Ciphers.TLS_AES_128_GCM_SHA256,
+        Ciphers.TLS_CHACHA20_POLY1305_SHA256,
+        Ciphers.TLS_AES_256_GCM_SHA384,
+        Ciphers.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
+        Ciphers.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
+        Ciphers.TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256,
+        Ciphers.TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256,
+        Ciphers.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
+        Ciphers.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+        Ciphers.TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA,
+        Ciphers.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA,
+        Ciphers.TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA,
+        Ciphers.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+        Ciphers.TLS_RSA_WITH_AES_128_GCM_SHA256,
+        Ciphers.TLS_RSA_WITH_AES_256_GCM_SHA384,
+        Ciphers.TLS_RSA_WITH_AES_128_CBC_SHA,
+        Ciphers.TLS_RSA_WITH_AES_256_CBC_SHA,
+    ]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-    def init_headers(self):
-        return {
-            'User-Agent': self.user_agent,
-            'Accept': '*/*',
-            'Accept-Language': 'en-US,en;q=0.5',
-        }
+    @property
+    def cipher_string(self):
+        return ':'.join([c.value for c in self.shuffled_ciphers(start_shuffle=3)])
 
 
 class UserAgentParser:
