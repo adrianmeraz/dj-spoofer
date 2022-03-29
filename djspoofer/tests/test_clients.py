@@ -4,7 +4,7 @@ from django.test import TestCase
 from httpx import Request, Response, codes
 
 from djspoofer import clients
-from djspoofer.models import Fingerprint, Proxy
+from djspoofer.models import Fingerprint, Proxy, TLSFingerprint
 
 
 class DesktopChromeClientTests(TestCase):
@@ -22,7 +22,7 @@ class DesktopChromeClientTests(TestCase):
             platform='windows',
             screen_height=1080,
             screen_width=1920,
-            user_agent='Test User Agent 1.0',
+            user_agent='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36',
             viewport_height=1080,
             viewport_width=1920,
             # proxy=proxy
@@ -35,9 +35,15 @@ class DesktopChromeClientTests(TestCase):
             status_code=codes.OK,
             text='ok'
         )
-        with clients.DesktopChromeClient(fingerprint=self.fingerprint) as sd_client:
-            sd_client.get('http://example.com')
+        with clients.DesktopChromeClient(fingerprint=self.fingerprint) as chrome_client:
+            chrome_client.get('http://example.com')
             self.assertEquals(mock_sd_send.call_count, 1)
+            self.assertEquals(
+                chrome_client.sec_ch_ua,
+                '" Not;A Brand";v="99", "Google Chrome";v="97", "Chromium";v="97"'
+            )
+            self.assertEquals(chrome_client.sec_ch_ua_mobile, '?0')
+            self.assertEquals(chrome_client.sec_ch_ua_platform, '"Linux"')
 
 
 class DesktopFirefoxClientTests(TestCase):

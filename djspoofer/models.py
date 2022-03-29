@@ -1,4 +1,5 @@
 import datetime
+import random
 
 from django.db import models
 from django.utils import timezone
@@ -65,6 +66,37 @@ class TLSFingerprint(BaseModel):
             models.Index(fields=['extensions', ], name='tls_fp_extensions_index'),
             models.Index(fields=['ciphers', ], name='tls_fp_ciphers_index'),
         ]
+
+    @staticmethod
+    def shuffled_ciphers(ciphers, start_idx=0, min_k=6):
+        first_ciphers = ciphers[:start_idx]
+        rem_ciphers = ciphers[start_idx:]
+        k = random.randint(min_k, len(rem_ciphers))
+        return first_ciphers + random.sample(rem_ciphers, k=k)
+
+    def generate_dt_chrome_cipher_str(self):
+        grease_cipher = f'TLS_GREASE_IS_THE_WORD_{random.randint(1, 8)}A'
+        return ':'.join(
+            [grease_cipher] + [c.value for c in self.shuffled_ciphers(ciphers=const.ChromeDesktopCiphers, start_idx=4)]
+        )
+
+    def generate_dt_firefox_cipher_str(self):
+        return ':'.join([c.value for c in self.shuffled_ciphers(ciphers=const.FirefoxDesktopCiphers, start_idx=3)])
+
+    @staticmethod
+    def random_tls_extension_int(min_k=4):
+        k = random.randint(min_k, len(const.TLS_EXTENSIONS))
+        ext_val = 0
+        for ext in random.sample(const.TLS_EXTENSIONS, k=k):
+            ext_val |= ext
+        return ext_val
+
+    def save(self, *args, **kwargs):
+        if not self.ciphers:
+            self.ciphers = self.generate_dt_chrome_cipher_str()
+        if not self.extensions:
+            self.extensions = self.random_tls_extension_int()
+        super().save(*args, **kwargs)
 
 
 class Fingerprint(BaseModel):
