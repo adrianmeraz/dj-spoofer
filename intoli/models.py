@@ -27,7 +27,8 @@ class Profile(BaseModel):
         ]
 
     def __str__(self):
-        return f'Profile -> user_agent: {self.user_agent}'
+        return (f'Profile -> user_agent: {self.user_agent}, device_category: {self.device_category}, '
+                f'platform: {self.platform}')
 
     @property
     def is_desktop(self):
@@ -36,3 +37,5 @@ class Profile(BaseModel):
     @property
     def is_mobile(self):
         return self.device_category == 'mobile'
+
+

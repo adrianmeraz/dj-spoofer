@@ -9,9 +9,10 @@ class ProxyModes(core_utils.ChoiceEnum):
     STICKY = 30
 
 
-class ClientTypes(core_utils.ChoiceEnum):
-    ChromeDesktop = 20
-    FirefoxDesktop = 30
+class Clients(core_utils.ChoiceEnum):
+    GENERIC = 5
+    CHROME_DESKTOP = 20
+    FIREFOX_DESKTOP = 30
 
 
 class Ciphers(core_utils.ChoiceEnum):
@@ -34,7 +35,7 @@ class Ciphers(core_utils.ChoiceEnum):
     TLS_RSA_WITH_AES_256_CBC_SHA = 'AES256-SHA'
 
 
-ChromeDesktopCiphers = (
+ChromeDesktopCiphers = [
     Ciphers.TLS_AES_128_GCM_SHA256,
     Ciphers.TLS_AES_256_GCM_SHA384,
     Ciphers.TLS_CHACHA20_POLY1305_SHA256,
@@ -50,9 +51,9 @@ ChromeDesktopCiphers = (
     Ciphers.TLS_RSA_WITH_AES_256_GCM_SHA384,
     Ciphers.TLS_RSA_WITH_AES_128_CBC_SHA,
     Ciphers.TLS_RSA_WITH_AES_256_CBC_SHA,
-)
+]
 
-FirefoxDesktopCiphers = (
+FirefoxDesktopCiphers = [
     Ciphers.TLS_AES_128_GCM_SHA256,
     Ciphers.TLS_CHACHA20_POLY1305_SHA256,
     Ciphers.TLS_AES_256_GCM_SHA384,
@@ -69,9 +70,9 @@ FirefoxDesktopCiphers = (
     Ciphers.TLS_RSA_WITH_AES_128_GCM_SHA256,
     Ciphers.TLS_RSA_WITH_AES_256_GCM_SHA384,
     Ciphers.TLS_RSA_WITH_AES_128_CBC_SHA,
-)
+]
 
-TLS_EXTENSIONS = (
+TLS_EXTENSIONS = [
     Options.OP_CIPHER_SERVER_PREFERENCE,
     Options.OP_SINGLE_DH_USE,
     Options.OP_SINGLE_ECDH_USE,
@@ -79,5 +80,5 @@ TLS_EXTENSIONS = (
     Options.OP_NO_TICKET,
     Options.OP_NO_RENEGOTIATION,
     Options.OP_ENABLE_MIDDLEBOX_COMPAT,
-)
+]
 

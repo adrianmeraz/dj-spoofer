@@ -1,7 +1,7 @@
 import logging
 
-from ua_parser import user_agent_parser
 from djstarter import decorators
+from ua_parser import user_agent_parser
 
 from intoli import intoli_api
 from intoli.clients import IntoliClient
@@ -39,18 +39,20 @@ class GetProfiles:
     def build_profiles(r_profiles):
         new_profiles = list()
         for profile in r_profiles.valid_profiles:
+            temp_profile = Profile(
+                device_category=profile.device_category,
+                platform=profile.platform,
+                screen_height=profile.screen_height,
+                screen_width=profile.screen_width,
+                user_agent=profile.user_agent,
+                viewport_height=profile.viewport_height,
+                viewport_width=profile.viewport_width,
+                weight=profile.weight,
+            )
+            print(temp_profile)
             new_profiles.append(
-                Profile(
-                    device_category=profile.device_category,
-                    platform=profile.platform,
-                    screen_height=profile.screen_height,
-                    screen_width=profile.screen_width,
-                    user_agent=profile.user_agent,
-                    viewport_height=profile.viewport_height,
-                    viewport_width=profile.viewport_width,
-                    weight=profile.weight,
-                )
+                temp_profile
             )
             ua_parser = user_agent_parser.Parse(profile.user_agent)
-            print(f'user_agent: {profile.user_agent}\nua_parser: {ua_parser}')
+            print(f'ua_parser: {ua_parser}')
         return new_profiles

@@ -21,3 +21,11 @@ class UtilTests(TestCase):
         self.assertEquals(profile.dob_yyyymmdd, f'{dob.year}-{dob.month:02}-{dob.day:02}')
         self.assertTrue(profile.us_phone_number.startswith('+1'))
         self.assertEquals(len(profile.us_phone_number), 12)
+
+    def test_ua_parser(self):
+        ua = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+              'Chrome/99.0.4844.82 Safari/537.36')
+        ua_parser = utils.UserAgentParser(user_agent=ua)
+        self.assertEquals(ua_parser.browser, 'Chrome')
+        self.assertEquals(ua_parser.browser_major_version, '99')
+        self.assertEquals(ua_parser.platform, 'Windows')

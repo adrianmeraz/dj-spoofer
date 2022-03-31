@@ -2,6 +2,7 @@ import logging
 import random
 
 from faker import Faker
+from ua_parser import user_agent_parser
 
 from . import providers
 
@@ -41,3 +42,20 @@ class FakeProfile:
     @property
     def dob_yyyymmdd(self):
         return self.dob.strftime('%Y-%m-%d')
+
+
+class UserAgentParser:
+    def __init__(self, user_agent):
+        self.ua_parser = user_agent_parser.Parse(user_agent)
+
+    @property
+    def browser(self):
+        return self.ua_parser['user_agent']['family']
+
+    @property
+    def browser_major_version(self):
+        return self.ua_parser['user_agent']['major']
+
+    @property
+    def platform(self):
+        return self.ua_parser['os']['family']

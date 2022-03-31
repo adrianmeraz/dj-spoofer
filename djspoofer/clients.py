@@ -1,12 +1,11 @@
 import logging
-import random
 from abc import ABC
-from ssl import Options, TLSVersion
+from ssl import TLSVersion
 
 import httpx
 from djstarter.clients import Http2Client
-from ua_parser import user_agent_parser
-from .const import Ciphers
+
+from . import utils
 
 logger = logging.getLogger(__name__)
 
@@ -42,13 +41,13 @@ class DesktopClient(ABC, Http2Client):
 
 
 class DesktopChromeClient(DesktopClient):
-
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.ua_parser = utils.UserAgentParser(self.user_agent)
 
     @property
     def sec_ch_ua(self):
-        version = UserAgentParser(self.user_agent).browser_major_version
+        version = self.ua_parser.browser_major_version
         return f'" Not;A Brand";v="99", "Google Chrome";v="{version}", "Chromium";v="{version}"'
 
     @property
@@ -57,27 +56,10 @@ class DesktopChromeClient(DesktopClient):
 
     @property
     def sec_ch_ua_platform(self):
-        platform = UserAgentParser(self.user_agent).platform
+        platform = self.ua_parser.platform
         return f'"{platform}"'
 
 
 class DesktopFirefoxClient(DesktopClient):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-
-
-class UserAgentParser:
-    def __init__(self, user_agent):
-        self.ua_parser = user_agent_parser.Parse(user_agent)
-
-    @property
-    def browser(self):
-        return self.ua_parser['user_agent']['family']
-
-    @property
-    def browser_major_version(self):
-        return self.ua_parser['user_agent']['major']
-
-    @property
-    def platform(self):
-        return self.ua_parser['os']['family']

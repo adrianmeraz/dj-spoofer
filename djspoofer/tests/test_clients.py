@@ -17,15 +17,21 @@ class DesktopChromeClientTests(TestCase):
             url='user123:password456@example.com:4582'
         )
         cls.proxy = proxy
-        cls.fingerprint = Fingerprint.objects.create(
+        fingerprint = Fingerprint.objects.create(
             device_category='desktop',
-            platform='windows',
+            platform='linux',
             screen_height=1080,
             screen_width=1920,
             user_agent='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/97.0.4692.71 Safari/537.36',
             viewport_height=1080,
             viewport_width=1920,
             # proxy=proxy
+        )
+        cls.fingerprint = fingerprint
+        cls.tls_fingerprint = TLSFingerprint.objects.create(
+            extensions=123456789,
+            ciphers='ECDHE+AESGCM:ECDHE+CHACHA20:DHE+AESGCM',
+            fingerprint=fingerprint,
         )
 
     @mock.patch.object(clients.DesktopChromeClient, '_send_handling_auth')
@@ -56,15 +62,21 @@ class DesktopFirefoxClientTests(TestCase):
             url='user123:password456@example.com:4582'
         )
         cls.proxy = proxy
-        cls.fingerprint = Fingerprint.objects.create(
+        fingerprint = Fingerprint.objects.create(
             device_category='desktop',
             platform='windows',
             screen_height=1080,
             screen_width=1920,
-            user_agent='Test User Agent 1.0',
+            user_agent='Mozilla/5.0 (Windows NT 6.3; Win64; x64; rv:74.0) Gecko/20100101 Firefox/74.0',
             viewport_height=1080,
             viewport_width=1920,
             # proxy=proxy
+        )
+        cls.fingerprint = fingerprint
+        cls.tls_fingerprint = TLSFingerprint.objects.create(
+            extensions=123456789,
+            ciphers='ECDHE+AESGCM:ECDHE+CHACHA20:DHE+AESGCM',
+            fingerprint=fingerprint,
         )
 
     @mock.patch.object(clients.DesktopFirefoxClient, '_send_handling_auth')
