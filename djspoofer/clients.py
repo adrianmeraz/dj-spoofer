@@ -15,7 +15,6 @@ class DesktopClient(ABC, Http2Client):
         self.fingerprint = fingerprint
         self.tls_fingerprint = self.fingerprint.tls_fingerprint
         self.user_agent = fingerprint.user_agent
-        self.proxies = self.init_proxies()
         super().__init__(proxies=self.proxies, verify=self.new_ssl_context(), *args, **kwargs)
 
     def send(self, *args, **kwargs):
@@ -31,7 +30,8 @@ class DesktopClient(ABC, Http2Client):
 
         return context
 
-    def init_proxies(self):
+    @property
+    def proxies(self):
         if proxy := self.fingerprint.proxy:
             return {
                 'http://': proxy.http_url,
