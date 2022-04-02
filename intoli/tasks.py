@@ -1,15 +1,12 @@
 import logging
 
 from djstarter import decorators
-from ua_parser import user_agent_parser
 
+from djspoofer import utils as s_utils
 from intoli import intoli_api
 from intoli.clients import IntoliClient
 from intoli.exceptions import IntoliError
 from intoli.models import Profile
-
-from djspoofer import utils as s_utils
-from djstarter import utils
 
 logger = logging.getLogger(__name__)
 
