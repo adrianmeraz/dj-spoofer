@@ -37,5 +37,3 @@ class Profile(BaseModel):
     @property
     def is_mobile(self):
         return self.device_category == 'mobile'
-
-

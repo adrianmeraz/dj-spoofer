@@ -4,6 +4,8 @@ from ssl import TLSVersion
 
 import httpx
 from djstarter.clients import Http2Client
+from intoli.models import Profile
+from .models import Fingerprint, TLSFingerprint
 
 from . import utils
 
@@ -38,6 +40,9 @@ class DesktopClient(ABC, Http2Client):
                 'https://': proxy.https_url
             }
         return dict()
+
+    def temp_fingerprint(self):
+        Profile.objects.random_desktop_profile()
 
 
 class DesktopChromeClient(DesktopClient):
