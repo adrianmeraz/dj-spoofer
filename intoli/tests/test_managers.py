@@ -40,15 +40,15 @@ class ProfileManagerTests(TestCase):
             ['My User Agent 1.0', 'The 2nd User Agent 2.0']
         )
 
-    def test_random_desktop_profile(self):
+    def test_random_desktop_chrome_profile(self):
         with self.assertRaises(exceptions.IntoliError):
             Profile.objects.random_desktop_profile()
 
-        Profile.objects.create(device_category='desktop', **self.profile_data)
+        Profile.objects.create(browser='Chrome', device_category='desktop', **self.profile_data)
 
         profile = Profile.objects.random_desktop_profile()
 
-        self.assertEquals(profile.data, 'My User Agent 1.0')
+        self.assertEquals(profile.user_agent, 'My User Agent 1.0')
 
     def test_random_mobile_profile(self):
         with self.assertRaises(exceptions.IntoliError):
@@ -58,17 +58,17 @@ class ProfileManagerTests(TestCase):
 
         profile = Profile.objects.random_mobile_profile()
 
-        self.assertEquals(profile.data, 'My User Agent 1.0')
+        self.assertEquals(profile.user_agent, 'My User Agent 1.0')
 
-    def test_weighted_desktop_user_agent(self):
+    def test_weighted_desktop_chrome_user_agent(self):
         with self.assertRaises(exceptions.IntoliError):
             Profile.objects.weighted_desktop_profile()
 
-        Profile.objects.create(device_category='desktop', **self.profile_data)
+        Profile.objects.create(browser='Chrome', device_category='desktop', **self.profile_data)
 
         profile = Profile.objects.weighted_desktop_profile()
 
-        self.assertEquals(profile.data, 'My User Agent 1.0')
+        self.assertEquals(profile.user_agent, 'My User Agent 1.0')
 
     def test_weighted_mobile_user_agent(self):
         with self.assertRaises(exceptions.IntoliError):
@@ -78,7 +78,7 @@ class ProfileManagerTests(TestCase):
 
         profile = Profile.objects.weighted_mobile_profile()
 
-        self.assertEquals(profile.data, 'My User Agent 1.0')
+        self.assertEquals(profile.user_agent, 'My User Agent 1.0')
 
     def test_bulk_delete(self):
         profile = Profile.objects.create(device_category='desktop', **self.profile_data)

@@ -6,6 +6,8 @@ from . import exceptions
 
 
 class ProfileManager(models.Manager):
+    SUPPORTED_BROWSERS = ('Chrome', 'Firefox')
+
     def all_oids(self):
         return super().get_queryset().values_list('oid', flat=True)
 
@@ -13,8 +15,7 @@ class ProfileManager(models.Manager):
         return super().get_queryset().values_list('user_agent', flat=True)
 
     def all_desktop_profiles(self):
-        supported_browsers = ('Chrome', 'Firefox')
-        return super().get_queryset().filter(device_category='desktop', browser__in=supported_browsers)
+        return super().get_queryset().filter(device_category='desktop', browser__in=self.SUPPORTED_BROWSERS)
 
     def all_mobile_profiles(self):
         return super().get_queryset().filter(device_category='mobile')
