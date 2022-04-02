@@ -50,3 +50,4 @@ class ProfileManager(models.Manager):
 
     def bulk_delete(self, oids):
         return super().get_queryset().filter(oid__in=oids).delete()
+
