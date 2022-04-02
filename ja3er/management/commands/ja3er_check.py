@@ -25,17 +25,17 @@ class Command(BaseCommand):
         profile = Profile.objects.weighted_desktop_profile()
         return Fingerprint(
             device_category=profile.device_category,
-            platform=profile.platform,
+            platform=profile.os,
             screen_height=profile.screen_height,
             screen_width=profile.screen_width,
-            user_agent=profile.user_agent,
+            user_agent=profile.data,
             viewport_height=profile.viewport_height,
             viewport_width=profile.viewport_width,
             # proxy=proxy
         )
 
     def get_ja3_details(self, chrome_client):
-        self.stdout.write(f'Spoofed User Agent: {chrome_client.user_agent}')
+        self.stdout.write(f'Spoofed User Agent: {chrome_client.data}')
 
         self.stdout.write(utils.eye_catcher_line('JA3 Details'))
         r_json = ja3er_api.get_json(chrome_client)

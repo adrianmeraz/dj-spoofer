@@ -13,8 +13,8 @@ class ProfileManager(models.Manager):
         return super().get_queryset().values_list('user_agent', flat=True)
 
     def all_desktop_profiles(self):
-        # compatible_browsers = ('chrome, ')
-        return super().get_queryset().filter(device_category='desktop')
+        supported_browsers = ('Chrome', 'Firefox')
+        return super().get_queryset().filter(device_category='desktop', browser__in=supported_browsers)
 
     def all_mobile_profiles(self):
         return super().get_queryset().filter(device_category='mobile')

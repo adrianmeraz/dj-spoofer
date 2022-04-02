@@ -16,7 +16,7 @@ class DesktopClient(ABC, Http2Client):
     def __init__(self, fingerprint, *args, **kwargs):
         self.fingerprint = fingerprint
         self.tls_fingerprint = self.fingerprint.tls_fingerprint
-        self.user_agent = fingerprint.user_agent
+        self.user_agent = fingerprint.data
         super().__init__(proxies=self.proxies, verify=self.new_ssl_context(), *args, **kwargs)
 
     def send(self, *args, **kwargs):
@@ -61,7 +61,7 @@ class DesktopChromeClient(DesktopClient):
 
     @property
     def sec_ch_ua_platform(self):
-        platform = self.ua_parser.platform
+        platform = self.ua_parser.os
         return f'"{platform}"'
 
 

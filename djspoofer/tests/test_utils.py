@@ -28,4 +28,4 @@ class UtilTests(TestCase):
         ua_parser = utils.UserAgentParser(user_agent=ua)
         self.assertEquals(ua_parser.browser, 'Chrome')
         self.assertEquals(ua_parser.browser_major_version, '99')
-        self.assertEquals(ua_parser.platform, 'Windows')
+        self.assertEquals(ua_parser.os, 'Windows')

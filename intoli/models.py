@@ -7,8 +7,10 @@ from . import managers
 class Profile(BaseModel):
     objects = managers.ProfileManager()
 
-    device_category = models.CharField(max_length=16)
-    platform = models.CharField(max_length=16)
+    browser = models.CharField(max_length=32)
+    device_category = models.CharField(max_length=32)
+    os = models.CharField(max_length=32)
+    platform = models.CharField(max_length=32)
     screen_height = models.IntegerField()
     screen_width = models.IntegerField()
     user_agent = models.TextField()
@@ -22,8 +24,10 @@ class Profile(BaseModel):
         app_label = 'intoli'
 
         indexes = [
-            models.Index(fields=['device_category', ], name='device_category_index'),
-            models.Index(fields=['platform', ], name='platform_index'),
+            models.Index(fields=['browser', ], name='profile_browser'),
+            models.Index(fields=['device_category', ], name='profile_device_category'),
+            models.Index(fields=['os', ], name='profile_os'),
+            models.Index(fields=['platform', ], name='profile_platform'),
         ]
 
     def __str__(self):
