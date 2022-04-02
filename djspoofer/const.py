@@ -9,12 +9,6 @@ class ProxyModes(core_utils.ChoiceEnum):
     STICKY = 30
 
 
-class Clients(core_utils.ChoiceEnum):
-    GENERIC = 5
-    CHROME_DESKTOP = 20
-    FIREFOX_DESKTOP = 30
-
-
 class Ciphers(core_utils.ChoiceEnum):
     TLS_AES_128_GCM_SHA256 = 'AES128-GCM-SHA256'
     TLS_CHACHA20_POLY1305_SHA256 = 'CHACHA20-POLY1305-SHA256'

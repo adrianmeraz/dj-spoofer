@@ -96,7 +96,7 @@ class Fingerprint(BaseModel):
 
     @property
     def ua_platform(self):
-        return utils.UserAgentParser(self.user_agent).platform
+        return utils.UserAgentParser(self.user_agent).os
 
 
 class TLSFingerprint(BaseModel):

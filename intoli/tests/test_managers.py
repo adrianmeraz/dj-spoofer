@@ -40,11 +40,11 @@ class ProfileManagerTests(TestCase):
             ['My User Agent 1.0', 'The 2nd User Agent 2.0']
         )
 
-    def test_random_desktop_profile(self):
+    def test_random_desktop_chrome_profile(self):
         with self.assertRaises(exceptions.IntoliError):
             Profile.objects.random_desktop_profile()
 
-        Profile.objects.create(device_category='desktop', **self.profile_data)
+        Profile.objects.create(browser='Chrome', device_category='desktop', **self.profile_data)
 
         profile = Profile.objects.random_desktop_profile()
 
@@ -60,11 +60,11 @@ class ProfileManagerTests(TestCase):
 
         self.assertEquals(profile.user_agent, 'My User Agent 1.0')
 
-    def test_weighted_desktop_user_agent(self):
+    def test_weighted_desktop_chrome_user_agent(self):
         with self.assertRaises(exceptions.IntoliError):
             Profile.objects.weighted_desktop_profile()
 
-        Profile.objects.create(device_category='desktop', **self.profile_data)
+        Profile.objects.create(browser='Chrome', device_category='desktop', **self.profile_data)
 
         profile = Profile.objects.weighted_desktop_profile()
 

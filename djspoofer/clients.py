@@ -61,7 +61,7 @@ class DesktopChromeClient(DesktopClient):
 
     @property
     def sec_ch_ua_platform(self):
-        platform = self.ua_parser.platform
+        platform = self.ua_parser.os
         return f'"{platform}"'
 
 
