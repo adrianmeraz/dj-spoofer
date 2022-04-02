@@ -26,6 +26,24 @@ class UtilTests(TestCase):
         ua = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
               'Chrome/99.0.4844.82 Safari/537.36')
         ua_parser = utils.UserAgentParser(user_agent=ua)
+
+        self.assertEquals(
+            str(ua_parser),
+            ("UserAgentParser -> {'user_agent': {'family': 'Chrome', 'major': '99', 'minor': '0', 'patch': '4844'}, 'os': {'family': 'Windows', 'major': '10', 'minor': None, 'patch': None, 'patch_minor': None}, 'device': {'family': 'Other', 'brand': None, 'model': None}, 'string': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.82 Safari/537.36'}")
+        )
+
+        user_agent = ua_parser._user_agent
+        self.assertEquals(user_agent.family, 'Chrome')
+        self.assertEquals(user_agent.major, '99')
+        self.assertEquals(user_agent.minor, '0')
+        self.assertEquals(user_agent.patch, '4844')
+
+        os = ua_parser._os
+        self.assertEquals(os.family, 'Windows')
+        self.assertEquals(os.major, '10')
+        self.assertIsNone(os.minor)
+        self.assertIsNone(os.patch)
+
         self.assertEquals(ua_parser.browser, 'Chrome')
         self.assertEquals(ua_parser.browser_major_version, '99')
-        self.assertEquals(ua_parser.platform, 'Windows')
+        self.assertEquals(ua_parser.os, 'Windows')

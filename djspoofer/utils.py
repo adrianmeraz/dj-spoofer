@@ -45,17 +45,45 @@ class FakeProfile:
 
 
 class UserAgentParser:
+    class UserAgent:
+        def __init__(self, data):
+            self.data = data
+
+        @property
+        def family(self):
+            return self.data['family']
+
+        @property
+        def major(self):
+            return self.data['major']
+
+        @property
+        def minor(self):
+            return self.data['minor']
+
+        @property
+        def patch(self):
+            return self.data['patch']
+
+    class OS(UserAgent):
+        pass
+
     def __init__(self, user_agent):
         self.ua_parser = user_agent_parser.Parse(user_agent)
+        self._user_agent = self.UserAgent(self.ua_parser['user_agent'])
+        self._os = self.OS(self.ua_parser['os'])
 
     @property
     def browser(self):
-        return self.ua_parser['user_agent']['family']
+        return self._user_agent.family
 
     @property
     def browser_major_version(self):
-        return self.ua_parser['user_agent']['major']
+        return self._user_agent.major
 
     @property
-    def platform(self):
-        return self.ua_parser['os']['family']
+    def os(self):
+        return self._os.family
+
+    def __str__(self):
+        return f'UserAgentParser -> {self.ua_parser}'

@@ -1,8 +1,8 @@
 import logging
 
 from djstarter import decorators
-from ua_parser import user_agent_parser
 
+from djspoofer import utils as s_utils
 from intoli import intoli_api
 from intoli.clients import IntoliClient
 from intoli.exceptions import IntoliError
@@ -32,15 +32,18 @@ class GetProfiles:
         except Exception as e:
             raise IntoliError(info=f'Error adding user agents: {str(e)}')
         else:
-            logger.info(f'Created New Intoli Profiles: {len(new_profiles)}')
-            logger.info(f'Deleted Old Intoli Profiles: {Profile.objects.bulk_delete(oids=old_oids)[0]}')
+            print(f'Created New Intoli Profiles: {len(new_profiles)}')
+            print(f'Deleted Old Intoli Profiles: {Profile.objects.bulk_delete(oids=old_oids)[0]}')
 
     @staticmethod
     def build_profiles(r_profiles):
         new_profiles = list()
         for profile in r_profiles.valid_profiles:
+            ua_parser = s_utils.UserAgentParser(profile.user_agent)
             temp_profile = Profile(
+                browser=ua_parser.browser,
                 device_category=profile.device_category,
+                os=ua_parser.os,
                 platform=profile.platform,
                 screen_height=profile.screen_height,
                 screen_width=profile.screen_width,
@@ -49,10 +52,6 @@ class GetProfiles:
                 viewport_width=profile.viewport_width,
                 weight=profile.weight,
             )
-            print(temp_profile)
-            new_profiles.append(
-                temp_profile
-            )
-            ua_parser = user_agent_parser.Parse(profile.user_agent)
-            print(f'ua_parser: {ua_parser}')
+            new_profiles.append(temp_profile)
+            print(f'{temp_profile}\n{ua_parser}\n')
         return new_profiles
