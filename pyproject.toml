@@ -7,7 +7,7 @@ repository = "https://github.com/adrianmeraz/dj-spoofer"
 
 packages = [
     { include = "djspoofer" }
-]K
+]
 exclude = [
     "manage.py"
 ]
