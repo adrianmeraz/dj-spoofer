@@ -1,32 +1,12 @@
 import logging
 import random
-from collections import OrderedDict
 
 from faker import Faker
-from httpx import Client
+from ua_parser import user_agent_parser
 
-from . import models, providers
+from . import providers
 
 logger = logging.getLogger(__name__)
-
-
-class SpoofSession(Client):
-    def __init__(self, proxy_str=None, user_agent=None):
-        self.proxies = {
-            'http://': f'http://{proxy_str}/',
-            'https://': f'https://{proxy_str}/'
-        }
-        self.headers = {
-            'User-Agent': user_agent or models.Profile.objects.weighted_desktop_user_agent()
-        }
-        super().__init__(proxies=self.proxies, headers=self.headers)
-
-    def update_headers(self, new_headers):
-        self.headers = OrderedDict({**self.headers, **self.clean_headers(new_headers)})
-
-    @classmethod
-    def clean_headers(cls, headers):
-        return OrderedDict({k: v for k, v in headers.items() if v})
 
 
 fake = Faker('en_US')
@@ -62,3 +42,20 @@ class FakeProfile:
     @property
     def dob_yyyymmdd(self):
         return self.dob.strftime('%Y-%m-%d')
+
+
+class UserAgentParser:
+    def __init__(self, user_agent):
+        self.ua_parser = user_agent_parser.Parse(user_agent)
+
+    @property
+    def browser(self):
+        return self.ua_parser['user_agent']['family']
+
+    @property
+    def browser_major_version(self):
+        return self.ua_parser['user_agent']['major']
+
+    @property
+    def platform(self):
+        return self.ua_parser['os']['family']

@@ -1,8 +1,8 @@
 from django.core.management.base import BaseCommand
+from djstarter.clients import Http2Client
 from httpx import Client
 
-from spoof import utils as spoof_utils
-from ... import models
+from djspoofer.models import Proxy
 
 
 class Command(BaseCommand):
@@ -28,7 +28,7 @@ class Command(BaseCommand):
                 with Client() as client:
                     client.get(url)
             else:
-                with spoof_utils.SpoofSession(proxy_str=models.Proxy.objects.get_rotating_proxy().url) as client:
+                with Http2Client(proxy_str=Proxy.objects.get_rotating_proxy().url) as client:
                     client.get(url)
 
         except Exception as e:

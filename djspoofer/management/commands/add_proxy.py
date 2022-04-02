@@ -1,6 +1,7 @@
 from django.core.management.base import BaseCommand
 
-from ... import models
+from djspoofer import const
+from djspoofer.models import Proxy
 
 
 class Command(BaseCommand):
@@ -9,7 +10,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             "--mode",
-            choices=models.Proxy.Modes.labels(),
+            choices=const.ProxyModes.labels(),
             required=True,
             type=str,
             help="Sets the proxy mode",
@@ -35,8 +36,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         try:
-            proxy = models.Proxy.objects.create(
-                mode=models.Proxy.Modes.by_label(kwargs['mode']),
+            proxy = Proxy.objects.create(
+                mode=const.ProxyModes.by_label(kwargs['mode']),
                 url=kwargs['url'],
                 country=kwargs['country'],
                 city=kwargs['city'],
