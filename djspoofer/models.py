@@ -54,8 +54,10 @@ class Proxy(BaseModel):
 class Fingerprint(BaseModel):
     objects = managers.FingerprintManager()
 
-    device_category = models.CharField(max_length=16)
-    platform = models.CharField(max_length=16)
+    browser = models.CharField(max_length=32)
+    device_category = models.CharField(max_length=32)
+    os = models.CharField(max_length=32)
+    platform = models.CharField(max_length=32)
     screen_height = models.IntegerField()
     screen_width = models.IntegerField()
     user_agent = models.TextField()
@@ -81,22 +83,6 @@ class Fingerprint(BaseModel):
 
     def __str__(self):
         return f'Fingerprint -> user_agent: {self.user_agent}'
-
-    @property
-    def is_desktop(self):
-        return self.device_category == 'desktop'
-
-    @property
-    def is_mobile(self):
-        return self.device_category == 'mobile'
-
-    @property
-    def ua_browser(self):
-        return utils.UserAgentParser(self.user_agent).browser
-
-    @property
-    def ua_platform(self):
-        return utils.UserAgentParser(self.user_agent).os
 
 
 class TLSFingerprint(BaseModel):
@@ -151,7 +137,8 @@ class TLSFingerprint(BaseModel):
 
     def save(self, *args, **kwargs):
         if not self.ciphers:
-            self.ciphers = self.DESKTOP_CLIENT_CIPHER_MAP[self.fingerprint.ua_browser](self)
+            ua_parser = utils.UserAgentParser(self.fingerprint.user_agent)
+            self.ciphers = self.DESKTOP_CLIENT_CIPHER_MAP[ua_parser.browser](self)
         if not self.extensions:
             self.extensions = self.random_tls_extension_int()
         super().save(*args, **kwargs)

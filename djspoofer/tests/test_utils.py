@@ -23,9 +23,9 @@ class UtilTests(TestCase):
         self.assertEquals(len(profile.us_phone_number), 12)
 
     def test_ua_parser(self):
-        ua = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-              'Chrome/99.0.4844.82 Safari/537.36')
-        ua_parser = utils.UserAgentParser(user_agent=ua)
+        user_agent = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                      'Chrome/99.0.4844.82 Safari/537.36')
+        ua_parser = utils.UserAgentParser(user_agent=user_agent)
 
         self.assertEquals(
             str(ua_parser),

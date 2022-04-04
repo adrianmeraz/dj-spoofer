@@ -27,22 +27,6 @@ class FingerprintTests(TestCase):
         fp = Fingerprint.objects.create(**self.fingerprint_data)
         self.assertEqual(str(fp), f'Fingerprint -> user_agent: {self.fingerprint_data["user_agent"]}')
 
-    def test_is_desktop(self):
-        fp = Fingerprint.objects.create(**self.fingerprint_data)
-        self.assertFalse(fp.is_desktop)
-
-    def test_is_mobile(self):
-        fp = Fingerprint.objects.create(**self.fingerprint_data)
-        self.assertTrue(fp.is_mobile)
-
-    def test_ua_browser(self):
-        fp = Fingerprint.objects.create(**self.fingerprint_data)
-        self.assertTrue(fp.ua_browser)
-
-    def test_ua_platform(self):
-        fp = Fingerprint.objects.create(**self.fingerprint_data)
-        self.assertTrue(fp.ua_platform)
-
 
 class TLSFingerprintTests(TestCase):
     """
