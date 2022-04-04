@@ -34,7 +34,9 @@ class Command(BaseCommand):
     def create_fingerprint():
         profile = Profile.objects.random_desktop_profile()
         fingerprint = Fingerprint.objects.create(
+            browser=profile.browser,
             device_category=profile.device_category,
+            os=profile.os,
             platform=profile.platform,
             screen_height=profile.screen_height,
             screen_width=profile.screen_width,
