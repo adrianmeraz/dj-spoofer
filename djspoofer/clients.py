@@ -4,10 +4,9 @@ from ssl import TLSVersion
 
 import httpx
 from djstarter.clients import Http2Client
-from intoli.models import Profile
-from .models import Fingerprint, TLSFingerprint
 
 from . import utils
+from .models import Fingerprint
 
 logger = logging.getLogger(__name__)
 
@@ -48,20 +47,7 @@ class DesktopClient(ABC, Http2Client):
 
     @staticmethod
     def temp_fingerprint():
-        profile = Profile.objects.random_desktop_profile()
-        fingerprint = Fingerprint.objects.create(
-            device_category=profile.device_category,
-            platform=profile.platform,
-            screen_height=profile.screen_height,
-            screen_width=profile.screen_width,
-            user_agent=profile.user_agent,
-            viewport_height=profile.viewport_height,
-            viewport_width=profile.viewport_width,
-        )
-        TLSFingerprint.objects.create(
-            fingerprint=fingerprint
-        )
-        return fingerprint
+        return Fingerprint.objects.get_random_desktop_fingerprint()
 
 
 class DesktopChromeClient(DesktopClient):

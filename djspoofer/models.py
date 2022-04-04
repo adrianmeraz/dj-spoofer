@@ -54,8 +54,10 @@ class Proxy(BaseModel):
 class Fingerprint(BaseModel):
     objects = managers.FingerprintManager()
 
-    device_category = models.CharField(max_length=16)
-    platform = models.CharField(max_length=16)
+    browser = models.CharField(max_length=32)
+    device_category = models.CharField(max_length=32)
+    os = models.CharField(max_length=32)
+    platform = models.CharField(max_length=32)
     screen_height = models.IntegerField()
     screen_width = models.IntegerField()
     user_agent = models.TextField()
@@ -81,14 +83,6 @@ class Fingerprint(BaseModel):
 
     def __str__(self):
         return f'Fingerprint -> user_agent: {self.user_agent}'
-
-    @property
-    def is_desktop(self):
-        return self.device_category == 'desktop'
-
-    @property
-    def is_mobile(self):
-        return self.device_category == 'mobile'
 
 
 class TLSFingerprint(BaseModel):

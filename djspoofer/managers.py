@@ -3,11 +3,19 @@ from django.db import transaction
 from django.db.models import F, Q
 from django.utils import timezone
 
+from djspoofer import exceptions
 from . import const
 
 
 class FingerprintManager(models.Manager):
-    pass
+    def all_desktop_profiles(self):
+        return super().get_queryset().filter(device_category='desktop', browser__in=const.SUPPORTED_BROWSERS)
+
+    def get_random_desktop_fingerprint(self):
+        try:
+            return self.all_desktop_profiles().order_by('?')[0]
+        except Exception:
+            raise exceptions.DJSpooferError('No Desktop Fingerprints Exist')
 
 
 class TLSFingerprintManager(models.Manager):

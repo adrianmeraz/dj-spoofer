@@ -1,7 +1,34 @@
 from django.test import TestCase
 
-from djspoofer import const
-from djspoofer.models import Proxy
+from djspoofer import const, exceptions
+from djspoofer.models import Fingerprint, Proxy
+
+
+class FingerprintManagerTests(TestCase):
+    """
+    FingerprintManager Tests
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.fingerprint_data = {
+            'device_category': 'desktop',
+            'platform': 'US',
+            'screen_height': 1920,
+            'screen_width': 1080,
+            'user_agent': ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                           'Chrome/99.0.4844.74 Safari/537.36'),
+            'viewport_height': 768,
+            'viewport_width': 1024,
+        }
+
+    def test_get_rotating_proxy(self):
+        # Fingerprint.objects.create(**self.fingerprint_data)
+        with self.assertRaises(exceptions.DJSpooferError):
+            Fingerprint.objects.get_random_desktop_fingerprint()
+
+        Fingerprint.objects.create(**self.fingerprint_data)
+        self.assertIsNotNone(Fingerprint.objects.get_random_desktop_fingerprint())
 
 
 class ProxyManagerTests(TestCase):

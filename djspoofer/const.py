@@ -76,3 +76,7 @@ TLS_EXTENSIONS = [
     Options.OP_ENABLE_MIDDLEBOX_COMPAT,
 ]
 
+SUPPORTED_BROWSERS = (
+    'Chrome',
+    'Firefox',
+)
