@@ -1,10 +1,10 @@
 import logging
 
 from djstarter import decorators
+from djstarter.clients import Http2Client
 
 from djspoofer import utils as s_utils
 from intoli import intoli_api
-from intoli.clients import IntoliClient
 from intoli.exceptions import IntoliError
 from intoli.models import Profile
 
@@ -21,8 +21,8 @@ class GetProfiles:
         pass
 
     def start(self):
-        with IntoliClient() as i_client:
-            r_profiles = intoli_api.get_profiles(i_client)
+        with Http2Client() as client:
+            r_profiles = intoli_api.get_profiles(client)
 
         old_oids = list(Profile.objects.all_oids())
         profiles = self.build_profiles(r_profiles)

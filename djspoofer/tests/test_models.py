@@ -55,9 +55,8 @@ class TLSFingerprintTests(TestCase):
         }
 
     def test_ciphers(self):
-        user_agent = self.fingerprint_data['user_agent']
         fp = Fingerprint.objects.create(**self.fingerprint_data)
-        tls_fp = TLSFingerprint.objects.create(user_agent=user_agent, fingerprint=fp)
+        tls_fp = TLSFingerprint.objects.create(fingerprint=fp)
         self.assertTrue(':' in tls_fp.ciphers)
 
     def test_extensions(self):

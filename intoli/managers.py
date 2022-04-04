@@ -22,13 +22,13 @@ class ProfileManager(models.Manager):
 
     def random_desktop_profile(self):
         try:
-            return random.choice(list(self.all_desktop_profiles()))
+            return self.all_desktop_profiles().order_by('?')[0]
         except Exception:
             raise exceptions.IntoliError('No Desktop Profiles Exist')
 
     def random_mobile_profile(self):
         try:
-            return random.choice(list(self.all_mobile_profiles()))
+            return self.all_mobile_profiles().order_by('?')[0]
         except Exception:
             raise exceptions.IntoliError('No Mobile Profiles Exist')
 

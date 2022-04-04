@@ -143,7 +143,8 @@ class TLSFingerprint(BaseModel):
 
     def save(self, *args, **kwargs):
         if not self.ciphers:
-            self.ciphers = self.DESKTOP_CLIENT_CIPHER_MAP[self.fingerprint.user_agent](self)
+            ua_parser = utils.UserAgentParser(self.fingerprint.user_agent)
+            self.ciphers = self.DESKTOP_CLIENT_CIPHER_MAP[ua_parser.browser](self)
         if not self.extensions:
             self.extensions = self.random_tls_extension_int()
         super().save(*args, **kwargs)

@@ -2,8 +2,6 @@ from django.core.management.base import BaseCommand
 from djstarter import utils
 
 from djspoofer.clients import DesktopChromeClient
-from djspoofer.models import Fingerprint
-from intoli.models import Profile
 from ja3er import ja3er_api
 
 
@@ -12,27 +10,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         try:
-            with DesktopChromeClient(self.get_temp_fingerprint()) as chrome_client:
+            with DesktopChromeClient() as chrome_client:
                 self.get_ja3_details(chrome_client)
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error while running command:\n{str(e)}'))
             raise e
         else:
             self.stdout.write(self.style.MIGRATE_LABEL(f'Successfully got ja3er details'))
-
-    @staticmethod
-    def get_temp_fingerprint():
-        profile = Profile.objects.weighted_desktop_profile()
-        return Fingerprint(
-            device_category=profile.device_category,
-            platform=profile.os,
-            screen_height=profile.screen_height,
-            screen_width=profile.screen_width,
-            user_agent=profile.data,
-            viewport_height=profile.viewport_height,
-            viewport_width=profile.viewport_width,
-            # proxy=proxy
-        )
 
     def get_ja3_details(self, chrome_client):
         self.stdout.write(f'Spoofed User Agent: {chrome_client.data}')

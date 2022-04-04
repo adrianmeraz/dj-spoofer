@@ -13,8 +13,8 @@ logger = logging.getLogger(__name__)
 
 
 class DesktopClient(ABC, Http2Client):
-    def __init__(self, fingerprint, *args, **kwargs):
-        self.fingerprint = fingerprint
+    def __init__(self, fingerprint=None, *args, **kwargs):
+        self.fingerprint = fingerprint or self.temp_fingerprint()
         self.tls_fingerprint = self.fingerprint.tls_fingerprint
         self.user_agent = fingerprint.user_agent
         super().__init__(proxies=self.proxies, verify=self.new_ssl_context(), *args, **kwargs)
