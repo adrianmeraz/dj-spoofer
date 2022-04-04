@@ -35,14 +35,6 @@ class FingerprintTests(TestCase):
         fp = Fingerprint.objects.create(**self.fingerprint_data)
         self.assertTrue(fp.is_mobile)
 
-    def test_ua_browser(self):
-        fp = Fingerprint.objects.create(**self.fingerprint_data)
-        self.assertTrue(fp.ua_browser)
-
-    def test_ua_platform(self):
-        fp = Fingerprint.objects.create(**self.fingerprint_data)
-        self.assertTrue(fp.ua_platform)
-
 
 class TLSFingerprintTests(TestCase):
     """
@@ -63,8 +55,9 @@ class TLSFingerprintTests(TestCase):
         }
 
     def test_ciphers(self):
+        user_agent = self.fingerprint_data['user_agent']
         fp = Fingerprint.objects.create(**self.fingerprint_data)
-        tls_fp = TLSFingerprint.objects.create(fingerprint=fp)
+        tls_fp = TLSFingerprint.objects.create(user_agent=user_agent, fingerprint=fp)
         self.assertTrue(':' in tls_fp.ciphers)
 
     def test_extensions(self):

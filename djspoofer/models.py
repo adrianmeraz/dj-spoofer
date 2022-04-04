@@ -90,14 +90,6 @@ class Fingerprint(BaseModel):
     def is_mobile(self):
         return self.device_category == 'mobile'
 
-    @property
-    def ua_browser(self):
-        return utils.UserAgentParser(self.user_agent).browser
-
-    @property
-    def ua_platform(self):
-        return utils.UserAgentParser(self.user_agent).os
-
 
 class TLSFingerprint(BaseModel):
     objects = managers.TLSFingerprintManager()
@@ -151,7 +143,7 @@ class TLSFingerprint(BaseModel):
 
     def save(self, *args, **kwargs):
         if not self.ciphers:
-            self.ciphers = self.DESKTOP_CLIENT_CIPHER_MAP[self.fingerprint.ua_browser](self)
+            self.ciphers = self.DESKTOP_CLIENT_CIPHER_MAP[self.fingerprint.user_agent](self)
         if not self.extensions:
             self.extensions = self.random_tls_extension_int()
         super().save(*args, **kwargs)
