@@ -43,10 +43,10 @@ class DesktopChromeClientTests(TestCase):
             self.assertEquals(mock_sd_send.call_count, 1)
             self.assertEquals(
                 chrome_client.sec_ch_ua,
-                '" Not;A Brand";v="99", "Google Chrome";v="97", "Chromium";v="97"'
+                '" Not;A Brand";v="99", "Google Chrome";v="99", "Chromium";v="99"'
             )
             self.assertEquals(chrome_client.sec_ch_ua_mobile, '?0')
-            self.assertEquals(chrome_client.sec_ch_ua_platform, '"Linux"')
+            self.assertEquals(chrome_client.sec_ch_ua_platform, '"Windows"')
 
 
 class DesktopFirefoxClientTests(TestCase):

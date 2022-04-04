@@ -19,7 +19,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.MIGRATE_LABEL(f'Successfully got ja3er details'))
 
     def get_ja3_details(self, chrome_client):
-        self.stdout.write(f'Spoofed User Agent: {chrome_client.data}')
+        self.stdout.write(f'Spoofed User Agent: {chrome_client.user_agent}')
 
         self.stdout.write(utils.eye_catcher_line('JA3 Details'))
         r_json = ja3er_api.get_json(chrome_client)

@@ -16,8 +16,13 @@ class DesktopClient(ABC, Http2Client):
     def __init__(self, fingerprint=None, *args, **kwargs):
         self.fingerprint = fingerprint or self.temp_fingerprint()
         self.tls_fingerprint = self.fingerprint.tls_fingerprint
-        self.user_agent = fingerprint.user_agent
-        super().__init__(proxies=self.proxies, verify=self.new_ssl_context(), *args, **kwargs)
+        self.user_agent = self.fingerprint.user_agent
+        super().__init__(
+            proxies=self.proxies,
+            verify=self.new_ssl_context(),
+            *args,
+            **kwargs
+        )
 
     def send(self, *args, **kwargs):
         self.headers.pop('Accept-Encoding', None)
@@ -64,6 +69,11 @@ class DesktopChromeClient(DesktopClient):
         super().__init__(*args, **kwargs)
         self.ua_parser = utils.UserAgentParser(self.user_agent)
 
+    def init_headers(self):
+        return {
+            'user-agent': self.user_agent,
+        }
+
     @property
     def sec_ch_ua(self):
         version = self.ua_parser.browser_major_version
@@ -82,3 +92,8 @@ class DesktopChromeClient(DesktopClient):
 class DesktopFirefoxClient(DesktopClient):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+    def init_headers(self):
+        return {
+            'User-Agent': self.user_agent,
+        }
