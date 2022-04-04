@@ -12,6 +12,7 @@ class FingerprintManagerTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.fingerprint_data = {
+            'browser': 'Chrome',
             'device_category': 'desktop',
             'platform': 'US',
             'screen_height': 1920,
@@ -22,8 +23,7 @@ class FingerprintManagerTests(TestCase):
             'viewport_width': 1024,
         }
 
-    def test_get_rotating_proxy(self):
-        # Fingerprint.objects.create(**self.fingerprint_data)
+    def test_get_random_desktop_fingerprint(self):
         with self.assertRaises(exceptions.DJSpooferError):
             Fingerprint.objects.get_random_desktop_fingerprint()
 
