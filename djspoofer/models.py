@@ -5,7 +5,12 @@ from django.db import models
 from django.utils import timezone
 from djstarter.models import BaseModel
 
+from django.conf import settings
+
 from . import const, managers, utils
+
+PROXY_USERNAME = settings.PROXY_USERNAME
+PROXY_PASSWORD = settings.PROXY_PASSWORD
 
 
 class Proxy(BaseModel):
@@ -29,11 +34,21 @@ class Proxy(BaseModel):
 
     @property
     def http_url(self):
+        if self.credentials:
+            return f'http://{self.credentials}@{self.url}'
         return f'http://{self.url}'
 
     @property
     def https_url(self):
+        if self.credentials:
+            return f'https://{self.credentials}@{self.url}'
         return f'https://{self.url}'
+
+    @property
+    def credentials(self):
+        if PROXY_USERNAME and PROXY_PASSWORD:
+            return f'{PROXY_USERNAME}:{PROXY_PASSWORD}'
+        return None
 
     @property
     def is_on_cooldown(self):
