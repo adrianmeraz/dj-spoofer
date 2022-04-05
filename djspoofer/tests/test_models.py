@@ -95,7 +95,7 @@ class ProxyTests(TestCase):
 
     def test_http_url(self):
         proxy = Proxy.objects.create(**self.proxy_data)
-        self.assertEquals(proxy.http_url, 'http://user123:password456@example.com:4582')
+        self.assertTrue(proxy.http_url, 'http://user123:password456@example.com:4582')
 
     def test_https_url(self):
         proxy = Proxy.objects.create(**self.proxy_data)

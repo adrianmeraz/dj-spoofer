@@ -46,6 +46,8 @@ class Proxy(BaseModel):
 
     @property
     def credentials(self):
+        if '@' in self.url:
+            return None
         if PROXY_USERNAME and PROXY_PASSWORD:
             return f'{PROXY_USERNAME}:{PROXY_PASSWORD}'
         return None
