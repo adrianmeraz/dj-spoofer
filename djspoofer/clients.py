@@ -15,7 +15,6 @@ logger = logging.getLogger(__name__)
 class DesktopClient(ABC, Http2Client):
     def __init__(self, fingerprint=None, *args, **kwargs):
         self.fingerprint = fingerprint or self.temp_fingerprint()
-        self.tls_fingerprint = self.fingerprint.tls_fingerprint
         self.user_agent = self.fingerprint.user_agent
         super().__init__(
             proxies=self.proxies,
@@ -32,8 +31,8 @@ class DesktopClient(ABC, Http2Client):
     def new_ssl_context(self):
         context = httpx.create_ssl_context(http2=True)
         context.minimum_version = TLSVersion.TLSv1_2
-        context.set_ciphers(self.tls_fingerprint.ciphers)
-        context.options = self.tls_fingerprint.extensions
+        context.set_ciphers(self.fingerprint.ciphers)
+        context.options = self.fingerprint.extensions
 
         return context
 

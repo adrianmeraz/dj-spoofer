@@ -80,6 +80,10 @@ class Fingerprint(BaseModel):
     user_agent = models.TextField()
     viewport_height = models.IntegerField()
     viewport_width = models.IntegerField()
+
+    extensions = models.IntegerField()
+    ciphers = models.TextField()
+
     proxy = models.ForeignKey(
         to=Proxy,
         related_name='fingerprints',
@@ -96,39 +100,12 @@ class Fingerprint(BaseModel):
         indexes = [
             models.Index(fields=['device_category', ], name='fp_device_category_index'),
             models.Index(fields=['platform', ], name='fp_platform_index'),
+            models.Index(fields=['extensions', ], name='fp_extensions_index'),
+            models.Index(fields=['ciphers', ], name='fp_ciphers_index'),
         ]
 
     def __str__(self):
         return f'Fingerprint -> user_agent: {self.user_agent}'
-
-
-class TLSFingerprint(BaseModel):
-    objects = managers.TLSFingerprintManager()
-
-    extensions = models.IntegerField()
-    ciphers = models.TextField()
-    fingerprint = models.OneToOneField(
-        to=Fingerprint,
-        related_name='tls_fingerprint',
-        on_delete=models.CASCADE,
-    )
-
-    class Meta:
-        db_table = 'djspoofer_tls_fingerprint'
-        ordering = ['-created']
-        app_label = 'djspoofer'
-
-        indexes = [
-            models.Index(fields=['extensions', ], name='tls_fp_extensions_index'),
-            models.Index(fields=['ciphers', ], name='tls_fp_ciphers_index'),
-        ]
-
-    @staticmethod
-    def shuffled_ciphers(ciphers, start_idx=0, min_k=6):
-        first_ciphers = ciphers[:start_idx]
-        rem_ciphers = ciphers[start_idx:]
-        k = random.randint(min_k, len(rem_ciphers))
-        return first_ciphers + random.sample(rem_ciphers, k=k)
 
     def generate_chrome_desktop_cipher_str(self):
         grease_cipher = f'TLS_GREASE_IS_THE_WORD_{random.randint(1, 8)}A'
@@ -139,6 +116,18 @@ class TLSFingerprint(BaseModel):
     def generate_firefox_desktop_cipher_str(self):
         return ':'.join([c.value for c in self.shuffled_ciphers(ciphers=const.FirefoxDesktopCiphers, start_idx=3)])
 
+    DESKTOP_CLIENT_CIPHER_MAP = {
+        'Chrome': generate_chrome_desktop_cipher_str,
+        'Firefox': generate_firefox_desktop_cipher_str
+    }
+
+    @staticmethod
+    def shuffled_ciphers(ciphers, start_idx=0, min_k=6):
+        first_ciphers = ciphers[:start_idx]
+        rem_ciphers = ciphers[start_idx:]
+        k = random.randint(min_k, len(rem_ciphers))
+        return first_ciphers + random.sample(rem_ciphers, k=k)
+
     @staticmethod
     def random_tls_extension_int(min_k=4):
         k = random.randint(min_k, len(const.TLS_EXTENSIONS))
@@ -147,14 +136,9 @@ class TLSFingerprint(BaseModel):
             ext_val |= ext
         return int(ext_val)
 
-    DESKTOP_CLIENT_CIPHER_MAP = {
-        'Chrome': generate_chrome_desktop_cipher_str,
-        'Firefox': generate_firefox_desktop_cipher_str
-    }
-
     def save(self, *args, **kwargs):
         if not self.ciphers:
-            ua_parser = utils.UserAgentParser(self.fingerprint.user_agent)
+            ua_parser = utils.UserAgentParser(self.user_agent)
             self.ciphers = self.DESKTOP_CLIENT_CIPHER_MAP[ua_parser.browser](self)
         if not self.extensions:
             self.extensions = self.random_tls_extension_int()

@@ -4,8 +4,7 @@ from django.test import TestCase
 from httpx import Request, Response, codes
 
 from djspoofer import clients
-from djspoofer.models import Proxy, Fingerprint, TLSFingerprint
-from intoli.models import Profile
+from djspoofer.models import Fingerprint
 
 
 class DesktopChromeClientTests(TestCase):
@@ -14,7 +13,7 @@ class DesktopChromeClientTests(TestCase):
         super().setUpTestData()
         cls.request = Request(url='', method='')  # Must add a non null request to avoid raising Runtime exception
         cls.mocked_sleep = mock.patch('time.sleep', return_value=None).start()
-        fingerprint = Fingerprint.objects.create(
+        cls.fingerprint = Fingerprint.objects.create(
             browser='Chrome',
             device_category='desktop',
             os='Windows',
@@ -25,7 +24,6 @@ class DesktopChromeClientTests(TestCase):
             viewport_height=768,
             viewport_width=1024,
         )
-        TLSFingerprint.objects.create(fingerprint=fingerprint)
 
     @mock.patch.object(clients.DesktopChromeClient, '_send_handling_auth')
     def test_ok(self, mock_sd_send):
@@ -51,7 +49,7 @@ class DesktopFirefoxClientTests(TestCase):
         super().setUpTestData()
         cls.request = Request(url='', method='')  # Must add a non null request to avoid raising Runtime exception
         cls.mocked_sleep = mock.patch('time.sleep', return_value=None).start()
-        fingerprint = Fingerprint.objects.create(
+        cls.fingerprint = Fingerprint.objects.create(
             browser='Firefox',
             device_category='desktop',
             os='Linux',
@@ -62,7 +60,6 @@ class DesktopFirefoxClientTests(TestCase):
             viewport_height=768,
             viewport_width=1024,
         )
-        TLSFingerprint.objects.create(fingerprint=fingerprint)
 
     @mock.patch.object(clients.DesktopFirefoxClient, '_send_handling_auth')
     def test_ok(self, mock_sd_send):
