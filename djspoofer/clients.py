@@ -3,7 +3,6 @@ from abc import ABC
 from ssl import TLSVersion
 
 import httpx
-from django.conf import settings
 from djstarter.clients import Http2Client
 
 from . import utils

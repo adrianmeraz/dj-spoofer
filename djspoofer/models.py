@@ -1,13 +1,12 @@
 import datetime
 import random
 
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 from djstarter.models import BaseModel
 
-from django.conf import settings
-
-from . import const, managers, utils
+from . import const, managers
 
 PROXY_USERNAME = settings.PROXY_USERNAME
 PROXY_PASSWORD = settings.PROXY_PASSWORD
