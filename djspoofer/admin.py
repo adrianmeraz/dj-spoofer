@@ -44,3 +44,4 @@ class ProxyAdmin(ImportExportModelAdmin):
     set_general.short_description = 'Set as General'
 
     actions = [set_rotating, set_sticky, set_general]
+
