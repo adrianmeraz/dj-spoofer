@@ -2,7 +2,8 @@ from ssl import Options
 
 from django.test import TestCase
 
-from djspoofer.models import Fingerprint, Proxy
+from djspoofer.models import Fingerprint, Proxy, TLSFingerprint
+from djspoofer import utils
 
 
 class FingerprintTests(TestCase):
@@ -12,7 +13,10 @@ class FingerprintTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        user_agent = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:98.0) Gecko/20100101 Firefox/98.0'
+        ua_parser = utils.UserAgentParser(user_agent)
         cls.fingerprint_data = {
+            'browser': ua_parser.browser,
             'device_category': 'mobile',
             'platform': 'US',
             'screen_height': 1920,
@@ -27,16 +31,30 @@ class FingerprintTests(TestCase):
         fp = Fingerprint.objects.create(**self.fingerprint_data)
         self.assertEqual(str(fp), f'Fingerprint -> user_agent: {self.fingerprint_data["user_agent"]}')
 
+
+class TLSFingerprintTests(TestCase):
+    """
+    TLSFingerprint Tests
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        user_agent = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:98.0) Gecko/20100101 Firefox/98.0'
+        ua_parser = utils.UserAgentParser(user_agent)
+        cls.tls_fingerprint_data = {
+            'browser': ua_parser.browser,
+        }
+
     def test_ciphers(self):
-        fp = Fingerprint.objects.create(**self.fingerprint_data)
-        self.assertTrue(':' in fp.ciphers)
+        tls_fp = TLSFingerprint.objects.create(**self.tls_fingerprint_data)
+        self.assertTrue(':' in tls_fp.ciphers)
 
     def test_extensions(self):
-        fp = Fingerprint.objects.create(**self.fingerprint_data)
-        self.assertEquals(type(fp.extensions), int)
+        tls_fp = TLSFingerprint.objects.create(**self.tls_fingerprint_data)
+        self.assertEquals(type(tls_fp.extensions), int)
 
-        fp.extensions = int(Options.OP_NO_TICKET | Options.OP_NO_RENEGOTIATION | Options.OP_ENABLE_MIDDLEBOX_COMPAT)
-        self.assertEquals(fp.extensions, 1074806784)
+        tls_fp.extensions = int(Options.OP_NO_TICKET | Options.OP_NO_RENEGOTIATION | Options.OP_ENABLE_MIDDLEBOX_COMPAT)
+        self.assertEquals(tls_fp.extensions, 1074806784)
 
 
 class ProxyTests(TestCase):

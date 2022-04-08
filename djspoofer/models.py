@@ -68,44 +68,21 @@ class Proxy(BaseModel):
         self.save()
 
 
-class Fingerprint(BaseModel):
+class TLSFingerprint(BaseModel):
     objects = managers.FingerprintManager()
 
     browser = models.CharField(max_length=32)
-    device_category = models.CharField(max_length=32)
-    os = models.CharField(max_length=32)
-    platform = models.CharField(max_length=32)
-    screen_height = models.IntegerField()
-    screen_width = models.IntegerField()
-    user_agent = models.TextField()
-    viewport_height = models.IntegerField()
-    viewport_width = models.IntegerField()
-
     extensions = models.IntegerField()
     ciphers = models.TextField()
 
-    proxy = models.ForeignKey(
-        to=Proxy,
-        related_name='fingerprints',
-        on_delete=models.CASCADE,
-        blank=True,
-        null=True
-    )
-
     class Meta:
-        db_table = 'djspoofer_fingerprint'
+        db_table = 'djspoofer_tls_fingerprint'
         ordering = ['-created']
         app_label = 'djspoofer'
 
         indexes = [
-            models.Index(fields=['device_category', ], name='fp_device_category_index'),
-            models.Index(fields=['platform', ], name='fp_platform_index'),
-            models.Index(fields=['extensions', ], name='fp_extensions_index'),
-            models.Index(fields=['ciphers', ], name='fp_ciphers_index'),
+            models.Index(fields=['browser', ], name='tls_fp_browser_index'),
         ]
-
-    def __str__(self):
-        return f'Fingerprint -> user_agent: {self.user_agent}'
 
     def generate_chrome_desktop_cipher_str(self):
         grease_cipher = f'TLS_GREASE_IS_THE_WORD_{random.randint(1, 8)}A'
@@ -138,8 +115,53 @@ class Fingerprint(BaseModel):
 
     def save(self, *args, **kwargs):
         if not self.ciphers:
-            ua_parser = utils.UserAgentParser(self.user_agent)
-            self.ciphers = self.DESKTOP_CLIENT_CIPHER_MAP[ua_parser.browser](self)
+            self.ciphers = self.DESKTOP_CLIENT_CIPHER_MAP[self.browser](self)
         if not self.extensions:
             self.extensions = self.random_tls_extension_int()
         super().save(*args, **kwargs)
+
+
+class Fingerprint(BaseModel):
+    objects = managers.FingerprintManager()
+
+    browser = models.CharField(max_length=32)
+    device_category = models.CharField(max_length=32)
+    os = models.CharField(max_length=32)
+    platform = models.CharField(max_length=32)
+    screen_height = models.IntegerField()
+    screen_width = models.IntegerField()
+    user_agent = models.TextField()
+    viewport_height = models.IntegerField()
+    viewport_width = models.IntegerField()
+
+    proxy = models.ForeignKey(
+        to=Proxy,
+        related_name='fingerprints',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True
+    )
+
+    tls_fingerprint = models.ForeignKey(
+        to=TLSFingerprint,
+        related_name='fingerprints',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True
+    )
+
+    class Meta:
+        db_table = 'djspoofer_fingerprint'
+        ordering = ['-created']
+        app_label = 'djspoofer'
+
+        indexes = [
+            models.Index(fields=['browser', ], name='fp_browser_index'),
+            models.Index(fields=['device_category', ], name='fp_device_category_index'),
+            models.Index(fields=['platform', ], name='fp_platform_index'),
+        ]
+
+    def __str__(self):
+        return f'Fingerprint -> user_agent: {self.user_agent}'
+
+
