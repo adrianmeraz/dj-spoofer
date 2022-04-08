@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dj-spoofer"
-version = "0.0.7"
+version = "0.0.8"
 description = "Django + Web Scraping Made Easy"
 authors = ["Adrian <adrian@rydeas.com>"]
 repository = "https://github.com/adrianmeraz/dj-spoofer"
@@ -18,6 +18,7 @@ python = "^3.8"
 coverage = "^6.2"
 Django = "^3.2.4"
 django-environ = "^0.8.1"
+django-import-export = "^2.8.0"
 Faker = "~8.12.1"
 httpx = {version = "~0.22.0", extras = ["http2"]}
 psycopg2-binary = "^2.9.2"
