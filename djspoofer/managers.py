@@ -18,10 +18,6 @@ class FingerprintManager(models.Manager):
             raise exceptions.DJSpooferError('No Desktop Fingerprints Exist')
 
 
-class TLSFingerprintManager(models.Manager):
-    pass
-
-
 class ProxyManager(models.Manager):
 
     def create_general_proxy(self, *args, **kwargs):
