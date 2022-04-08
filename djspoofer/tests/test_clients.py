@@ -4,7 +4,7 @@ from django.test import TestCase
 from httpx import Request, Response, codes
 
 from djspoofer import clients, utils
-from djspoofer.models import Fingerprint, TLSFingerprint
+from djspoofer.models import Fingerprint, TLSFingerprint, Proxy
 
 
 class DesktopChromeClientTests(TestCase):
@@ -13,6 +13,9 @@ class DesktopChromeClientTests(TestCase):
         super().setUpTestData()
         cls.request = Request(url='', method='')  # Must add a non null request to avoid raising Runtime exception
         cls.mocked_sleep = mock.patch('time.sleep', return_value=None).start()
+        cls.proxy = Proxy.objects.create_sticky_proxy(
+            url='test123:5000',
+        )
         user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.82 Safari/537.36'
         ua_parser = utils.UserAgentParser(user_agent)
         Fingerprint.objects.create(
@@ -37,7 +40,7 @@ class DesktopChromeClientTests(TestCase):
             status_code=codes.OK,
             text='ok'
         )
-        with clients.DesktopChromeClient() as chrome_client:
+        with clients.DesktopChromeClient(proxy=self.proxy) as chrome_client:
             chrome_client.get('http://example.com')
             self.assertEquals(mock_sd_send.call_count, 1)
             self.assertEquals(
