@@ -8,4 +8,4 @@ class ProxyAdminResource(resources.ModelResource):
     class Meta:
         model = Proxy
         import_id_fields = ('oid',)
-        fields = ('url', 'mode', 'country', 'city')
+        fields = ('oid', 'url', 'mode', 'country', 'city')
