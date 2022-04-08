@@ -4,10 +4,12 @@ from django.core.management.base import BaseCommand
 from djstarter import utils
 
 from djspoofer import const
-
+from djspoofer.resources import ProxyAdminResource
 
 class Command(BaseCommand):
     help = 'Generate Proxy CSV'
+
+    PROXY_FIELDS = ['oid', 'url', 'mode', 'country', 'city']
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -48,8 +50,7 @@ class Command(BaseCommand):
         proxy_mode = kwargs['proxy_mode']
         credentials = kwargs['credentials']
 
-        self.stdout.write(self.style.MIGRATE_LABEL(utils.eye_catcher_line('Generating proxy csv...')))
-
+        self.stdout.write(self.style.MIGRATE_LABEL(','.join(self.PROXY_FIELDS)))
         try:
             for port in range(port_start, port_end):
                 columns = [

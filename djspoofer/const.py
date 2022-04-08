@@ -80,4 +80,3 @@ SUPPORTED_BROWSERS = (
     'Chrome',
     'Firefox',
 )
-
