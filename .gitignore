@@ -199,6 +199,3 @@ yarn-error.log*
 
 # Mp4 Outputs
 *.mp4
-
-# Do not commit Poetry lockfiles for libraries
-poetry.lock
