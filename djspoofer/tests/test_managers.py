@@ -51,7 +51,7 @@ class ProxyManagerTests(TestCase):
 
     def test_get_rotating_proxy(self):
         Proxy.objects.create(**self.proxy_data)
-        with self.assertRaises(Proxy.DoesNotExist):
+        with self.assertRaises(exceptions.DJSpooferError):
             Proxy.objects.get_rotating_proxy()
 
         Proxy.objects.create(mode=const.ProxyModes.ROTATING.value, **self.proxy_data_2)
@@ -59,7 +59,7 @@ class ProxyManagerTests(TestCase):
 
     def test_get_sticky_proxy(self):
         Proxy.objects.create(**self.proxy_data)
-        with self.assertRaises(Proxy.DoesNotExist):
+        with self.assertRaises(exceptions.DJSpooferError):
             Proxy.objects.get_sticky_proxy()
 
         Proxy.objects.create(mode=const.ProxyModes.STICKY.value, **self.proxy_data_2)

@@ -29,23 +29,11 @@ class Proxy(BaseModel):
 
     @property
     def http_url(self):
-        if self.credentials:
-            return f'http://{self.credentials}@{self.url}'
         return f'http://{self.url}'
 
     @property
     def https_url(self):
-        if self.credentials:
-            return f'https://{self.credentials}@{self.url}'
         return f'https://{self.url}'
-
-    @property
-    def credentials(self):
-        if '@' in self.url:
-            return None
-        if PROXY_USERNAME and PROXY_PASSWORD:
-            return f'{PROXY_USERNAME}:{PROXY_PASSWORD}'
-        return None
 
     @property
     def is_on_cooldown(self):
@@ -128,14 +116,6 @@ class Fingerprint(BaseModel):
     user_agent = models.TextField()
     viewport_height = models.IntegerField()
     viewport_width = models.IntegerField()
-
-    proxy = models.ForeignKey(
-        to=Proxy,
-        related_name='fingerprints',
-        on_delete=models.CASCADE,
-        blank=True,
-        null=True
-    )
 
     tls_fingerprint = models.ForeignKey(
         to=TLSFingerprint,

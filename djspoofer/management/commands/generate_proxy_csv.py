@@ -4,7 +4,7 @@ from django.core.management.base import BaseCommand
 from djstarter import utils
 
 from djspoofer import const
-from djspoofer.resources import ProxyAdminResource
+
 
 class Command(BaseCommand):
     help = 'Generate Proxy CSV'

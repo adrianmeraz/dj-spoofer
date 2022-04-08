@@ -2,6 +2,7 @@ from django.db import models
 from django.db import transaction
 from django.db.models import F, Q
 from django.utils import timezone
+from django.core.exceptions import ObjectDoesNotExist
 
 from djspoofer import exceptions
 from . import const
@@ -31,15 +32,21 @@ class ProxyManager(models.Manager):
 
     def get_rotating_proxy(self):
         q_filter = Q(mode=const.ProxyModes.ROTATING.value)
-        return super().get_queryset().get(q_filter)
+        try:
+            return super().get_queryset().get(q_filter)
+        except ObjectDoesNotExist:
+            raise exceptions.DJSpooferError('No rotating proxy is available')
 
     def get_sticky_proxy(self):
         with transaction.atomic():
             q = Q(mode=const.ProxyModes.STICKY.value)
             q &= (Q(last_used__lt=timezone.now() - F('cooldown')) | Q(last_used=None))
 
-            sticky_proxy = super().get_queryset().select_for_update(skip_locked=True).order_by(
-                F('last_used').asc(nulls_first=True)).get(q)
+            try:
+                sticky_proxy = super().get_queryset().select_for_update(skip_locked=True).order_by(
+                    F('last_used').asc(nulls_first=True)).get(q)
+            except ObjectDoesNotExist:
+                raise exceptions.DJSpooferError('No sticky proxy is available')
 
             sticky_proxy.set_last_used()
             return sticky_proxy
