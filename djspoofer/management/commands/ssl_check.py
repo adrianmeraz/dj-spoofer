@@ -9,18 +9,9 @@ from howsmyssl import howsmyssl_api
 class Command(BaseCommand):
     help = 'SSL Check'
 
-    def add_arguments(self, parser):
-        parser.add_argument(
-            "--use-proxy",
-            required=True,
-            type=bool,
-            help="Use Random Proxy",
-        )
-
     def handle(self, *args, **kwargs):
-        use_proxy = kwargs['use_proxy']
         try:
-            with DesktopChromeClient() as chrome_client:
+            with DesktopChromeClient(proxy=Proxy.objects.get_sticky_proxy()) as chrome_client:
                 r_check = howsmyssl_api.ssl_check(chrome_client)
                 self.stdout.write(utils.pretty_dict(r_check.data))
         except Exception as e:

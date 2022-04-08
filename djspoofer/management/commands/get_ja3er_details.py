@@ -2,6 +2,7 @@ from django.core.management.base import BaseCommand
 from djstarter import utils
 
 from djspoofer.clients import DesktopChromeClient
+from djspoofer.models import Proxy
 from ja3er import ja3er_api
 
 
@@ -10,7 +11,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         try:
-            with DesktopChromeClient() as chrome_client:
+            with DesktopChromeClient(proxy=Proxy.objects.get_sticky_proxy()) as chrome_client:
                 self.get_ja3_details(chrome_client)
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error while running command:\n{str(e)}'))
