@@ -26,6 +26,7 @@ python-dotenv = "^0.19.0"
 wheel = "^0.36.2"
 dj-starter = "^0.1.9"
 ua-parser = "^0.10.0"
+urllib3 = "^1.26.9"
 
 [tool.poetry.dev-dependencies]
 respx = "~0.19.0"
