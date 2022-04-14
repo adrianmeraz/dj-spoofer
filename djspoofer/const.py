@@ -9,7 +9,7 @@ class ProxyModes(core_utils.ChoiceEnum):
     STICKY = 30
 
 
-class Ciphers(core_utils.ChoiceEnum):
+class Ciphers:
     TLS_AES_128_GCM_SHA256 = 'AES128-GCM-SHA256'
     TLS_CHACHA20_POLY1305_SHA256 = 'CHACHA20-POLY1305-SHA256'
     TLS_AES_256_GCM_SHA384 = 'AES256-GCM-SHA384'
@@ -80,3 +80,14 @@ SUPPORTED_BROWSERS = (
     'Chrome',
     'Firefox',
 )
+
+
+class OsTTL:
+    LINUX = 64
+    WINDOWS = 128   # TODO Test This
+    MACOS = 64
+
+
+class OsMSSRecv:
+    LINUX = 64240
+    WINDOWS = 8192  # TODO Test this
