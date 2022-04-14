@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dj-spoofer"
-version = "0.0.13"
+version = "0.0.14"
 description = "Django + Web Scraping Made Easy"
 authors = ["Adrian <adrian@rydeas.com>"]
 repository = "https://github.com/adrianmeraz/dj-spoofer"
