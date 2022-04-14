@@ -155,6 +155,14 @@ class Fingerprint(BaseModel):
         null=True
     )
 
+    ip_fingerprint = models.ForeignKey(
+        to=IPFingerprint,
+        related_name='fingerprints',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True
+    )
+
     class Meta:
         db_table = 'djspoofer_fingerprint'
         ordering = ['-created']
