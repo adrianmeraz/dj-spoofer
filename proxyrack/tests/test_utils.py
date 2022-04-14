@@ -19,11 +19,12 @@ class UtilTests(TestCase):
             refreshMinutes=10,
             osName=const.ProxyOs.LINUX,
             session='13ac97fe-0f26-45ff-aeb9-2801400326ec',
+            proxyIp='184.53.48.165'
         )
 
         self.assertEquals(
             proxy_builder.http_url,
             ('http://proxyman123;country=US;city=Seattle,NewYork,LosAngeles;isp=Verizon,Comcast;refreshMinutes=10;'
-             'osName=Linux;session=13ac97fe-0f26-45ff-aeb9-2801400326ec:'
+             'osName=Linux;session=13ac97fe-0f26-45ff-aeb9-2801400326ec;proxyIp=184.53.48.165:'
              'goodpw567@megaproxy.rotating.proxyrack.net:10000')
         )
