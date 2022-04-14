@@ -4,6 +4,7 @@ from django.core.management.base import BaseCommand
 from djstarter import utils
 
 from djspoofer import const
+from djspoofer.models import Proxy
 
 
 class Command(BaseCommand):
@@ -42,6 +43,17 @@ class Command(BaseCommand):
             type=int,
             help="Proxy Mode",
         )
+        parser.add_argument(
+            "--load-proxies",
+            type=bool,
+            help="Load Proxies Into Database",
+        )
+        parser.add_argument(
+            "--country",
+            type=str,
+            default='',
+            help="Proxy Country",
+        )
 
     def handle(self, *args, **kwargs):
         url = kwargs['url']
@@ -49,24 +61,42 @@ class Command(BaseCommand):
         port_end = kwargs['port_end']
         proxy_mode = kwargs['proxy_mode']
         credentials = kwargs['credentials']
+        load_proxies = kwargs['load_proxies']
+        country = kwargs['country']
 
+        proxies = list()
         self.stdout.write(self.style.MIGRATE_LABEL(','.join(self.PROXY_FIELDS)))
         try:
             for port in range(port_start, port_end):
                 columns = [
-                    str(uuid.uuid4()),
+                    uuid.uuid4(),
                     self.build_proxy_str(url, port=port, credentials=credentials),
-                    str(proxy_mode),
-                    '',
+                    proxy_mode,
+                    country,
                     ''
                 ]
-                self.stdout.write(self.style.MIGRATE_LABEL(','.join(columns)))
+                proxies.append(self.build_proxy(columns))
+                row = ','.join(str(c) for c in columns)
+                self.stdout.write(self.style.MIGRATE_LABEL(row))
+            if load_proxies:
+                Proxy.objects.bulk_create(proxies)
+                self.stdout.write(self.style.MIGRATE_LABEL(utils.eye_catcher_line('Successfully loaded proxies')))
 
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error while running command:\n{str(e)}'))
             raise e
         else:
             self.stdout.write(self.style.MIGRATE_LABEL(utils.eye_catcher_line('Successfully generated proxy csv')))
+
+    @staticmethod
+    def build_proxy(columns):
+        return Proxy(
+            oid=columns[0],
+            url=columns[1],
+            mode=columns[2],
+            country=columns[3],
+            city=columns[4]
+        )
 
     @staticmethod
     def build_proxy_str(url, port, credentials=None):
