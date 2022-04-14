@@ -6,8 +6,8 @@ class ProxyBuilder:
         self._options = options
 
     @property
-    def full_str(self):
-        return f'{self._all_options}:{self._password}@{self._netloc}'
+    def http_url(self):
+        return f'http://{self._all_options}:{self._password}@{self._netloc}'
 
     @property
     def _all_options(self):

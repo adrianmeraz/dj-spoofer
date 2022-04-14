@@ -82,3 +82,30 @@ class GenerateTempApiKeyResponse:
     def __init__(self, data):
         self.password = self.Password(data['password'])
         self.success = data['success']
+
+
+@decorators.wrap_exceptions(raise_as=ProxyRackError)
+def stats(client, *args, **kwargs):
+    url = f'{BASE_URL}/stats'
+    r = client.get(url, *args, **kwargs)
+    r.raise_for_status()
+    return StatsResponse(r.json())
+
+
+class StatsResponse:
+    class IPInfo:
+        class Fingerprint:
+            def __init__(self, data):
+                self.osName = data['osName']
+
+        def __init__(self, data):
+            self.city = data['expirationSeconds']
+            self.country = data['password']
+            self.fingerprint = self.Fingerprint(data['fingerprint'])
+            self.ip = data['ip']
+            self.isp = data['isp']
+            self.online = data['online']
+            self.proxyId = data['proxyId']
+
+    def __init__(self, data):
+        self.ipinfo = self.IPInfo(data['ipinfo'])

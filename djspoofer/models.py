@@ -63,8 +63,25 @@ class Proxy(BaseModel):
         self.save()
 
 
+class IPFingerprint(BaseModel):
+    objects = managers.GeoFingerprintManager()
+
+    city = models.CharField(max_length=32)
+    country = models.CharField(max_length=2)
+    isp = models.CharField(max_length=32)
+
+    class Meta:
+        db_table = 'djspoofer_tls_fingerprint'
+        ordering = ['-created']
+        app_label = 'djspoofer'
+
+        indexes = [
+            models.Index(fields=['browser', ], name='tls_fp_browser_index'),
+        ]
+
+
 class TLSFingerprint(BaseModel):
-    objects = managers.FingerprintManager()
+    objects = managers.TLSFingerprintManager()
 
     browser = models.CharField(max_length=32)
     extensions = models.IntegerField()
