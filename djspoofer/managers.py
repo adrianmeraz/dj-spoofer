@@ -7,6 +7,14 @@ from djspoofer import exceptions
 from . import const
 
 
+class IPFingerprintManager(models.Manager):
+    pass
+
+
+class TLSFingerprintManager(models.Manager):
+    pass
+
+
 class FingerprintManager(models.Manager):
     def all_desktop_profiles(self):
         return super().get_queryset().filter(device_category='desktop', browser__in=const.SUPPORTED_BROWSERS)
