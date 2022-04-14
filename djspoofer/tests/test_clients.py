@@ -40,7 +40,7 @@ class DesktopChromeClientTests(TestCase):
             status_code=codes.OK,
             text='ok'
         )
-        with clients.DesktopChromeClient(proxy=self.proxy) as chrome_client:
+        with clients.DesktopChromeClient(proxy_url=self.proxy.http_url) as chrome_client:
             chrome_client.get('http://example.com')
             self.assertEquals(mock_sd_send.call_count, 1)
             self.assertEquals(
