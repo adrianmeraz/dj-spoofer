@@ -82,11 +82,11 @@ class TLSFingerprint(BaseModel):
     def generate_chrome_desktop_cipher_str(self):
         grease_cipher = f'TLS_GREASE_IS_THE_WORD_{random.randint(1, 8)}A'
         return ':'.join(
-            [grease_cipher] + [c.value for c in self.shuffled_ciphers(ciphers=const.ChromeDesktopCiphers, start_idx=4)]
+            [grease_cipher] + [c for c in self.shuffled_ciphers(ciphers=const.ChromeDesktopCiphers, start_idx=4)]
         )
 
     def generate_firefox_desktop_cipher_str(self):
-        return ':'.join([c.value for c in self.shuffled_ciphers(ciphers=const.FirefoxDesktopCiphers, start_idx=3)])
+        return ':'.join([c for c in self.shuffled_ciphers(ciphers=const.FirefoxDesktopCiphers, start_idx=3)])
 
     DESKTOP_CLIENT_CIPHER_MAP = {
         'Chrome': generate_chrome_desktop_cipher_str,
