@@ -7,7 +7,7 @@ from djspoofer import exceptions
 from . import const
 
 
-class GeoFingerprintManager(models.Manager):
+class IPFingerprintManager(models.Manager):
     pass
 
 
