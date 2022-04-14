@@ -69,7 +69,7 @@ class IPFingerprint(BaseModel):
     city = models.CharField(max_length=32)
     country = models.CharField(max_length=2)
     isp = models.CharField(max_length=32)
-    last_ip = models.IPAddressField(blank=True, null=True)
+    last_ip = models.GenericIPAddressField(blank=True, null=True)
 
     class Meta:
         db_table = 'djspoofer_ip_fingerprint'
