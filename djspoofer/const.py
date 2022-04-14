@@ -1,4 +1,4 @@
-from ssl import Options
+import ssl
 
 from djstarter import utils as core_utils
 
@@ -67,13 +67,13 @@ FirefoxDesktopCiphers = [
 ]
 
 TLS_EXTENSIONS = [
-    Options.OP_CIPHER_SERVER_PREFERENCE,
-    Options.OP_SINGLE_DH_USE,
-    Options.OP_SINGLE_ECDH_USE,
-    Options.OP_NO_COMPRESSION,
-    Options.OP_NO_TICKET,
-    Options.OP_NO_RENEGOTIATION,
-    Options.OP_ENABLE_MIDDLEBOX_COMPAT,
+    ssl.OP_CIPHER_SERVER_PREFERENCE,
+    ssl.OP_SINGLE_DH_USE,
+    ssl.OP_SINGLE_ECDH_USE,
+    ssl.OP_NO_COMPRESSION,
+    ssl.OP_NO_TICKET,
+    ssl.OP_NO_RENEGOTIATION,
+    ssl.OP_ENABLE_MIDDLEBOX_COMPAT,
 ]
 
 SUPPORTED_BROWSERS = (

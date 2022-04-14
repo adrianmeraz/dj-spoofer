@@ -63,8 +63,26 @@ class Proxy(BaseModel):
         self.save()
 
 
+class IPFingerprint(BaseModel):
+    objects = managers.IPFingerprintManager()
+
+    city = models.CharField(max_length=32)
+    country = models.CharField(max_length=2)
+    isp = models.CharField(max_length=32)
+    last_ip = models.GenericIPAddressField(blank=True, null=True)
+
+    class Meta:
+        db_table = 'djspoofer_ip_fingerprint'
+        ordering = ['-created']
+        app_label = 'djspoofer'
+
+        indexes = [
+            models.Index(fields=['last_ip', ], name='ip_fp_last_ip'),
+        ]
+
+
 class TLSFingerprint(BaseModel):
-    objects = managers.FingerprintManager()
+    objects = managers.TLSFingerprintManager()
 
     browser = models.CharField(max_length=32)
     extensions = models.IntegerField()
@@ -76,7 +94,7 @@ class TLSFingerprint(BaseModel):
         app_label = 'djspoofer'
 
         indexes = [
-            models.Index(fields=['browser', ], name='tls_fp_browser_index'),
+            models.Index(fields=['browser', ], name='tls_fp_browser'),
         ]
 
     def generate_chrome_desktop_cipher_str(self):
@@ -137,15 +155,23 @@ class Fingerprint(BaseModel):
         null=True
     )
 
+    ip_fingerprint = models.ForeignKey(
+        to=IPFingerprint,
+        related_name='fingerprints',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True
+    )
+
     class Meta:
         db_table = 'djspoofer_fingerprint'
         ordering = ['-created']
         app_label = 'djspoofer'
 
         indexes = [
-            models.Index(fields=['browser', ], name='fp_browser_index'),
-            models.Index(fields=['device_category', ], name='fp_device_category_index'),
-            models.Index(fields=['platform', ], name='fp_platform_index'),
+            models.Index(fields=['browser', ], name='fp_browser'),
+            models.Index(fields=['device_category', ], name='fp_device_category'),
+            models.Index(fields=['platform', ], name='fp_platform'),
         ]
 
     def __str__(self):

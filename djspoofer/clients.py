@@ -12,9 +12,9 @@ logger = logging.getLogger(__name__)
 
 
 class DesktopClient(ABC, Http2Client):
-    def __init__(self, fingerprint=None, proxy=None, *args, **kwargs):
+    def __init__(self, fingerprint=None, proxy_url=None, *args, **kwargs):
         self.fingerprint = fingerprint or self.temp_fingerprint()
-        self.proxy = proxy
+        self.proxy_url = proxy_url
         self.tls_fingerprint = self.fingerprint.tls_fingerprint or self.generate_tls_fingerprint()
         self.user_agent = self.fingerprint.user_agent
         super().__init__(
@@ -39,10 +39,10 @@ class DesktopClient(ABC, Http2Client):
 
     @property
     def proxies(self):
-        if self.proxy:
+        if self.proxy_url:
             return {
-                'http://': self.proxy.http_url,
-                'https://': self.proxy.http_url
+                'http://': self.proxy_url,
+                'https://': self.proxy_url
             }
         return dict()
 
