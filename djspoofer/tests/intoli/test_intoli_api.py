@@ -5,7 +5,7 @@ import httpx
 from django.test import TestCase
 from httpx import Request
 
-from intoli import intoli_api
+from djspoofer.remote.intoli import intoli_api
 
 
 class GetProfilesTests(TestCase):
@@ -15,7 +15,7 @@ class GetProfilesTests(TestCase):
 
     @mock.patch.object(httpx, 'Client')
     def test_ok(self, mock_client):
-        with open_binary('intoli.tests.schemas.intoli', 'user-agents.json.gz') as intoli_gz:
+        with open_binary('djspoofer.tests.schemas.intoli', 'user-agents.json.gz') as intoli_gz:
 
             mock_client.stream.return_value.__enter__.return_value = mock.Mock()
             mock_client.stream.return_value.__enter__.return_value.status_code = 200

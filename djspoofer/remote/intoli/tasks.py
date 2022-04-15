@@ -4,8 +4,8 @@ from djstarter import decorators
 from djstarter.clients import Http2Client
 
 from djspoofer import utils as s_utils
-from intoli import intoli_api
-from intoli.exceptions import IntoliError
+from djspoofer.remote.intoli import intoli_api
+from djspoofer.remote.intoli.exceptions import IntoliError
 from djspoofer.models import Profile
 
 logger = logging.getLogger(__name__)

@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from intoli import tasks
+from djspoofer.remote.intoli import tasks
 
 
 class Command(BaseCommand):

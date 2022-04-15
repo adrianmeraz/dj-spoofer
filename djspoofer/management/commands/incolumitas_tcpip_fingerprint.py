@@ -1,10 +1,10 @@
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from djstarter import utils
 
-from django.conf import settings
 from djspoofer.clients import DesktopChromeClient
-from incolumitas import incolumitas_tcpip_api
-from proxyrack import utils as pr_utils
+from djspoofer.remote.incolumitas import incolumitas_tcpip_api
+from djspoofer.remote.proxyrack import utils as pr_utils
 
 
 class Command(BaseCommand):

@@ -3,7 +3,7 @@ from djstarter import utils
 
 from djspoofer.models import Proxy
 from djspoofer.clients import DesktopChromeClient
-from howsmyssl import howsmyssl_api
+from djspoofer.remote.howsmyssl import howsmyssl_api
 
 
 class Command(BaseCommand):
@@ -11,7 +11,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         try:
-            with DesktopChromeClient(proxy=Proxy.objects.get_sticky_proxy()) as chrome_client:
+            with DesktopChromeClient(proxy_url=Proxy.objects.get_sticky_proxy()) as chrome_client:
                 r_check = howsmyssl_api.ssl_check(chrome_client)
                 self.stdout.write(utils.pretty_dict(r_check.data))
         except Exception as e:
