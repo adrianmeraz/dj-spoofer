@@ -68,9 +68,9 @@ def generate_temp_api_key(client, expiration_seconds, *args, **kwargs):
         'expirationSeconds': expiration_seconds,
     }
 
-    r = client.get(url, params=params, *args, **kwargs)
+    r = client.post(url, params=params, *args, **kwargs)
     r.raise_for_status()
-    return ActiveConnectionsResponse(r.json())
+    return GenerateTempApiKeyResponse(r.json())
 
 
 class GenerateTempApiKeyResponse:
@@ -82,6 +82,10 @@ class GenerateTempApiKeyResponse:
     def __init__(self, data):
         self.password = self.Password(data['password'])
         self.success = data['success']
+
+    @property
+    def api_key(self):
+        return self.password.password
 
 
 @decorators.wrap_exceptions(raise_as=ProxyRackError)
