@@ -25,7 +25,7 @@ class ProfileTests(TestCase):
         profile = Profile.objects.create(**self.profile_data)
         self.assertEqual(
             str(profile),
-            'Profile -> user_agent: My User Agent 1.0, device_category: mobile, platform: US'
+            'IntoliProfile -> user_agent: My User Agent 1.0, device_category: mobile, platform: US'
         )
 
     def test_is_desktop(self):
