@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 
 from djspoofer.clients import DesktopChromeClient
-from incolumitas import incolumitas_tls_api
+from djspoofer.remote.incolumitas import incolumitas_tls_api
 from djstarter import utils
 
 

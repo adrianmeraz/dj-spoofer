@@ -6,7 +6,7 @@ from django.db.models import F, Q
 from django.utils import timezone
 
 from djspoofer import exceptions
-from intoli import exceptions as intoli_exceptions
+from djspoofer.remote.intoli import exceptions as intoli_exceptions
 from . import const
 
 

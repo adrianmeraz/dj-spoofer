@@ -1,7 +1,6 @@
 from django.test import TestCase
 
-from proxyrack import const
-from proxyrack import utils
+from djspoofer.remote.proxyrack import const, utils
 
 
 class UtilTests(TestCase):

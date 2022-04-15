@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from intoli import exceptions
+from djspoofer.remote.intoli import exceptions
 from djspoofer.models import Profile
 
 
