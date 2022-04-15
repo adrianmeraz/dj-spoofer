@@ -35,4 +35,3 @@ class ProfileTests(TestCase):
     def test_is_mobile(self):
         profile = Profile.objects.create(**self.profile_data)
         self.assertTrue(profile.is_mobile)
-
