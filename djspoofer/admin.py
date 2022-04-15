@@ -3,7 +3,7 @@ from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 
 from . import const, resources
-from .models import Fingerprint, Proxy
+from .models import Fingerprint, Proxy, Profile
 
 en_formats.DATETIME_FORMAT = "M d y H:i"
 
@@ -45,3 +45,12 @@ class ProxyAdmin(ImportExportModelAdmin):
 
     actions = [set_rotating, set_sticky, set_general]
 
+
+@admin.register(Profile)
+class IntoliProfileAdmin(ImportExportModelAdmin):
+    list_display = ['created', 'device_category', 'platform', 'user_agent', 'weight']
+    list_filter = ('device_category', 'platform',)
+    ordering = ['-created']
+    search_fields = ['user_agent']
+
+    show_full_result_count = False

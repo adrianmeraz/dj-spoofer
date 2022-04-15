@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from ... import tasks
+from intoli import tasks
 
 
 class Command(BaseCommand):
