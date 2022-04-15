@@ -1,6 +1,7 @@
 from django.test import TestCase
 
-from proxyrack import const, utils
+from proxyrack import const
+from proxyrack import utils
 
 
 class UtilTests(TestCase):

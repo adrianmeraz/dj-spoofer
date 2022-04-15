@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from intoli.models import Profile
+from djspoofer.models import Profile
 
 
 class ProfileTests(TestCase):

@@ -205,8 +205,8 @@ Run the command from the project root to create the database and service user
 
 ```
 poetry run python manage.py makemigrations
-git add .
 poetry run python manage.py migrate
+git add .
 poetry run python manage.py createsuperuser
 ```
 
@@ -220,7 +220,6 @@ DJANGO_SUPERUSER_PASSWORD
 
 ```
 poetry run python manage.py makemigrations
-git add .
 poetry run zappa manage <STAGE_NAME> "migrate"
 poetry run zappa manage <STAGE_NAME> "createsuperuser --noinput"
 ```
@@ -276,9 +275,10 @@ After any Model Updates:
 
 ```
 poetry run python manage.py makemigrations
-git add .
 poetry run python manage.py migrate
+git add .
 poetry run python manage.py createsuperuser
+
 ```
 
 ## Testing
