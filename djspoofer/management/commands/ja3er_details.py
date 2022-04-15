@@ -11,7 +11,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         try:
-            with DesktopChromeClient(proxy_url=Proxy.objects.get_sticky_proxy()) as chrome_client:
+            with DesktopChromeClient(proxy_url=Proxy.objects.get_sticky_proxy().http_url) as chrome_client:
                 self.get_ja3_details(chrome_client)
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error while running command:\n{str(e)}'))
