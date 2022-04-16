@@ -53,5 +53,5 @@ class GetProfiles:
                 weight=profile.weight,
             )
             new_profiles.append(temp_profile)
-            print(f'{temp_profile}\n{ua_parser}\n')
+            # print(f'{temp_profile}\n{ua_parser}\n')
         return new_profiles
