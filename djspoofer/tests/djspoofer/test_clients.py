@@ -4,7 +4,7 @@ from django.test import TestCase
 from httpx import Request, Response, codes
 
 from djspoofer import clients, utils
-from djspoofer.models import Fingerprint, TLSFingerprint, Proxy
+from djspoofer.models import Fingerprint, Proxy
 
 
 class DesktopChromeClientTests(TestCase):
