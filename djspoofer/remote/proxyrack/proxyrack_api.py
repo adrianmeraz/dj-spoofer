@@ -33,7 +33,12 @@ def cities(client, *args, **kwargs):
     url = f'{BASE_URL}/cities'
     r = client.get(url, *args, **kwargs)
     r.raise_for_status()
-    return r.json()
+    return CitiesResponse(r.json())
+
+
+class CitiesResponse:
+    def __init__(self, data):
+        self.cities = data
 
 
 @decorators.wrap_exceptions(raise_as=ProxyRackError)
@@ -41,7 +46,12 @@ def countries(client, *args, **kwargs):
     url = f'{BASE_URL}/countries'
     r = client.get(url, *args, **kwargs)
     r.raise_for_status()
-    return r.json()
+    return CountriesResponse(r.json())
+
+
+class CountriesResponse:
+    def __init__(self, data):
+        self.countries = data
 
 
 @decorators.wrap_exceptions(raise_as=ProxyRackError)
@@ -49,11 +59,16 @@ def isps(client, country, *args, **kwargs):
     url = f'{BASE_URL}/countries/{country}/isps'
     r = client.get(url, *args, **kwargs)
     r.raise_for_status()
-    return r.json()
+    return ISPSResponse(r.json())
+
+
+class ISPSResponse:
+    def __init__(self, data):
+        self.isps = data
 
 
 @decorators.wrap_exceptions(raise_as=ProxyRackError)
-def ip_count(client, country, *args, **kwargs):
+def country_ip_count(client, country, *args, **kwargs):
     url = f'{BASE_URL}/countries/{country}/count'
     r = client.get(url, *args, **kwargs)
     r.raise_for_status()
@@ -103,13 +118,14 @@ class StatsResponse:
                 self.osName = data['osName']
 
         def __init__(self, data):
-            self.city = data['expirationSeconds']
-            self.country = data['password']
+            self.city = data['city']
+            self.country = data['country']
             self.fingerprint = self.Fingerprint(data['fingerprint'])
             self.ip = data['ip']
             self.isp = data['isp']
             self.online = data['online']
-            self.proxyId = data['proxyId']
+            self.proxyId = data.get('proxyId')
 
     def __init__(self, data):
         self.ipinfo = self.IPInfo(data['ipinfo'])
+        self.thread_limit = data['threadLimit']

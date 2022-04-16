@@ -4,6 +4,7 @@ import random
 from django.db import models
 from django.utils import timezone
 from djstarter.models import BaseModel
+from django.contrib.postgres.fields import ArrayField
 
 from . import const, managers
 
@@ -69,7 +70,7 @@ class IPFingerprint(BaseModel):
     city = models.CharField(max_length=32)
     country = models.CharField(max_length=2)
     isp = models.CharField(max_length=32)
-    last_ip = models.GenericIPAddressField(blank=True, null=True)
+    ips = ArrayField(models.GenericIPAddressField(), default=list)
 
     class Meta:
         db_table = 'djspoofer_ip_fingerprint'
@@ -79,6 +80,10 @@ class IPFingerprint(BaseModel):
         indexes = [
             models.Index(fields=['last_ip', ], name='ip_fp_last_ip'),
         ]
+
+    def add_ip(self, ip_addr):
+        self.ips += ip_addr
+        self.save()
 
 
 class TLSFingerprint(BaseModel):

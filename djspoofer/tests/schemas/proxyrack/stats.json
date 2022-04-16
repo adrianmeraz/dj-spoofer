@@ -1,0 +1,34 @@
+{
+	"bandwidth": {
+		"allowed": 124999999,
+		"usage": 0
+	},
+	"concurrent": 0,
+	"interval": {
+		"seconds": 59,
+		"timestamp": 1650123865
+	},
+	"ipinfo": {
+		"city": "",
+		"country": "",
+		"fingerprint": {
+			"osName": ""
+		},
+		"ip": "",
+		"isp": "",
+		"online": false
+	},
+	"release": {
+		"count": 0,
+		"limit": 99990
+	},
+	"requestParams": {
+		"autoReplace": "false",
+		"refreshSeconds": 60
+	},
+	"threadLimit": 10000,
+	"transferGB": {
+		"limit": "100%",
+		"usage": "0%"
+	}
+}
