@@ -28,9 +28,6 @@ class DesktopChromeClientTests(TestCase):
             user_agent=user_agent,
             viewport_height=768,
             viewport_width=1024,
-            tls_fingerprint=TLSFingerprint.objects.create(
-                browser=ua_parser.browser,
-            )
         )
 
     @mock.patch.object(clients.DesktopChromeClient, '_send_handling_auth')
@@ -70,9 +67,6 @@ class DesktopFirefoxClientTests(TestCase):
             user_agent=user_agent,
             viewport_height=768,
             viewport_width=1024,
-            tls_fingerprint=TLSFingerprint.objects.create(
-                browser=ua_parser.browser,
-            )
         )
 
     @mock.patch.object(clients.DesktopFirefoxClient, '_send_handling_auth')

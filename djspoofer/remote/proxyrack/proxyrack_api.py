@@ -20,8 +20,8 @@ def active_connections(client, *args, **kwargs):
 class ActiveConnectionsResponse:
     class Connection:
         def __init__(self, data):
-            self.create_time = data['create_time']
-            self.dest_addr = data['dest_addr']
+            self.create_time = data['createTime']
+            self.dest_addr = data['destAddr']
             self.source_addr = data['sourceAddr']
 
     def __init__(self, data):
@@ -72,7 +72,7 @@ def country_ip_count(client, country, *args, **kwargs):
     url = f'{BASE_URL}/countries/{country}/count'
     r = client.get(url, *args, **kwargs)
     r.raise_for_status()
-    return r.json()
+    return r.text
 
 
 @decorators.wrap_exceptions(raise_as=ProxyRackError)

@@ -15,6 +15,45 @@ class BaseTestCase(TestCase):
         cls.mocked_sleep = mock.patch('time.sleep', return_value=None).start()
 
 
+class ActiveConnectionsTests(BaseTestCase):
+    """
+        Active Connections Tests
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.request = Request(url='', method='')  # Must add a non null request to avoid raising Runtime exception
+        with open_text('djspoofer.tests.schemas.proxyrack', 'active_conns.json') as active_conns_json:
+            cls.r_data = json.loads(active_conns_json.read())
+
+    @mock.patch.object(httpx, 'Client')
+    def test_ok(self, mock_client):
+        mock_client.get.return_value = Response(
+            request=self.request,
+            status_code=codes.OK,
+            json=self.r_data
+        )
+
+        r_active_connections = proxyrack_api.active_connections(
+            mock_client,
+        )
+        self.assertEquals(len(r_active_connections.connections), 2)
+
+    @mock.patch.object(httpx, 'Client')
+    def test_400(self, mock_client):
+        mock_client.get.return_value = Response(
+            request=self.request,
+            status_code=codes.BAD_REQUEST,
+            json=self.r_data
+        )
+
+        with self.assertRaises(exceptions.ProxyRackError):
+            proxyrack_api.active_connections(
+                mock_client,
+            )
+
+
 class APIKeyTests(BaseTestCase):
     """
         API Keys Tests
@@ -213,6 +252,45 @@ class CitiesTests(BaseTestCase):
 
         with self.assertRaises(exceptions.ProxyRackError):
             proxyrack_api.cities(
+                mock_client,
+                country='US'
+            )
+
+
+class CountryIPCountTests(BaseTestCase):
+    """
+        Cities Tests
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.request = Request(url='', method='')  # Must add a non null request to avoid raising Runtime exception
+
+    @mock.patch.object(httpx, 'Client')
+    def test_ok(self, mock_client):
+        mock_client.get.return_value = Response(
+            request=self.request,
+            status_code=codes.OK,
+            text='152'
+        )
+
+        r_country_ip_count = proxyrack_api.country_ip_count(
+            mock_client,
+            country='US'
+        )
+        self.assertEquals(r_country_ip_count, '152')
+
+    @mock.patch.object(httpx, 'Client')
+    def test_400(self, mock_client):
+        mock_client.get.return_value = Response(
+            request=self.request,
+            status_code=codes.BAD_REQUEST,
+            text='152'
+        )
+
+        with self.assertRaises(exceptions.ProxyRackError):
+            proxyrack_api.country_ip_count(
                 mock_client,
                 country='US'
             )
