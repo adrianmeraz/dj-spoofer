@@ -78,7 +78,9 @@ class IPFingerprint(BaseModel):
         app_label = 'djspoofer'
 
         indexes = [
-            models.Index(fields=['last_ip', ], name='ip_fp_last_ip'),
+            models.Index(fields=['city', ], name='ip_fp_city'),
+            models.Index(fields=['country', ], name='ip_fp_country'),
+            models.Index(fields=['isp', ], name='ip_fp_isp'),
         ]
 
     def add_ip(self, ip_addr):
