@@ -23,7 +23,7 @@ class Command(BaseCommand):
         self.stdout.write(f'Spoofed User Agent: {chrome_client.user_agent}')
 
         self.stdout.write(utils.eye_catcher_line('JA3 Details'))
-        r_json = ja3er_api.get_json(chrome_client)
+        r_json = ja3er_api.details(chrome_client)
         self.stdout.write(utils.pretty_dict(r_json.data))
 
         self.stdout.write(f'ssl_version: {r_json.ssl_version}')

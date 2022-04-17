@@ -66,7 +66,7 @@ class Command(BaseCommand):
         self.stdout.write(utils.pretty_dict(r_tls))
 
     def show_ja3er_details(self, client):
-        r_json = ja3er_api.get_json(client)
+        r_json = ja3er_api.details(client)
         self.stdout.write(utils.eye_catcher_line('JA3 Details'))
         self.stdout.write(utils.pretty_dict(r_json))
 

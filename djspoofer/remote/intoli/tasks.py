@@ -32,8 +32,8 @@ class GetProfiles:
         except Exception as e:
             raise IntoliError(info=f'Error adding user agents: {str(e)}')
         else:
-            print(f'Created New Intoli Profiles: {len(new_profiles)}')
-            print(f'Deleted Old Intoli Profiles: {Profile.objects.bulk_delete(oids=old_oids)[0]}')
+            logger.info(f'Created New Intoli Profiles: {len(new_profiles)}')
+            logger.info(f'Deleted Old Intoli Profiles: {Profile.objects.bulk_delete(oids=old_oids)[0]}')
 
     @staticmethod
     def build_profiles(r_profiles):
