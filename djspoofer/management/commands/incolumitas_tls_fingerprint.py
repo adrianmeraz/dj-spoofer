@@ -11,7 +11,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         try:
             with DesktopChromeClient() as client:
-                r_tls = incolumitas_tls_api.fps(client)
+                r_tls = incolumitas_tls_api.tls_fingerprint(client)
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error while running command:\n{str(e)}'))
             raise e

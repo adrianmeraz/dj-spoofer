@@ -10,7 +10,7 @@ BASE_URL = 'https://tcpip.incolumitas.com'
 
 
 @decorators.wrap_exceptions(raise_as=IncolumitasError)
-def get_tcpip_fingerprint(client):
+def tcpip_fingerprint(client):
     url = f'{BASE_URL}/classify'
 
     params = {

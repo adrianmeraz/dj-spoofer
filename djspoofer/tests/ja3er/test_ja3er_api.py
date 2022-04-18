@@ -48,3 +48,47 @@ class DetailsTests(TestCase):
             ja3er_api.details(
                 mock_client,
             )
+
+
+class SearchTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.request = Request(url='', method='')  # Must add a non null request to avoid raising Runtime exception
+        with open_text('djspoofer.tests.ja3er.schemas', 'search.json') as search_json:
+            cls.search_json = json.loads(search_json.read())
+
+    @mock.patch.object(httpx, 'Client')
+    def test_ok(self, mock_client):
+        mock_client.get.return_value = Response(
+            request=self.request,
+            status_code=codes.OK,
+            json=self.search_json
+        )
+
+        r_search = ja3er_api.search(
+            mock_client,
+            ja3_hash='b32309a26951912be7dba376398abc3b'
+        )
+
+        self.assertEquals(len(r_search.stats), 3)
+
+        stats_2 = r_search.stats[1]
+        self.assertEquals(stats_2.user_agent, 'Go-http-client/1.1')
+
+        comment_3 = r_search.comments[2]
+        self.assertEquals(comment_3.comment, 'challenge accepted')
+
+    @mock.patch.object(httpx, 'Client')
+    def test_400(self, mock_client):
+        mock_client.get.return_value = Response(
+            request=self.request,
+            status_code=codes.BAD_REQUEST,
+            json=self.search_json
+        )
+
+        with self.assertRaises(exceptions.Ja3erError):
+            ja3er_api.search(
+                mock_client,
+                ja3_hash='b32309a26951912be7dba376398abc3b'
+            )

@@ -51,17 +51,17 @@ class Command(BaseCommand):
         return proxy_builder.http_url
 
     def show_ip_fingerprint(self, client):
-        r_tls = incolumitas_api.get_ip_fingerprint(client)
+        r_tls = incolumitas_api.ip_fingerprint(client)
         self.stdout.write(utils.eye_catcher_line('IP Fingerprint'))
         self.stdout.write(utils.pretty_dict(r_tls))
 
     def show_tcpip_fingerprint(self, client):
-        r_tcpip = incolumitas_tcpip_api.get_tcpip_fingerprint(client)
+        r_tcpip = incolumitas_tcpip_api.tcpip_fingerprint(client)
         self.stdout.write(utils.eye_catcher_line('TCP/IP Fingerprint'))
         self.stdout.write(utils.pretty_dict(r_tcpip))
 
     def show_tls_fingerprint(self, client):
-        r_tls = incolumitas_tls_api.fps(client)
+        r_tls = incolumitas_tls_api.tls_fingerprint(client)
         self.stdout.write(utils.eye_catcher_line('TLS Fingerprint'))
         self.stdout.write(utils.pretty_dict(r_tls))
 

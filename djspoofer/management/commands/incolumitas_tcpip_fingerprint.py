@@ -33,7 +33,7 @@ class Command(BaseCommand):
         )
         try:
             with DesktopChromeClient(proxy_url=proxy_builder.http_url) as client:
-                r_tcpip = incolumitas_tcpip_api.get_tcpip_fingerprint(client)
+                r_tcpip = incolumitas_tcpip_api.tcpip_fingerprint(client)
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error while running command:\n{str(e)}'))
             raise e

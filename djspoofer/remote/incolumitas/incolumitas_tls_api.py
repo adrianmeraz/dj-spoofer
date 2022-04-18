@@ -10,7 +10,7 @@ BASE_URL = 'https://tls.incolumitas.com'
 
 
 @decorators.wrap_exceptions(raise_as=IncolumitasError)
-def fps(client):
+def tls_fingerprint(client):
     url = f'{BASE_URL}/fps'
 
     params = {

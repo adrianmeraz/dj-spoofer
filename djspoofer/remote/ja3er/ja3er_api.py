@@ -17,14 +17,6 @@ def details(client, *args, **kwargs):
     return DetailsResponse(r.json())
 
 
-@decorators.wrap_exceptions(raise_as=Ja3erError)
-def search(client, ja3_hash, *args, **kwargs):
-    url = f'{BASE_URL}/search/{ja3_hash}'
-    r = client.get(url, *args, **kwargs)
-    r.raise_for_status()
-    return r
-
-
 class DetailsResponse:
 
     def __init__(self, data):
@@ -53,3 +45,29 @@ class DetailsResponse:
     @property
     def elliptic_curve_point_format(self):
         return self.ja3_parts[4]
+
+
+@decorators.wrap_exceptions(raise_as=Ja3erError)
+def search(client, ja3_hash, *args, **kwargs):
+    url = f'{BASE_URL}/search/{ja3_hash}'
+    r = client.get(url, *args, **kwargs)
+    r.raise_for_status()
+    return SearchResponse(r.json())
+
+
+class SearchResponse:
+
+    class Stats:
+        def __init__(self, data):
+            self.user_agent = data['User-Agent']
+            self.count = data['Count']
+            self.last_seen = data['Last_seen']
+
+    class Comment:
+        def __init__(self, data):
+            self.comment = data['Comment']
+            self.reported = data['Reported']
+
+    def __init__(self, data):
+        self.stats = [self.Stats(s) for s in data if s.get('User-Agent')]
+        self.comments = [self.Comment(c) for c in data if c.get('Comment')]
