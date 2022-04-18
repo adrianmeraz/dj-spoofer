@@ -72,12 +72,12 @@ class Command(BaseCommand):
 
         r_search = ja3er_api.search(client, ja3_hash=r_json.ja3_hash)
         self.stdout.write(utils.eye_catcher_line('JA3 Hash Search'))
-        self.stdout.write(utils.pretty_dict(r_search.json()))
+        self.stdout.write(utils.pretty_dict(vars(r_search)))
 
     def show_ssl_check(self, client):
         r_check = howsmyssl_api.ssl_check(client)
         self.stdout.write(utils.eye_catcher_line('SSL Check'))
-        self.stdout.write(utils.pretty_dict(r_check.data))
+        self.stdout.write(utils.pretty_dict(vars(r_check)))
 
     @staticmethod
     def proxy_options(proxy_args):

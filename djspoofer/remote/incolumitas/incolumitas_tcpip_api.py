@@ -19,4 +19,20 @@ def tcpip_fingerprint(client):
 
     r = client.get(url, params=params)
     r.raise_for_status()
-    return r.json()
+    return TCPIPFingerprintResponse(r.json())
+
+
+class TCPIPFingerprintResponse:
+    class Guess:
+        def __init__(self, data):
+            self.os = data['os']
+            self.score = data['score']
+
+    def __init__(self, data):
+        self.best_n_guesses = [self.Guess(g) for g in data['bestNGuesses']]
+        self.ip = data['ip']
+        self.vpn_detected = data['vpn_detected']
+
+    @property
+    def top_guess(self):
+        return self.best_n_guesses[0]
