@@ -37,18 +37,6 @@ class Proxy(BaseModel):
         return f'https://{self.url}'
 
     @property
-    def auth(self):
-        return self.url.split('@')[0] if '@' in self.url else None
-
-    @property
-    def auth_username(self):
-        return self.auth.split(':')[0] if self.auth else None
-
-    @property
-    def auth_password(self):
-        return self.auth.split(':')[1] if self.auth else None
-
-    @property
     def is_on_cooldown(self):
         if self.last_used:
             return self.last_used > timezone.now() - self.cooldown
