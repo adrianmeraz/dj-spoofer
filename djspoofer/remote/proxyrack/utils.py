@@ -1,3 +1,7 @@
+import random
+from . import const
+
+
 class ProxyBuilder:
     def __init__(self, username, password, netloc, **options):
         self._username = username
@@ -12,3 +16,7 @@ class ProxyBuilder:
     @property
     def _all_options(self):
         return ';'.join([self._username] + [f'{k}={v}' for k, v in self._options.items()])
+
+
+def random_residential_us_isp():
+    return random.choice(const.TOP_RESIDENTIAL_US_ISPS)

@@ -95,6 +95,41 @@ class APIKeyTests(BaseTestCase):
             )
 
 
+class TestProxyTests(BaseTestCase):
+    """
+        Test Proxy Tests
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.request = Request(url='', method='')  # Must add a non null request to avoid raising Runtime exception
+
+    @mock.patch.object(httpx, 'Client')
+    def test_ok(self, mock_client):
+        mock_client.head.return_value = Response(
+            request=self.request,
+            status_code=codes.OK,
+        )
+
+        proxyrack_api.test_proxy(
+            mock_client,
+        )
+        self.assertEquals(mock_client.head.call_count, 1)
+
+    @mock.patch.object(httpx, 'Client')
+    def test_400(self, mock_client):
+        mock_client.head.return_value = Response(
+            request=self.request,
+            status_code=codes.BAD_REQUEST,
+        )
+
+        with self.assertRaises(exceptions.ProxyRackError):
+            proxyrack_api.test_proxy(
+                mock_client,
+            )
+
+
 class StatsTests(BaseTestCase):
     """
         Stats Tests
@@ -143,7 +178,7 @@ class IspsTests(BaseTestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.request = Request(url='', method='')  # Must add a non null request to avoid raising Runtime exception
-        with open_text('djspoofer.tests.proxyrack.schemas', 'isps.json') as isps_json:
+        with open_text('djspoofer.tests.proxyrack.schemas', 'us_isps.json') as isps_json:
             cls.r_data = json.loads(isps_json.read())
 
     @mock.patch.object(httpx, 'Client')

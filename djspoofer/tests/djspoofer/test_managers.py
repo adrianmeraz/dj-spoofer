@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from djspoofer import const, exceptions
-from djspoofer.models import Fingerprint, Proxy
+from djspoofer.models import Fingerprint, Proxy, IPFingerprint
 
 
 class FingerprintManagerTests(TestCase):
@@ -22,6 +22,12 @@ class FingerprintManagerTests(TestCase):
             'viewport_height': 768,
             'viewport_width': 1024,
         }
+        cls.ip_fingerprint_data = {
+            'city': 'Dallas',
+            'country': 'US',
+            'isp': 'Spectrum',
+            'ip': '194.60.86.250',
+        }
 
     def test_get_random_desktop_fingerprint(self):
         with self.assertRaises(exceptions.DJSpooferError):
@@ -29,6 +35,17 @@ class FingerprintManagerTests(TestCase):
 
         Fingerprint.objects.create(**self.fingerprint_data)
         self.assertIsNotNone(Fingerprint.objects.get_random_desktop_fingerprint())
+
+    def test_get_n_ip_fingerprints(self):
+        fingerprint = Fingerprint.objects.create(**self.fingerprint_data)
+
+        # Create 7 IP FIngerprints
+        ip_fingerprints = [IPFingerprint(fingerprint=fingerprint, **self.ip_fingerprint_data) for _ in range(7)]
+        IPFingerprint.objects.bulk_create(ip_fingerprints)
+
+        ip_fingerprints = Fingerprint.objects.get_n_ip_fingerprints(oid=fingerprint.oid, count=4)
+        # Only pull 4 IP Fingerprints
+        self.assertEquals(ip_fingerprints.count(), 4)
 
 
 class ProxyManagerTests(TestCase):

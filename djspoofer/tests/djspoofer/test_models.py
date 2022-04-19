@@ -2,7 +2,7 @@ from ssl import Options
 
 from django.test import TestCase
 
-from djspoofer.models import Fingerprint, Proxy, TLSFingerprint
+from djspoofer.models import Fingerprint, IPFingerprint, Proxy, TLSFingerprint
 from djspoofer import utils
 
 
@@ -27,9 +27,42 @@ class FingerprintTests(TestCase):
             'viewport_width': 1024,
         }
 
-    def test_user_str(self):
+    def test_str(self):
         fp = Fingerprint.objects.create(**self.fingerprint_data)
         self.assertEqual(str(fp), f'Fingerprint -> user_agent: {self.fingerprint_data["user_agent"]}')
+
+
+class IPFingerprintTests(TestCase):
+    """
+    IPFingerprint Tests
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.ip_fingerprint_data = {
+            'city': 'Dallas',
+            'country': 'US',
+            'isp': 'Spectrum',
+            'ip': '194.60.86.250',
+        }
+        cls.fingerprint_data = {
+            'browser': 'Chrome',
+            'device_category': 'mobile',
+            'platform': 'US',
+            'screen_height': 1920,
+            'screen_width': 1080,
+            'user_agent': ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                           'Chrome/99.0.4844.74 Safari/537.36'),
+            'viewport_height': 768,
+            'viewport_width': 1024,
+        }
+
+    def test_str(self):
+        ip_fingerprint = IPFingerprint.objects.create(
+            **self.ip_fingerprint_data,
+            fingerprint=Fingerprint.objects.create(**self.fingerprint_data)
+        )
+        self.assertEqual(str(ip_fingerprint), f'IPFingerprint -> ip: 194.60.86.250')
 
 
 class TLSFingerprintTests(TestCase):
@@ -70,7 +103,7 @@ class ProxyTests(TestCase):
             'city': 'dallas',
         }
 
-    def test_user_str(self):
+    def test_str(self):
         proxy = Proxy.objects.create(**self.proxy_data)
         self.assertEqual(str(proxy), 'Proxy -> url: user123:password456@example.com:4582, mode: GENERAL')
 

@@ -104,7 +104,23 @@ class GenerateTempApiKeyResponse:
 
 
 @decorators.wrap_exceptions(raise_as=ProxyRackError)
+def test_proxy(client, *args, **kwargs):
+    url = 'https://example.com'
+    r = client.head(url, *args, **kwargs)
+    r.raise_for_status()
+
+
+@decorators.wrap_exceptions(raise_as=ProxyRackError)
 def stats(client, *args, **kwargs):
+    """
+    Gets statistics of current proxy
+    Note: An endpoint must be hit first, or data will be blank
+    :param client:
+    :param args:
+    :param kwargs:
+    :return:
+    """
+
     url = f'{BASE_URL}/stats'
     r = client.get(url, *args, **kwargs)
     r.raise_for_status()

@@ -6,7 +6,7 @@ import httpx
 from djstarter.clients import Http2Client
 
 from . import utils
-from .models import Fingerprint, TLSFingerprint
+from .models import Fingerprint, IPFingerprint, TLSFingerprint
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +55,14 @@ class DesktopClient(ABC, Http2Client):
         self.fingerprint.tls_fingerprint = tls_fingerprint
         self.fingerprint.save()
         return tls_fingerprint
+
+    # def generate_tls_fingerprint(self, ip_data):
+    #
+    #     return IPFingerprint.objects.create(
+    #         city=ipdata
+    #         browser=self.fingerprint.browser,
+    #         fingerprint=self.fingerprint
+    #     )
 
 
 class DesktopChromeClient(DesktopClient):
