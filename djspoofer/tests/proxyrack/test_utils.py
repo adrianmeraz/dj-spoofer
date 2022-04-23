@@ -19,7 +19,8 @@ class UtilTests(TestCase):
             refreshMinutes=10,
             osName=const.ProxyOs.LINUX,
             session='13ac97fe-0f26-45ff-aeb9-2801400326ec',
-            proxyIp='184.53.48.165'
+            proxyIp='184.53.48.165',
+            missingKey=''
         )
 
         self.assertEquals(

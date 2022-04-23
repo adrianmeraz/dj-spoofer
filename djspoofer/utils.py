@@ -1,6 +1,7 @@
 import logging
 import random
 
+import httpx
 from faker import Faker
 from ua_parser import user_agent_parser
 
@@ -87,3 +88,13 @@ class UserAgentParser:
 
     def __str__(self):
         return f'UserAgentParser -> {self.ua_parser}'
+
+
+def is_valid_proxy(client, *args, **kwargs):
+    url = 'https://example.com'
+    try:
+        client.head(url, *args, **kwargs)
+    except httpx.ProxyError:
+        return False
+    else:
+        return True

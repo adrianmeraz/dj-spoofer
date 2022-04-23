@@ -25,6 +25,12 @@ To copy to clipboard, run:
 
 `xclip -sel clip < ~/.ssh/id_rsa.pub`
 
+### Install git
+
+```
+sudo apt install git-all
+```
+
 ### Install IntelliJ Toolbox
 
 Download tarball from [HERE](https://www.jetbrains.com/toolbox-app/)
@@ -52,7 +58,7 @@ Follow prompts and install Pycharm Community IDE
 
 ### Install distutils
 
-`sudo apt install python3-distutils `
+`sudo apt install python3-distutils`
 
 ### Install Poetry
 
@@ -291,7 +297,7 @@ Specify settings with `--settings`
 
 To run against a single module, add the module name:
 
-`poetry run python manage.py test djspoofer.tests.test_views --settings=config.settings.local --no-input --parallel`
+`poetry run python manage.py test djspoofer.tests.test_views --settings=config.settings.local --no-input`
 
 ### Faster Tests
 

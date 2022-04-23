@@ -14,3 +14,10 @@ TOP_RESIDENTIAL_US_ISPS = [
     'Spectrum',
     'Verizon Fios'
 ]
+
+# Order of important to get a proxy
+PROXY_PARAM_ORDER = [
+    'country',
+    'city',
+    'isp',
+]

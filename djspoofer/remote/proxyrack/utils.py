@@ -15,7 +15,7 @@ class ProxyBuilder:
 
     @property
     def _all_options(self):
-        return ';'.join([self._username] + [f'{k}={v}' for k, v in self._options.items()])
+        return ';'.join([self._username] + [f'{k}={v}' for k, v in self._options.items() if v])
 
 
 def random_residential_us_isp():
