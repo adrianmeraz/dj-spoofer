@@ -7,9 +7,9 @@ import httpx
 from django.conf import settings
 from djstarter.clients import Http2Client
 
-from djspoofer import utils
-from djspoofer.remote.proxyrack import exceptions as pr_exceptions, proxyrack_api, utils as pr_utils
-from .models import Fingerprint, TLSFingerprint, Proxy
+from djspoofer import exceptions, utils
+from djspoofer.remote.proxyrack import proxyrack_api, utils as pr_utils
+from .models import Fingerprint, IPFingerprint, TLSFingerprint, Proxy
 
 logger = logging.getLogger(__name__)
 
@@ -22,10 +22,33 @@ class ProxyBackend(ABC):
     def is_valid_proxy(self, proxy_url):
         raise NotImplemented
 
+    def generate_ip_fingerprint(self, fingerprint):
+        raise NotImplemented
+
 
 class ProxyRackProxyBackend(ProxyBackend):
     def __init__(self, *args, **kwargs):
         self.proxy = Proxy.objects.get_rotating_proxy()
+
+    def generate_ip_fingerprint(self, fingerprint):
+        proxy_url = self.build_proxy_url(
+            country=fingerprint.geolocation.country,
+            city=fingerprint.geolocation.city,
+            isp=fingerprint.geolocation.isp,
+            osName=fingerprint.os
+        )
+        if self.is_valid_proxy(proxy_url):
+            with Http2Client() as client:
+                r_stats = proxyrack_api.stats(client)
+            return IPFingerprint.objects.create(
+                city=r_stats.ipinfo.city,
+                country=r_stats.ipinfo.country,
+                isp=r_stats.ipinfo.isp,
+                ip=r_stats.ipinfo.ip,
+                fingerprint=fingerprint
+            )
+        else:
+            raise exceptions.DJSpooferError('Failed to get a valid proxy')
 
     def ip_fingerprint_proxy_url(self, ip_fingerprint):
         return self.build_proxy_url(
@@ -48,22 +71,13 @@ class ProxyRackProxyBackend(ProxyBackend):
         return proxy_builder.http_url
 
     def is_valid_proxy(self, proxy_url):
-        proxies = {
-            'http://': proxy_url,
-            'https://': proxy_url
-        }
-        with Http2Client(proxies=proxies) as client:
-            try:
-                proxyrack_api.proxy_check(client)
-            except pr_exceptions.ProxyError:
-                return False
-            else:
-                return True
+        with Http2Client() as client:
+            return proxyrack_api.is_valid_proxy(client, proxy_url=proxy_url)
 
 
 class DesktopClient(Http2Client, ProxyRackProxyBackend):
-    def __init__(self, fingerprint=None, *args, **kwargs):
-        self.fingerprint = fingerprint or self.temp_fingerprint()
+    def __init__(self, fingerprint, *args, **kwargs):
+        self.fingerprint = fingerprint
         self.tls_fingerprint = self.fingerprint.tls_fingerprint or self.generate_tls_fingerprint()
         self.ip_fingerprint = self.get_ip_fingerprint()
         self.user_agent = self.fingerprint.user_agent
@@ -97,10 +111,6 @@ class DesktopClient(Http2Client, ProxyRackProxyBackend):
             }
         return dict()
 
-    @staticmethod
-    def temp_fingerprint():
-        return Fingerprint.objects.get_random_desktop_fingerprint()
-
     def generate_tls_fingerprint(self):
         tls_fingerprint = TLSFingerprint.objects.create(browser=self.fingerprint.browser)
         self.fingerprint.tls_fingerprint = tls_fingerprint
@@ -109,12 +119,9 @@ class DesktopClient(Http2Client, ProxyRackProxyBackend):
 
     def get_ip_fingerprint(self):
         if ip_fingerprints := Fingerprint.objects.get_n_ip_fingerprints(oid=self.fingerprint.oid, count=3):
-            if ip_fingerprint := self.get_valid_ip_fingerprint(ip_fingerprints):      # Valid IP Fingerprint was found
-                return ip_fingerprint
-            else:                   # IP Fingerprints were invalid. Generate a new one using geolocation
-                pass
-        else:                       # No Prior IP Fingerprints - Generate an IP Fingerprint
-            pass
+            if ip_fingerprint := self.get_valid_ip_fingerprint(ip_fingerprints):
+                return ip_fingerprint   # Valid IP Fingerprint was found
+        return self.generate_ip_fingerprint(self.fingerprint)   # Generate if no valid IP Fingerprints
 
     def get_valid_ip_fingerprint(self, ip_fingerprints):
         for ip_fp in ip_fingerprints:

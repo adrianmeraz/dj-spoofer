@@ -1,4 +1,5 @@
 import logging
+import httpx
 
 from djstarter import decorators
 
@@ -119,11 +120,14 @@ status_errors_map = {
 }
 
 
-def proxy_check(client, *args, **kwargs):
+def is_valid_proxy(client, proxy_url):
     url = 'https://example.com'
-    r = client.head(url, *args, **kwargs)
-    if r.is_error:
-        raise status_errors_map[r.status_code]()
+    proxies = {
+        'http://': proxy_url,
+        'https://': proxy_url,
+    }
+    r = client.head(url, proxies=proxies)
+    return not r.is_error
 
 
 @decorators.wrap_exceptions(raise_as=exceptions.ProxyRackError)

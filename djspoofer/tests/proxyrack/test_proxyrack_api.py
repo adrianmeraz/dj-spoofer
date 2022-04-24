@@ -112,9 +112,8 @@ class ProxyCheckTests(BaseTestCase):
             status_code=codes.OK,
         )
 
-        proxyrack_api.proxy_check(
-            mock_client,
-        )
+        is_valid_proxy = proxyrack_api.is_valid_proxy(mock_client, proxy_url='http://example.com')
+        self.assertTrue(is_valid_proxy)
         self.assertEquals(mock_client.head.call_count, 1)
 
     @mock.patch.object(httpx, 'Client')
@@ -124,58 +123,7 @@ class ProxyCheckTests(BaseTestCase):
             status_code=407,
         )
 
-        with self.assertRaises(exceptions.ProxyNotAuthenticated):
-            proxyrack_api.proxy_check(
-                mock_client,
-            )
-
-    @mock.patch.object(httpx, 'Client')
-    def test_560(self, mock_client):
-        mock_client.head.return_value = Response(
-            request=self.request,
-            status_code=560,
-        )
-
-        with self.assertRaises(exceptions.GeoLocationNotFound):
-            proxyrack_api.proxy_check(
-                mock_client,
-            )
-
-    @mock.patch.object(httpx, 'Client')
-    def test_561(self, mock_client):
-        mock_client.head.return_value = Response(
-            request=self.request,
-            status_code=561,
-        )
-
-        with self.assertRaises(exceptions.ProxyUnreachable):
-            proxyrack_api.proxy_check(
-                mock_client,
-            )
-
-    @mock.patch.object(httpx, 'Client')
-    def test_562(self, mock_client):
-        mock_client.head.return_value = Response(
-            request=self.request,
-            status_code=562,
-        )
-
-        with self.assertRaises(exceptions.ProxyNotFound):
-            proxyrack_api.proxy_check(
-                mock_client,
-            )
-
-    @mock.patch.object(httpx, 'Client')
-    def test_564(self, mock_client):
-        mock_client.head.return_value = Response(
-            request=self.request,
-            status_code=564,
-        )
-
-        with self.assertRaises(exceptions.ProxyNotOnline):
-            proxyrack_api.proxy_check(
-                mock_client,
-            )
+        self.assertFalse(proxyrack_api.is_valid_proxy(mock_client, proxy_url='http://example.com'))
 
 
 class StatsTests(BaseTestCase):
