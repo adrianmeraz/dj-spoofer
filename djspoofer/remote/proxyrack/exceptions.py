@@ -9,11 +9,27 @@ class ProxyRackApiError(exceptions.ApiError):
     """All Exceptions in the ProxyRack Api inherit from this class"""
 
 
-class ProxyNotAuthenticated(ProxyRackApiError):
-    """Proxy Not Found - 407"""
+class ProxyError(exceptions.ApiError):
+    """All Proxy Exceptions"""
 
 
-class GeoLocationNotFound(ProxyRackApiError):
+class ProxyNotAuthenticated(ProxyError):
+    """
+    Proxy Not Found - 407
+
+    This error means that there is something wrong with your authentication credentials.
+
+    If you are using IP whitelisting, make sure that you are connecting to your proxies from the same IP address that
+    you have whitelisted in your user dashboard.
+
+    If you are using username and password authentication, please make sure that you are using your API key as your
+    password and not the password you use to log in to your Proxyrack account.
+
+
+    """
+
+
+class GeoLocationNotFound(ProxyError):
     """
     Geo Location Not Found - 560
 
@@ -21,11 +37,12 @@ class GeoLocationNotFound(ProxyRackApiError):
 
     Please double check you are using the correct country code.
 
-    If you are using a correct country code and you are still receiving this error then you will need to try again later or remove the GEO targeting parameters.
+    If you are using a correct country code and you are still receiving this error then you will need to try again
+    later or remove the GEO targeting parameters.
     """
 
 
-class ProxyUnreachable(ProxyRackApiError):
+class ProxyUnreachable(ProxyError):
     """
     Proxy Unreachable - 561
 
@@ -35,19 +52,20 @@ class ProxyUnreachable(ProxyRackApiError):
     """
 
 
-class ProxyNotFound(ProxyRackApiError):
+class ProxyNotFound(ProxyError):
     """
     Proxy Not Found - 562
 
     This means that we were unable to find an exit node for your request.
 
-    If you are using any of our GEO location targeting features it may mean that there are no available nodes for your request.
+    If you are using any of our GEO location targeting features it may mean that there are no available nodes
+    for your request.
 
     To avoid this simply remove your targeting features and try again.
     """
 
 
-class ProxyNotOnline(ProxyRackApiError):
+class ProxyNotOnline(ProxyError):
     """
     Proxy Not Found - 564
 

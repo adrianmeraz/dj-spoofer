@@ -95,7 +95,7 @@ class APIKeyTests(BaseTestCase):
             )
 
 
-class TestProxyTests(BaseTestCase):
+class ProxyCheckTests(BaseTestCase):
     """
         Test Proxy Tests
     """
@@ -112,20 +112,68 @@ class TestProxyTests(BaseTestCase):
             status_code=codes.OK,
         )
 
-        proxyrack_api.test_proxy(
+        proxyrack_api.proxy_check(
             mock_client,
         )
         self.assertEquals(mock_client.head.call_count, 1)
 
     @mock.patch.object(httpx, 'Client')
-    def test_400(self, mock_client):
+    def test_407(self, mock_client):
         mock_client.head.return_value = Response(
             request=self.request,
-            status_code=codes.BAD_REQUEST,
+            status_code=407,
         )
 
-        with self.assertRaises(exceptions.ProxyRackError):
-            proxyrack_api.test_proxy(
+        with self.assertRaises(exceptions.ProxyNotAuthenticated):
+            proxyrack_api.proxy_check(
+                mock_client,
+            )
+
+    @mock.patch.object(httpx, 'Client')
+    def test_560(self, mock_client):
+        mock_client.head.return_value = Response(
+            request=self.request,
+            status_code=560,
+        )
+
+        with self.assertRaises(exceptions.GeoLocationNotFound):
+            proxyrack_api.proxy_check(
+                mock_client,
+            )
+
+    @mock.patch.object(httpx, 'Client')
+    def test_561(self, mock_client):
+        mock_client.head.return_value = Response(
+            request=self.request,
+            status_code=561,
+        )
+
+        with self.assertRaises(exceptions.ProxyUnreachable):
+            proxyrack_api.proxy_check(
+                mock_client,
+            )
+
+    @mock.patch.object(httpx, 'Client')
+    def test_562(self, mock_client):
+        mock_client.head.return_value = Response(
+            request=self.request,
+            status_code=562,
+        )
+
+        with self.assertRaises(exceptions.ProxyNotFound):
+            proxyrack_api.proxy_check(
+                mock_client,
+            )
+
+    @mock.patch.object(httpx, 'Client')
+    def test_564(self, mock_client):
+        mock_client.head.return_value = Response(
+            request=self.request,
+            status_code=564,
+        )
+
+        with self.assertRaises(exceptions.ProxyNotOnline):
+            proxyrack_api.proxy_check(
                 mock_client,
             )
 

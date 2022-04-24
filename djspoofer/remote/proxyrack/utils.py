@@ -3,6 +3,7 @@ from . import const
 
 
 class ProxyBuilder:
+
     def __init__(self, username, password, netloc, **options):
         self._username = username
         self._password = password

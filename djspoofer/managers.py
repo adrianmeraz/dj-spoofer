@@ -10,6 +10,10 @@ from djspoofer.remote.intoli import exceptions as intoli_exceptions
 from . import const
 
 
+class GeolocationManager(models.Manager):
+    pass
+
+
 class IPFingerprintManager(models.Manager):
     pass
 

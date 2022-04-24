@@ -2,14 +2,14 @@ import logging
 
 from djstarter import decorators
 
-from .exceptions import ProxyRackError
+from djspoofer.remote.proxyrack import exceptions
 
 logger = logging.getLogger(__name__)
 
 BASE_URL = 'https://api.proxyrack.net'
 
 
-@decorators.wrap_exceptions(raise_as=ProxyRackError)
+@decorators.wrap_exceptions(raise_as=exceptions.ProxyRackError)
 def active_connections(client, *args, **kwargs):
     url = f'{BASE_URL}/active_conns'
     r = client.get(url, *args, **kwargs)
@@ -28,7 +28,7 @@ class ActiveConnectionsResponse:
         self.connections = [self.Connection(c) for c in data]
 
 
-@decorators.wrap_exceptions(raise_as=ProxyRackError)
+@decorators.wrap_exceptions(raise_as=exceptions.ProxyRackError)
 def cities(client, *args, **kwargs):
     url = f'{BASE_URL}/cities'
     r = client.get(url, *args, **kwargs)
@@ -41,7 +41,7 @@ class CitiesResponse:
         self.cities = data
 
 
-@decorators.wrap_exceptions(raise_as=ProxyRackError)
+@decorators.wrap_exceptions(raise_as=exceptions.ProxyRackError)
 def countries(client, *args, **kwargs):
     url = f'{BASE_URL}/countries'
     r = client.get(url, *args, **kwargs)
@@ -54,7 +54,7 @@ class CountriesResponse:
         self.countries = data
 
 
-@decorators.wrap_exceptions(raise_as=ProxyRackError)
+@decorators.wrap_exceptions(raise_as=exceptions.ProxyRackError)
 def isps(client, country, *args, **kwargs):
     url = f'{BASE_URL}/countries/{country}/isps'
     r = client.get(url, *args, **kwargs)
@@ -67,7 +67,7 @@ class ISPSResponse:
         self.isps = data
 
 
-@decorators.wrap_exceptions(raise_as=ProxyRackError)
+@decorators.wrap_exceptions(raise_as=exceptions.ProxyRackError)
 def country_ip_count(client, country, *args, **kwargs):
     url = f'{BASE_URL}/countries/{country}/count'
     r = client.get(url, *args, **kwargs)
@@ -75,7 +75,7 @@ def country_ip_count(client, country, *args, **kwargs):
     return r.text
 
 
-@decorators.wrap_exceptions(raise_as=ProxyRackError)
+@decorators.wrap_exceptions(raise_as=exceptions.ProxyRackError)
 def generate_temp_api_key(client, expiration_seconds, *args, **kwargs):
     url = f'{BASE_URL}/passwords'
 
@@ -103,14 +103,30 @@ class GenerateTempApiKeyResponse:
         return self.password.password
 
 
-@decorators.wrap_exceptions(raise_as=ProxyRackError)
+@decorators.wrap_exceptions(raise_as=exceptions.ProxyRackError)
 def test_proxy(client, *args, **kwargs):
     url = 'https://example.com'
     r = client.head(url, *args, **kwargs)
     r.raise_for_status()
 
 
-@decorators.wrap_exceptions(raise_as=ProxyRackError)
+status_errors_map = {
+    407: exceptions.ProxyNotAuthenticated,
+    560: exceptions.GeoLocationNotFound,
+    561: exceptions.ProxyUnreachable,
+    562: exceptions.ProxyNotFound,
+    564: exceptions.ProxyNotOnline
+}
+
+
+def proxy_check(client, *args, **kwargs):
+    url = 'https://example.com'
+    r = client.head(url, *args, **kwargs)
+    if r.is_error:
+        raise status_errors_map[r.status_code]()
+
+
+@decorators.wrap_exceptions(raise_as=exceptions.ProxyRackError)
 def stats(client, *args, **kwargs):
     """
     Gets statistics of current proxy

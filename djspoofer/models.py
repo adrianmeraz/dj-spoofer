@@ -105,6 +105,19 @@ class TLSFingerprint(BaseModel):
         super().save(*args, **kwargs)
 
 
+class Geolocation(BaseModel):
+    objects = managers.GeolocationManager()
+
+    city = models.CharField(max_length=32)
+    country = models.CharField(max_length=2)
+    isp = models.CharField(max_length=32)
+
+    class Meta:
+        db_table = 'djspoofer_geolocation'
+        ordering = ['-created']
+        app_label = 'djspoofer'
+
+
 class Fingerprint(BaseModel):
     objects = managers.FingerprintManager()
 
@@ -120,6 +133,14 @@ class Fingerprint(BaseModel):
 
     tls_fingerprint = models.ForeignKey(
         to=TLSFingerprint,
+        related_name='fingerprints',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True
+    )
+
+    geolocation = models.ForeignKey(
+        to=Geolocation,
         related_name='fingerprints',
         on_delete=models.CASCADE,
         blank=True,

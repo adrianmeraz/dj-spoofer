@@ -88,13 +88,3 @@ class UserAgentParser:
 
     def __str__(self):
         return f'UserAgentParser -> {self.ua_parser}'
-
-
-def is_valid_proxy(client, *args, **kwargs):
-    url = 'https://example.com'
-    try:
-        client.head(url, *args, **kwargs)
-    except httpx.ProxyError:
-        return False
-    else:
-        return True
