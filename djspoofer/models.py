@@ -4,7 +4,6 @@ import random
 from django.db import models
 from django.utils import timezone
 from djstarter.models import BaseModel
-from django.contrib.postgres.fields import ArrayField
 
 from . import const, managers
 
@@ -160,6 +159,19 @@ class Fingerprint(BaseModel):
 
     def __str__(self):
         return f'Fingerprint -> user_agent: {self.user_agent}'
+
+    def save(self, *args, **kwargs):
+        if not self.tls_fingerprint:
+            self.tls_fingerprint = TLSFingerprint.objects.create(browser=self.browser)
+        super().save(*args, **kwargs)
+
+    def set_tls_fingerprint(self, tls_fingerprint):
+        self.tls_fingerprint = tls_fingerprint
+        self.save()
+
+    def set_geolocation(self, geolocation):
+        self.geolocation = geolocation
+        self.save()
 
 
 class IPFingerprint(BaseModel):

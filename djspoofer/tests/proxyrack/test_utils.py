@@ -29,3 +29,11 @@ class UtilTests(TestCase):
              'osName=Linux;session=13ac97fe-0f26-45ff-aeb9-2801400326ec;proxyIp=184.53.48.165:'
              'goodpw567@megaproxy.rotating.proxyrack.net:10000')
         )
+
+    def test_proxy_weighted_country(self):
+        country = utils.proxy_weighted_country()
+        self.assertIsNotNone(country)
+
+    def test_proxy_weighted_isp(self):
+        isp = utils.proxy_weighted_isp()
+        self.assertIsNotNone(isp)
