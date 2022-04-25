@@ -5,26 +5,29 @@
 	},
 	"concurrent": 0,
 	"interval": {
-		"seconds": 59,
-		"timestamp": 1650123865
+		"seconds": 412,
+		"timestamp": 1650862964
 	},
 	"ipinfo": {
-		"city": "",
-		"country": "",
+		"city": "Boardman",
+		"country": "US",
 		"fingerprint": {
-			"osName": ""
+			"osName": "Windows"
 		},
-		"ip": "",
-		"isp": "",
-		"online": false
+		"ip": "54.202.126.163",
+		"isp": "Amazon.com",
+		"online": true,
+		"proxyId": "PRFSNTV8Q9"
 	},
 	"release": {
 		"count": 0,
 		"limit": 99990
 	},
 	"requestParams": {
-		"autoReplace": "false",
-		"refreshSeconds": 60
+		"autoReplace": "true",
+		"country": "US",
+		"refreshSeconds": 600,
+		"timeoutSeconds": 15
 	},
 	"threadLimit": 10000,
 	"transferGB": {

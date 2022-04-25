@@ -1,7 +1,6 @@
 import logging
 import random
 
-import httpx
 from faker import Faker
 from ua_parser import user_agent_parser
 

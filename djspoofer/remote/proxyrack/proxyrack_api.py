@@ -120,13 +120,9 @@ status_errors_map = {
 }
 
 
-def is_valid_proxy(client, proxy_url):
+def is_valid_proxy(proxies):
     url = 'https://example.com'
-    proxies = {
-        'http://': proxy_url,
-        'https://': proxy_url,
-    }
-    r = client.head(url, proxies=proxies)
+    r = httpx.head(url, proxies=proxies)
     return not r.is_error
 
 

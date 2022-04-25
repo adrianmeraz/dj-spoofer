@@ -287,6 +287,26 @@ poetry run python manage.py createsuperuser
 
 ```
 
+## Proxy Backends
+
+### ProxyRack Backend
+
+To set custom weights when selecting countries for geolocation, 
+use the PROXYRACK_COUNTRY_WEIGHTS setting.
+
+Example:
+
+```
+PROXY_COUNTRY_WEIGHTS = [
+    ('US', .70),
+    ('CA', .12),
+    ('UK', .12),
+    ('AU', .06),
+]
+```
+
+PROXYRACK_COUNTRY_WEIGHTS
+
 ## Testing
 
 Specify settings with `--settings`

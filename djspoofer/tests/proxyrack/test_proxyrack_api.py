@@ -105,25 +105,25 @@ class ProxyCheckTests(BaseTestCase):
         super().setUpTestData()
         cls.request = Request(url='', method='')  # Must add a non null request to avoid raising Runtime exception
 
-    @mock.patch.object(httpx, 'Client')
-    def test_ok(self, mock_client):
-        mock_client.head.return_value = Response(
+    @mock.patch.object(httpx, 'head')
+    def test_ok(self, mock_head):
+        mock_head.return_value = Response(
             request=self.request,
             status_code=codes.OK,
         )
 
-        is_valid_proxy = proxyrack_api.is_valid_proxy(mock_client, proxy_url='http://example.com')
+        is_valid_proxy = proxyrack_api.is_valid_proxy(proxies={'http://': 'http://example.com'})
         self.assertTrue(is_valid_proxy)
-        self.assertEquals(mock_client.head.call_count, 1)
+        self.assertEquals(mock_head.call_count, 1)
 
-    @mock.patch.object(httpx, 'Client')
-    def test_407(self, mock_client):
-        mock_client.head.return_value = Response(
+    @mock.patch.object(httpx, 'head')
+    def test_407(self, mock_head):
+        mock_head.return_value = Response(
             request=self.request,
             status_code=407,
         )
 
-        self.assertFalse(proxyrack_api.is_valid_proxy(mock_client, proxy_url='http://example.com'))
+        self.assertFalse(proxyrack_api.is_valid_proxy(proxies={'http://': 'http://example.com'}))
 
 
 class StatsTests(BaseTestCase):
