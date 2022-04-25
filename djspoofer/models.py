@@ -109,7 +109,7 @@ class Geolocation(BaseModel):
 
     city = models.CharField(max_length=32)
     country = models.CharField(max_length=2)
-    isp = models.CharField(max_length=32)
+    isp = models.CharField(max_length=32, blank=True, null=True)
 
     class Meta:
         db_table = 'djspoofer_geolocation'
@@ -164,10 +164,6 @@ class Fingerprint(BaseModel):
         if not self.tls_fingerprint:
             self.tls_fingerprint = TLSFingerprint.objects.create(browser=self.browser)
         super().save(*args, **kwargs)
-
-    def set_tls_fingerprint(self, tls_fingerprint):
-        self.tls_fingerprint = tls_fingerprint
-        self.save()
 
     def set_geolocation(self, geolocation):
         self.geolocation = geolocation

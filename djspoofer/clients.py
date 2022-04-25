@@ -6,7 +6,7 @@ from djstarter.clients import Http2Client
 
 from djspoofer import utils
 from djspoofer.remote.proxyrack import backends
-from .models import Geolocation, Fingerprint, TLSFingerprint
+from .models import Geolocation, Fingerprint
 
 logger = logging.getLogger(__name__)
 
@@ -62,10 +62,8 @@ class DesktopClient(Http2Client, backends.ProxyRackProxyBackend):
     def _get_valid_ip_fingerprint(self, ip_fingerprints):
         for ip_fp in ip_fingerprints:
             proxy_url = self.get_proxy_url(ip_fingerprint=ip_fp)
-            if self.is_valid_proxy(proxies=self.proxy_dict(proxy_url)):
+            if self.is_valid_proxy(proxies=utils.proxy_dict(proxy_url)):
                 return ip_fp
-            else:
-                continue
         return None
 
 

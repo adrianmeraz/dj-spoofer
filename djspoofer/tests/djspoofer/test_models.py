@@ -2,7 +2,7 @@ from ssl import Options
 
 from django.test import TestCase
 
-from djspoofer.models import Fingerprint, IPFingerprint, Proxy, TLSFingerprint
+from djspoofer.models import Geolocation, Fingerprint, IPFingerprint, Proxy, TLSFingerprint
 from djspoofer import utils
 
 
@@ -30,6 +30,16 @@ class FingerprintTests(TestCase):
     def test_str(self):
         fp = Fingerprint.objects.create(**self.fingerprint_data)
         self.assertEqual(str(fp), f'Fingerprint -> user_agent: {self.fingerprint_data["user_agent"]}')
+
+    def test_ok(self):
+        fp = Fingerprint.objects.create(**self.fingerprint_data)
+        self.assertEquals(fp.tls_fingerprint.browser, fp.browser)
+
+    def test_set_geolocation(self):
+        fp = Fingerprint.objects.create(**self.fingerprint_data)
+        geolocation = Geolocation.objects.create(city='Los Angeles')
+        fp.set_geolocation(geolocation)
+        self.assertEquals(fp.tls_fingerprint.browser, fp.browser)
 
 
 class IPFingerprintTests(TestCase):
