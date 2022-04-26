@@ -44,8 +44,6 @@ class DesktopClient(Http2Client, backends.ProxyRackProxyBackend):
     def _get_ip_fingerprint(self):
         ip_fingerprints = Fingerprint.objects.get_n_ip_fingerprints(oid=self.fingerprint.oid, count=3)
         if ip_fingerprint := self._get_valid_ip_fingerprint(ip_fingerprints):
-            if not self.fingerprint.geolocation:
-                self._set_fingerprint_geolocation(self.fingerprint, ip_fingerprint=ip_fingerprint)
             return ip_fingerprint   # Valid IP Fingerprint was found
         return self.new_ip_fingerprint(self.fingerprint)   # Generate if no valid IP Fingerprints
 
