@@ -5,7 +5,7 @@ from django.conf import settings
 from djstarter.clients import Http2Client
 
 from djspoofer import backends, exceptions, utils
-from djspoofer.models import Geolocation, IPFingerprint, Proxy
+from djspoofer.models import IPFingerprint, Proxy
 from djspoofer.remote.proxyrack import proxyrack_api, utils as pr_utils
 
 logger = logging.getLogger(__name__)
@@ -18,11 +18,8 @@ class ProxyRackProxyBackend(backends.ProxyBackend):
             city=ip_fingerprint.city,
             isp=ip_fingerprint.isp,
             proxyIp=ip_fingerprint.ip,
-            osName=ip_fingerprint.fingerprint.os
+            osName=ip_fingerprint.fingerprint_set.first().os
         )
-
-    def is_valid_proxy(self, proxies):
-        return proxyrack_api.is_valid_proxy(proxies)
 
     def new_ip_fingerprint(self, fingerprint):
         proxies = utils.proxy_dict(self._test_proxy_url(fingerprint))
@@ -36,21 +33,13 @@ class ProxyRackProxyBackend(backends.ProxyBackend):
                 ip=r_stats.ipinfo.ip,
                 fingerprint=fingerprint
             )
-            if not fingerprint.geolocation:
-                self._set_fingerprint_geolocation(fingerprint, ip_fingerprint=ip_fingerprint)
+            fingerprint.add_ip_fingerprint(ip_fingerprint)
             return ip_fingerprint
         else:
             raise exceptions.DJSpooferError('Failed to get a valid proxy')
 
-    @staticmethod
-    def _set_fingerprint_geolocation(fingerprint, ip_fingerprint):
-        geolocation = Geolocation.objects.create(
-            city=ip_fingerprint.city,
-            country=ip_fingerprint.country,
-            isp=ip_fingerprint.isp,
-        )
-        fingerprint.set_geolocation(geolocation)
-        logger.info(f'Set new geolocation for fingerprint: {fingerprint.oid}')
+    def is_valid_proxy(self, proxies):
+        return proxyrack_api.is_valid_proxy(proxies)
 
     def _test_proxy_url(self, fingerprint):
         if fingerprint.geolocation:

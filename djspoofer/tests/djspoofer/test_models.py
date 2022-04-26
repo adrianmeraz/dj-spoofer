@@ -26,6 +26,12 @@ class FingerprintTests(TestCase):
             'viewport_height': 768,
             'viewport_width': 1024,
         }
+        cls.ip_fingerprint_data = {
+            'city': 'Los Angeles',
+            'country': 'US',
+            'isp': 'Spectrum',
+            'ip': '194.60.86.250',
+        }
 
     def test_str(self):
         fp = Fingerprint.objects.create(**self.fingerprint_data)
@@ -40,6 +46,26 @@ class FingerprintTests(TestCase):
         geolocation = Geolocation.objects.create(city='Los Angeles')
         fp.set_geolocation(geolocation)
         self.assertEquals(fp.tls_fingerprint.browser, fp.browser)
+
+    def test_get_first_n_ip_fingerprints(self):
+        fp = Fingerprint.objects.create(**self.fingerprint_data)
+        self.assertEquals(fp.get_last_n_ip_fingerprints(3).count(), 0)
+
+        for _ in range(6):
+            fp.add_ip_fingerprint(IPFingerprint.objects.create(**self.ip_fingerprint_data))
+
+        self.assertEquals(fp.get_last_n_ip_fingerprints(4).count(), 4)
+
+    def test_add_ip_fingerprint(self):
+        fingerprint = Fingerprint.objects.create(**self.fingerprint_data)
+
+        self.assertIsNone(fingerprint.geolocation)
+
+        ip_fingerprint = IPFingerprint.objects.create(**self.ip_fingerprint_data)
+        fingerprint.add_ip_fingerprint(ip_fingerprint)
+
+        self.assertEquals(fingerprint.ip_fingerprints.all().count(), 1)
+        self.assertEquals(fingerprint.geolocation.isp, 'Spectrum')
 
 
 class IPFingerprintTests(TestCase):
@@ -70,7 +96,6 @@ class IPFingerprintTests(TestCase):
     def test_str(self):
         ip_fingerprint = IPFingerprint.objects.create(
             **self.ip_fingerprint_data,
-            fingerprint=Fingerprint.objects.create(**self.fingerprint_data)
         )
         self.assertEqual(str(ip_fingerprint), f'IPFingerprint -> ip: 194.60.86.250')
 

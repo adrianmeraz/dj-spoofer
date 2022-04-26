@@ -104,13 +104,6 @@ class GenerateTempApiKeyResponse:
         return self.password.password
 
 
-@decorators.wrap_exceptions(raise_as=exceptions.ProxyRackError)
-def test_proxy(client, *args, **kwargs):
-    url = 'https://example.com'
-    r = client.head(url, *args, **kwargs)
-    r.raise_for_status()
-
-
 status_errors_map = {
     407: exceptions.ProxyNotAuthenticated,
     560: exceptions.GeoLocationNotFound,

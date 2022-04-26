@@ -117,6 +117,29 @@ class Geolocation(BaseModel):
         app_label = 'djspoofer'
 
 
+class IPFingerprint(BaseModel):
+    objects = managers.IPFingerprintManager()
+
+    city = models.CharField(max_length=32)
+    country = models.CharField(max_length=2)
+    isp = models.CharField(max_length=32)
+    ip = models.GenericIPAddressField()
+
+    class Meta:
+        db_table = 'djspoofer_ip_fingerprint'
+        ordering = ['-created']
+        app_label = 'djspoofer'
+
+        indexes = [
+            models.Index(fields=['city', ], name='ip_fp_city'),
+            models.Index(fields=['country', ], name='ip_fp_country'),
+            models.Index(fields=['isp', ], name='ip_fp_isp'),
+        ]
+
+    def __str__(self):
+        return f'IPFingerprint -> ip: {self.ip}'
+
+
 class Fingerprint(BaseModel):
     objects = managers.FingerprintManager()
 
@@ -146,6 +169,8 @@ class Fingerprint(BaseModel):
         null=True
     )
 
+    ip_fingerprints = models.ManyToManyField(IPFingerprint)
+
     class Meta:
         db_table = 'djspoofer_fingerprint'
         ordering = ['-created']
@@ -169,34 +194,18 @@ class Fingerprint(BaseModel):
         self.geolocation = geolocation
         self.save()
 
+    def get_last_n_ip_fingerprints(self, count=3):
+        return self.ip_fingerprints.all().order_by('-created')[:count]
 
-class IPFingerprint(BaseModel):
-    objects = managers.IPFingerprintManager()
-
-    city = models.CharField(max_length=32)
-    country = models.CharField(max_length=2)
-    isp = models.CharField(max_length=32)
-    ip = models.GenericIPAddressField()
-
-    fingerprint = models.ForeignKey(
-        to=Fingerprint,
-        related_name='ip_fingerprints',
-        on_delete=models.CASCADE,
-    )
-
-    class Meta:
-        db_table = 'djspoofer_ip_fingerprint'
-        ordering = ['-created']
-        app_label = 'djspoofer'
-
-        indexes = [
-            models.Index(fields=['city', ], name='ip_fp_city'),
-            models.Index(fields=['country', ], name='ip_fp_country'),
-            models.Index(fields=['isp', ], name='ip_fp_isp'),
-        ]
-
-    def __str__(self):
-        return f'IPFingerprint -> ip: {self.ip}'
+    def add_ip_fingerprint(self, ip_fingerprint):
+        self.ip_fingerprints.add(ip_fingerprint)
+        if not self.geolocation:
+            self.geolocation = Geolocation.objects.create(
+                city=ip_fingerprint.city,
+                country=ip_fingerprint.country,
+                isp=ip_fingerprint.isp,
+            )
+        self.save()
 
 
 class Profile(BaseModel):

@@ -6,7 +6,7 @@ from django.test import TestCase
 from httpx import Request, Response, codes
 
 from djspoofer import clients, utils
-from djspoofer.models import Fingerprint, Proxy
+from djspoofer.models import Fingerprint, IPFingerprint, Proxy
 from djspoofer.remote.proxyrack import proxyrack_api
 
 
@@ -30,6 +30,12 @@ class DesktopChromeClientTests(TestCase):
             viewport_height=768,
             viewport_width=1024,
         )
+        cls.ip_fingerprint_data = {
+            'city': 'Los Angeles',
+            'country': 'US',
+            'isp': 'Spectrum',
+            'ip': '194.60.86.250',
+        }
         with open_text('djspoofer.tests.proxyrack.schemas', 'stats.json') as stats_json:
             cls.r_stats_data = proxyrack_api.StatsResponse(json.loads(stats_json.read()))
 
@@ -44,6 +50,31 @@ class DesktopChromeClientTests(TestCase):
         )
         mock_is_valid_proxy.return_value = True
         mock_stats.return_value = self.r_stats_data
+
+        with clients.DesktopChromeClient(fingerprint=self.fingerprint) as chrome_client:
+            chrome_client.get('http://example.com')
+            self.assertEquals(mock_sd_send.call_count, 1)
+            self.assertEquals(
+                chrome_client.sec_ch_ua,
+                '" Not;A Brand";v="99", "Google Chrome";v="99", "Chromium";v="99"'
+            )
+            self.assertEquals(chrome_client.sec_ch_ua_mobile, '?0')
+            self.assertEquals(chrome_client.sec_ch_ua_platform, '"Windows"')
+
+    @mock.patch.object(proxyrack_api, 'stats')
+    @mock.patch.object(proxyrack_api, 'is_valid_proxy')
+    @mock.patch.object(clients.DesktopChromeClient, '_send_handling_auth')
+    def test_fingerprint_with_geolocation(self, mock_sd_send, mock_is_valid_proxy, mock_stats):
+        mock_sd_send.return_value = Response(
+            request=Request(url='', method=''),
+            status_code=codes.OK,
+            text='ok'
+        )
+        mock_is_valid_proxy.return_value = True
+        mock_stats.return_value = self.r_stats_data
+
+        ip_fingerprint = IPFingerprint.objects.create(**self.ip_fingerprint_data)
+        self.fingerprint.add_ip_fingerprint(ip_fingerprint)
 
         with clients.DesktopChromeClient(fingerprint=self.fingerprint) as chrome_client:
             chrome_client.get('http://example.com')

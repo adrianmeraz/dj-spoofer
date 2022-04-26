@@ -36,21 +36,6 @@ class FingerprintManagerTests(TestCase):
         Fingerprint.objects.create(**self.fingerprint_data)
         self.assertIsNotNone(Fingerprint.objects.get_random_desktop_fingerprint())
 
-    def test_get_n_ip_fingerprints(self):
-        fingerprint = Fingerprint.objects.create(**self.fingerprint_data)
-
-        # No Fingerprints Created Yet
-        ip_fingerprints = Fingerprint.objects.get_n_ip_fingerprints(oid=fingerprint.oid, count=10)
-        self.assertListEqual(list(ip_fingerprints), list())
-
-        # Create 7 IP FIngerprints
-        ip_fingerprints = [IPFingerprint(fingerprint=fingerprint, **self.ip_fingerprint_data) for _ in range(7)]
-        IPFingerprint.objects.bulk_create(ip_fingerprints)
-
-        ip_fingerprints = Fingerprint.objects.get_n_ip_fingerprints(oid=fingerprint.oid, count=4)
-        # Only pull 4 IP Fingerprints
-        self.assertEquals(ip_fingerprints.count(), 4)
-
 
 class ProxyManagerTests(TestCase):
     """

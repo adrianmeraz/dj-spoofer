@@ -32,9 +32,6 @@ class FingerprintManager(models.Manager):
         except Exception:
             raise exceptions.DJSpooferError('No Desktop Fingerprints Exist')
 
-    def get_n_ip_fingerprints(self, oid, count=3):
-        return super().get_queryset().get(oid=oid).ip_fingerprints.all()[:count]
-
 
 class ProxyManager(models.Manager):
 
