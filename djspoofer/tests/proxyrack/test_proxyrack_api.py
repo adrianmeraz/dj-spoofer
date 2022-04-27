@@ -24,7 +24,7 @@ class ActiveConnectionsTests(BaseTestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.request = Request(url='', method='')  # Must add a non null request to avoid raising Runtime exception
-        with open_text('djspoofer.tests.proxyrack.schemas', 'active_conns.json') as active_conns_json:
+        with open_text('djspoofer.tests.proxyrack.resources', 'active_conns.json') as active_conns_json:
             cls.r_data = json.loads(active_conns_json.read())
 
     @mock.patch.object(httpx, 'Client')
@@ -63,7 +63,7 @@ class APIKeyTests(BaseTestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.request = Request(url='', method='')  # Must add a non null request to avoid raising Runtime exception
-        with open_text('djspoofer.tests.proxyrack.schemas', 'passwords.json') as passwords_json:
+        with open_text('djspoofer.tests.proxyrack.resources', 'passwords.json') as passwords_json:
             cls.r_data = json.loads(passwords_json.read())
 
     @mock.patch.object(httpx, 'Client')
@@ -135,7 +135,7 @@ class StatsTests(BaseTestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.request = Request(url='', method='')  # Must add a non null request to avoid raising Runtime exception
-        with open_text('djspoofer.tests.proxyrack.schemas', 'stats.json') as stats_json:
+        with open_text('djspoofer.tests.proxyrack.resources', 'stats.json') as stats_json:
             cls.r_data = json.loads(stats_json.read())
 
     @mock.patch.object(httpx, 'Client')
@@ -174,7 +174,7 @@ class IspsTests(BaseTestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.request = Request(url='', method='')  # Must add a non null request to avoid raising Runtime exception
-        with open_text('djspoofer.tests.proxyrack.schemas', 'us_isps.json') as isps_json:
+        with open_text('djspoofer.tests.proxyrack.resources', 'us_isps.json') as isps_json:
             cls.r_data = json.loads(isps_json.read())
 
     @mock.patch.object(httpx, 'Client')
@@ -215,7 +215,7 @@ class CountriesTests(BaseTestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.request = Request(url='', method='')  # Must add a non null request to avoid raising Runtime exception
-        with open_text('djspoofer.tests.proxyrack.schemas', 'countries.json') as countries_json:
+        with open_text('djspoofer.tests.proxyrack.resources', 'countries.json') as countries_json:
             cls.r_data = json.loads(countries_json.read())
 
     @mock.patch.object(httpx, 'Client')
@@ -256,7 +256,7 @@ class CitiesTests(BaseTestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.request = Request(url='', method='')  # Must add a non null request to avoid raising Runtime exception
-        with open_text('djspoofer.tests.proxyrack.schemas', 'cities.json') as cities_json:
+        with open_text('djspoofer.tests.proxyrack.resources', 'cities.json') as cities_json:
             cls.r_data = json.loads(cities_json.read())
 
     @mock.patch.object(httpx, 'Client')

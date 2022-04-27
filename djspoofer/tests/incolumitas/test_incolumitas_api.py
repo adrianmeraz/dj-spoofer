@@ -14,7 +14,7 @@ class IPFingerprintTests(TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.request = Request(url='', method='')  # Must add a non null request to avoid raising Runtime exception
-        with open_text('djspoofer.tests.incolumitas.schemas', 'ip_fingerprint.json') as ip_fingerprint_json:
+        with open_text('djspoofer.tests.incolumitas.resources', 'ip_fingerprint.json') as ip_fingerprint_json:
             cls.ip_fingerprint_json = json.loads(ip_fingerprint_json.read())
 
     @mock.patch.object(httpx, 'Client')

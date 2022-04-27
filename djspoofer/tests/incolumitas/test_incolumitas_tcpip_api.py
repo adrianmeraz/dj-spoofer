@@ -14,7 +14,7 @@ class TCPIPFingerprintTests(TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.request = Request(url='', method='')  # Must add a non null request to avoid raising Runtime exception
-        with open_text('djspoofer.tests.incolumitas.schemas', 'tcpip_fingerprint.json') as tcpip_fingerprint_json:
+        with open_text('djspoofer.tests.incolumitas.resources', 'tcpip_fingerprint.json') as tcpip_fingerprint_json:
             cls.tcpip_fingerprint_json = json.loads(tcpip_fingerprint_json.read())
 
     @mock.patch.object(httpx, 'Client')

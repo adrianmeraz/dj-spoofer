@@ -26,7 +26,7 @@ class ProxyRackProxyBackendTests(TestCase):
             viewport_height=768,
             viewport_width=1024,
         )
-        with open_text('djspoofer.tests.proxyrack.schemas', 'stats.json') as stats_json:
+        with open_text('djspoofer.tests.proxyrack.resources', 'stats.json') as stats_json:
             cls.r_stats_data = proxyrack_api.StatsResponse(json.loads(stats_json.read()))
 
     @mock.patch.object(proxyrack_api, 'stats')

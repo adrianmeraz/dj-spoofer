@@ -41,17 +41,11 @@ class DesktopClient(Http2Client, backends.ProxyRackProxyBackend):
         return context
 
     def _get_ip_fingerprint(self):
-        ip_fingerprints = self.fingerprint.get_last_n_ip_fingerprints(count=3)
-        if ip_fingerprint := self._get_valid_ip_fingerprint(ip_fingerprints):
-            return ip_fingerprint   # Valid IP Fingerprint was found
-        return self.new_ip_fingerprint(self.fingerprint)   # Generate if no valid IP Fingerprints
-
-    def _get_valid_ip_fingerprint(self, ip_fingerprints):
-        for ip_fp in ip_fingerprints:
-            proxy_url = self.get_proxy_url(ip_fingerprint=ip_fp)
+        for ip_fingerprint in self.fingerprint.get_last_n_ip_fingerprints(count=3):
+            proxy_url = self.get_proxy_url(ip_fingerprint=ip_fingerprint)
             if self.is_valid_proxy(proxies=utils.proxy_dict(proxy_url)):
-                return ip_fp
-        return None
+                return ip_fingerprint
+        return self.new_ip_fingerprint(self.fingerprint)   # Generate if no valid IP Fingerprints
 
 
 class DesktopChromeClient(DesktopClient):

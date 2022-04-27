@@ -13,7 +13,7 @@ class GetProfilesTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.request = Request(url='', method='')  # Must add a non null request to avoid raising Runtime exception
-        with open_text('djspoofer.tests.howsmyssl.schemas', 'ssl_check.json') as ssl_check_json:
+        with open_text('djspoofer.tests.howsmyssl.resources', 'ssl_check.json') as ssl_check_json:
             cls.ssl_check_json = json.loads(ssl_check_json.read())
 
     @mock.patch.object(httpx, 'Client')

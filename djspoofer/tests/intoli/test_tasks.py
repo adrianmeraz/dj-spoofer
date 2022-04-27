@@ -14,7 +14,7 @@ class GetProfilesTaskTests(TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.request = Request(url='', method='')  # Must add a non null request to avoid raising Runtime exception
-        with open_text('djspoofer.tests.intoli.schemas', 'user-agents.json') as user_agents_json:
+        with open_text('djspoofer.tests.intoli.resources', 'user-agents.json') as user_agents_json:
             cls.r_data = json.loads(user_agents_json.read())
 
     @mock.patch.object(intoli_api, 'get_profiles')

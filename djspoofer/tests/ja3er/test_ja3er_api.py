@@ -13,7 +13,7 @@ class DetailsTests(TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.request = Request(url='', method='')  # Must add a non null request to avoid raising Runtime exception
-        with open_text('djspoofer.tests.ja3er.schemas', 'details.json') as details_json:
+        with open_text('djspoofer.tests.ja3er.resources', 'details.json') as details_json:
             cls.details_json = json.loads(details_json.read())
 
     @mock.patch.object(httpx, 'Client')
@@ -55,7 +55,7 @@ class SearchTests(TestCase):
     def setUpTestData(cls):
         super().setUpTestData()
         cls.request = Request(url='', method='')  # Must add a non null request to avoid raising Runtime exception
-        with open_text('djspoofer.tests.ja3er.schemas', 'search.json') as search_json:
+        with open_text('djspoofer.tests.ja3er.resources', 'search.json') as search_json:
             cls.search_json = json.loads(search_json.read())
 
     @mock.patch.object(httpx, 'Client')

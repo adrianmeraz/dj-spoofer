@@ -6,7 +6,7 @@ from django.test import TestCase
 from httpx import Request, Response, codes
 
 from djspoofer import clients, utils
-from djspoofer.models import Fingerprint, IPFingerprint, Proxy
+from djspoofer.models import Fingerprint, IPFingerprint, Proxy, Geolocation
 from djspoofer.remote.proxyrack import proxyrack_api
 
 
@@ -36,7 +36,12 @@ class DesktopChromeClientTests(TestCase):
             'isp': 'Spectrum',
             'ip': '194.60.86.250',
         }
-        with open_text('djspoofer.tests.proxyrack.schemas', 'stats.json') as stats_json:
+        cls.geo_location_data = {
+            'city': 'Los Angeles',
+            'country': 'US',
+            'isp': 'Spectrum',
+        }
+        with open_text('djspoofer.tests.proxyrack.resources', 'stats.json') as stats_json:
             cls.r_stats_data = proxyrack_api.StatsResponse(json.loads(stats_json.read()))
 
     @mock.patch.object(proxyrack_api, 'stats')
@@ -64,7 +69,7 @@ class DesktopChromeClientTests(TestCase):
     @mock.patch.object(proxyrack_api, 'stats')
     @mock.patch.object(proxyrack_api, 'is_valid_proxy')
     @mock.patch.object(clients.DesktopChromeClient, '_send_handling_auth')
-    def test_fingerprint_with_geolocation(self, mock_sd_send, mock_is_valid_proxy, mock_stats):
+    def test_fingerprint_with_geolocation_no_ips(self, mock_sd_send, mock_is_valid_proxy, mock_stats):
         mock_sd_send.return_value = Response(
             request=Request(url='', method=''),
             status_code=codes.OK,
@@ -73,8 +78,7 @@ class DesktopChromeClientTests(TestCase):
         mock_is_valid_proxy.return_value = True
         mock_stats.return_value = self.r_stats_data
 
-        ip_fingerprint = IPFingerprint.objects.create(**self.ip_fingerprint_data)
-        self.fingerprint.add_ip_fingerprint(ip_fingerprint)
+        self.fingerprint.set_geolocation(Geolocation.objects.create(**self.geo_location_data))
 
         with clients.DesktopChromeClient(fingerprint=self.fingerprint) as chrome_client:
             chrome_client.get('http://example.com')
@@ -107,7 +111,7 @@ class DesktopFirefoxClientTests(TestCase):
             viewport_height=768,
             viewport_width=1024,
         )
-        with open_text('djspoofer.tests.proxyrack.schemas', 'stats.json') as stats_json:
+        with open_text('djspoofer.tests.proxyrack.resources', 'stats.json') as stats_json:
             cls.r_stats_data = proxyrack_api.StatsResponse(json.loads(stats_json.read()))
 
     @mock.patch.object(proxyrack_api, 'stats')
