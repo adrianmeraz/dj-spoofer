@@ -3,6 +3,7 @@ import uuid
 
 from django.conf import settings
 from djstarter.clients import Http2Client
+from httpx import Client
 
 from djspoofer import backends, exceptions, utils
 from djspoofer.models import IPFingerprint, Proxy
@@ -14,11 +15,7 @@ logger = logging.getLogger(__name__)
 class ProxyRackProxyBackend(backends.ProxyBackend):
     def get_proxy_url(self, ip_fingerprint):
         return self._build_proxy_url(
-            country=ip_fingerprint.country,
-            city=ip_fingerprint.city,
-            isp=ip_fingerprint.isp,
-            proxyIp=ip_fingerprint.ip,
-            osName=ip_fingerprint.fingerprint_set.first().os
+            proxyIp=ip_fingerprint.ip,  # Only need the proxyIp field, too many fields sometimes confuses proxyrack
         )
 
     def new_ip_fingerprint(self, fingerprint):

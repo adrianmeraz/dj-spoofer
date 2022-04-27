@@ -1,8 +1,9 @@
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from djstarter import utils
+from djstarter import utils, clients
 
 from djspoofer.clients import DesktopChromeClient
+from djspoofer.models import Fingerprint
 from djspoofer.remote.incolumitas import incolumitas_api, incolumitas_tcpip_api, incolumitas_tls_api
 from djspoofer.remote.ja3er import ja3er_api
 from djspoofer.remote.howsmyssl import howsmyssl_api
@@ -10,7 +11,7 @@ from djspoofer.remote.proxyrack import utils as pr_utils
 
 
 class Command(BaseCommand):
-    help = 'Get IP Fingerprint'
+    help = 'Get All Chrome Fingerprints'
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -27,9 +28,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **kwargs):
-        proxy_http_url = self.proxy_http_url(proxy_url=kwargs['proxy_url'], proxy_args=kwargs.get('proxy_args', list()))
+        fingerprint = Fingerprint.objects.get_random_desktop_fingerprint()
         try:
-            with DesktopChromeClient(proxy_url=proxy_http_url) as client:
+            with DesktopChromeClient(fingerprint=fingerprint) as client:
                 self.show_ja3er_details(client)
                 self.show_ssl_check(client)
                 self.show_ip_fingerprint(client)

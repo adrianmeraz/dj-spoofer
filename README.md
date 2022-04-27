@@ -232,6 +232,24 @@ poetry run zappa manage <STAGE_NAME> "createsuperuser --noinput"
 
 ## Admin Commands
 
+### Create desktop fingerprints
+
+```
+djspoofer_create_desktop_fingerprints --num_to_create "10" --settings=config.settings.local
+```
+
+### Get all Chrome fingerprints report
+
+```
+djspoofer_all_chrome_fingerprints --proxy-url "premium.residential.proxyrack.net:10000" --proxy-args "country=US" --settings=config.settings.local
+```
+
+### Get all Intoli Profiles
+
+```
+intoli_get_profiles --settings=config.settings.local
+```
+
 ## Poetry Utilities
 
 ### Create Initial Poetry File

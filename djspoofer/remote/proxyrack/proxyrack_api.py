@@ -7,7 +7,7 @@ from djspoofer.remote.proxyrack import exceptions
 
 logger = logging.getLogger(__name__)
 
-BASE_URL = 'https://api.proxyrack.net'
+BASE_URL = 'http://api.proxyrack.net'
 
 
 @decorators.wrap_exceptions(raise_as=exceptions.ProxyRackError)
@@ -114,8 +114,9 @@ status_errors_map = {
 
 
 def is_valid_proxy(proxies):
-    url = 'https://example.com'
-    r = httpx.head(url, proxies=proxies)
+    url = 'https://api.ipify.org?format=json'
+    r = httpx.get(url, proxies=proxies)
+    logger.info(f'ipify ip: {r.json()}')
     return not r.is_error
 
 
