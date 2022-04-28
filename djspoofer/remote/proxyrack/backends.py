@@ -2,7 +2,6 @@ import logging
 import uuid
 
 from django.conf import settings
-from djstarter.clients import Http2Client
 from httpx import Client
 
 from djspoofer import backends, exceptions, utils
@@ -13,31 +12,39 @@ logger = logging.getLogger(__name__)
 
 
 class ProxyRackProxyBackend(backends.ProxyBackend):
-    def get_proxy_url(self, ip_fingerprint):
-        return self._build_proxy_url(
-            proxyIp=ip_fingerprint.ip,
-            # session=str(uuid.uuid4()),
-        )
+    def get_proxy_url(self, fingerprint):
+        for ip_fingerprint in fingerprint.get_last_n_ip_fingerprints(count=3):
+            proxy_url = self._build_proxy_url(proxyIp=ip_fingerprint.ip)
+            if self._is_valid_proxy(proxies=utils.proxy_dict(proxy_url)):
+                logger.info(f'Found valid IP Fingerprint: {ip_fingerprint}')
+                return proxy_url
+        return self._new_proxy_url(fingerprint)   # Generate if no valid IP Fingerprints
 
-    def new_ip_fingerprint(self, fingerprint):
-        proxies = utils.proxy_dict(self._test_proxy_url(fingerprint))
-        if self.is_valid_proxy(proxies=proxies):
-            with Client(proxies=proxies) as client:
-                r_stats = proxyrack_api.stats(client)
-            ip_fingerprint = IPFingerprint.objects.create(
-                city=r_stats.ipinfo.city,
-                country=r_stats.ipinfo.country,
-                isp=r_stats.ipinfo.isp,
-                ip=r_stats.ipinfo.ip,
-                fingerprint=fingerprint
-            )
-            fingerprint.add_ip_fingerprint(ip_fingerprint)
-            return ip_fingerprint
-        else:
-            raise exceptions.DJSpooferError('Failed to get a new valid proxy')
+    def _new_proxy_url(self, fingerprint):
+        proxy_url = self._test_proxy_url(fingerprint)
+        proxies = utils.proxy_dict(proxy_url)
+        if self._is_valid_proxy(proxies=proxies):
+            self._create_ip_fingerprint(fingerprint, proxies)
+            return proxy_url
+        raise exceptions.DJSpooferError('Failed to get a new valid proxy')
 
-    def is_valid_proxy(self, proxies):
+    @staticmethod
+    def _is_valid_proxy(proxies):
         return proxyrack_api.is_valid_proxy(proxies)
+
+    @staticmethod
+    def _create_ip_fingerprint(fingerprint, proxies):
+        with Client(proxies=proxies) as client:
+            r_stats = proxyrack_api.stats(client)
+        ip_fingerprint = IPFingerprint.objects.create(
+            city=r_stats.ipinfo.city,
+            country=r_stats.ipinfo.country,
+            isp=r_stats.ipinfo.isp,
+            ip=r_stats.ipinfo.ip,
+            fingerprint=fingerprint
+        )
+        fingerprint.add_ip_fingerprint(ip_fingerprint)
+        logger.info(f'Created new ip fingerprint: {ip_fingerprint}')
 
     def _test_proxy_url(self, fingerprint):
         geolocation = fingerprint.geolocation
@@ -55,5 +62,6 @@ class ProxyRackProxyBackend(backends.ProxyBackend):
             password=settings.PROXY_PASSWORD,
             netloc=Proxy.objects.get_rotating_proxy().url,
             timeoutSeconds=60,
+            session=str(uuid.uuid4()),
             **kwargs
         ).http_url

@@ -22,8 +22,7 @@ class DesktopClient(Http2Client, backends.ProxyRackProxyBackend):
 
     @property
     def _proxies(self):
-        proxy_url = self.get_proxy_url(self._get_ip_fingerprint())
-        return utils.proxy_dict(proxy_url)
+        return utils.proxy_dict(self.get_proxy_url(self.fingerprint))
 
     def send(self, *args, **kwargs):
         self.headers.pop('Accept-Encoding', None)
@@ -39,14 +38,6 @@ class DesktopClient(Http2Client, backends.ProxyRackProxyBackend):
         context.options = tls_fingerprint.extensions
 
         return context
-
-    def _get_ip_fingerprint(self):
-        for ip_fingerprint in self.fingerprint.get_last_n_ip_fingerprints(count=3):
-            proxy_url = self.get_proxy_url(ip_fingerprint=ip_fingerprint)
-            if self.is_valid_proxy(proxies=utils.proxy_dict(proxy_url)):
-                logger.info(f'Found valid IP Fingerprint: {ip_fingerprint}')
-                return ip_fingerprint
-        return self.new_ip_fingerprint(self.fingerprint)   # Generate if no valid IP Fingerprints
 
 
 class DesktopChromeClient(DesktopClient):

@@ -1,12 +1,11 @@
 import json
 from importlib.resources import open_text
-from unittest import mock
 
 from django.test import TestCase
 
 from djspoofer import utils
-from djspoofer.models import Fingerprint, Proxy, IPFingerprint
-from djspoofer.remote.proxyrack import proxyrack_api, backends
+from djspoofer.models import Fingerprint
+from djspoofer.remote.proxyrack import proxyrack_api
 
 
 class ProxyRackProxyBackendTests(TestCase):
@@ -28,16 +27,3 @@ class ProxyRackProxyBackendTests(TestCase):
         )
         with open_text('djspoofer.tests.proxyrack.resources', 'stats.json') as stats_json:
             cls.r_stats_data = proxyrack_api.StatsResponse(json.loads(stats_json.read()))
-
-    @mock.patch.object(proxyrack_api, 'stats')
-    @mock.patch.object(proxyrack_api, 'is_valid_proxy')
-    def test_no_geolocation(self, mock_is_valid_proxy, mock_stats):
-        mock_is_valid_proxy.return_value = True
-        mock_stats.return_value = self.r_stats_data
-
-        Proxy.objects.create_rotating_proxy(url='test123:5000')
-
-        ip_fingerprint = backends.ProxyRackProxyBackend().new_ip_fingerprint(self.fingerprint)
-        # Now a geolocation exists
-        self.assertIsInstance(ip_fingerprint, IPFingerprint)
-
