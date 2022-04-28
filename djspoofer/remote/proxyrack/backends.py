@@ -18,7 +18,9 @@ class ProxyRackProxyBackend(backends.ProxyBackend):
             if self._is_valid_proxy(proxies=utils.proxy_dict(proxy_url)):
                 logger.info(f'Found valid IP Fingerprint: {ip_fingerprint}')
                 return proxy_url
-        return self._new_proxy_url(fingerprint)   # Generate if no valid IP Fingerprints
+        else:
+            logger.info(f'No valid IP Fingerprints found. {fingerprint}')
+            return self._new_proxy_url(fingerprint)   # Generate if no valid IP Fingerprints
 
     def _new_proxy_url(self, fingerprint):
         proxy_url = self._test_proxy_url(fingerprint)
