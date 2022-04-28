@@ -44,7 +44,7 @@ class ProfileManagerTests(TestCase):
         with self.assertRaises(exceptions.IntoliError):
             Profile.objects.random_desktop_profile()
 
-        Profile.objects.create(browser='Chrome', device_category='desktop', **self.profile_data)
+        Profile.objects.create(browser='Chrome', device_category='desktop', os='Windows', **self.profile_data)
 
         profile = Profile.objects.random_desktop_profile()
 
@@ -64,7 +64,7 @@ class ProfileManagerTests(TestCase):
         with self.assertRaises(exceptions.IntoliError):
             Profile.objects.weighted_desktop_profile()
 
-        Profile.objects.create(browser='Chrome', device_category='desktop', **self.profile_data)
+        Profile.objects.create(browser='Chrome', device_category='desktop', os='Windows', **self.profile_data)
 
         profile = Profile.objects.weighted_desktop_profile()
 
@@ -81,7 +81,7 @@ class ProfileManagerTests(TestCase):
         self.assertEquals(profile.user_agent, 'My User Agent 1.0')
 
     def test_bulk_delete(self):
-        profile = Profile.objects.create(device_category='desktop', **self.profile_data)
+        profile = Profile.objects.create(device_category='desktop', os='Linux', **self.profile_data)
 
         Profile.objects.bulk_delete(oids=[profile.oid])
 

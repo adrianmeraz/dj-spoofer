@@ -80,6 +80,11 @@ SUPPORTED_BROWSERS = (
     'Chrome',
     'Firefox',
 )
+SUPPORTED_OS = (
+    'Windows',
+    'Linux',
+    'FreeBSD'
+)
 
 
 class OsTTL:
