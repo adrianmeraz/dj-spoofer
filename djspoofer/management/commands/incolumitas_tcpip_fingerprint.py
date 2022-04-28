@@ -29,18 +29,18 @@ class Command(BaseCommand):
             netloc=kwargs.pop('proxy_url'),
             password=settings.PROXY_PASSWORD,
             username=settings.PROXY_USERNAME,
-            **self.proxy_kwargs(kwargs.get('proxy_args', list())),
+            **self.proxy_options(kwargs.get('proxy_args', list())),
         )
         try:
             with DesktopChromeClient(proxy_url=proxy_builder.http_url) as client:
-                r_tls = incolumitas_tcpip_api.get_tcpip_fingerprint(client)
+                r_tcpip = incolumitas_tcpip_api.tcpip_fingerprint(client)
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error while running command:\n{str(e)}'))
             raise e
         else:
-            self.stdout.write(utils.pretty_dict(r_tls))
+            self.stdout.write(utils.pretty_dict(r_tcpip))
             self.stdout.write(self.style.MIGRATE_LABEL('Finished getting TCP/IP Fingerprint'))
 
     @staticmethod
-    def proxy_kwargs(proxy_args):
+    def proxy_options(proxy_args):
         return {args.split('=')[0]: args.split('=')[1] for args in proxy_args}

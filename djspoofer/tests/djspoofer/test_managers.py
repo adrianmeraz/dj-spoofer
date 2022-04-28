@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from djspoofer import const, exceptions
-from djspoofer.models import Fingerprint, Proxy
+from djspoofer.models import Fingerprint, Proxy, IPFingerprint
 
 
 class FingerprintManagerTests(TestCase):
@@ -21,6 +21,12 @@ class FingerprintManagerTests(TestCase):
                            'Chrome/99.0.4844.74 Safari/537.36'),
             'viewport_height': 768,
             'viewport_width': 1024,
+        }
+        cls.ip_fingerprint_data = {
+            'city': 'Dallas',
+            'country': 'US',
+            'isp': 'Spectrum',
+            'ip': '194.60.86.250',
         }
 
     def test_get_random_desktop_fingerprint(self):

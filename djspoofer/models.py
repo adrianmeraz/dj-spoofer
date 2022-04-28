@@ -36,18 +36,6 @@ class Proxy(BaseModel):
         return f'https://{self.url}'
 
     @property
-    def auth(self):
-        return self.url.split('@')[0] if '@' in self.url else None
-
-    @property
-    def auth_username(self):
-        return self.auth.split(':')[0] if self.auth else None
-
-    @property
-    def auth_password(self):
-        return self.auth.split(':')[1] if self.auth else None
-
-    @property
     def is_on_cooldown(self):
         if self.last_used:
             return self.last_used > timezone.now() - self.cooldown
@@ -61,24 +49,6 @@ class Proxy(BaseModel):
         self.last_used = timezone.now()
         self.used_count += 1
         self.save()
-
-
-class IPFingerprint(BaseModel):
-    objects = managers.IPFingerprintManager()
-
-    city = models.CharField(max_length=32)
-    country = models.CharField(max_length=2)
-    isp = models.CharField(max_length=32)
-    last_ip = models.GenericIPAddressField(blank=True, null=True)
-
-    class Meta:
-        db_table = 'djspoofer_ip_fingerprint'
-        ordering = ['-created']
-        app_label = 'djspoofer'
-
-        indexes = [
-            models.Index(fields=['last_ip', ], name='ip_fp_last_ip'),
-        ]
 
 
 class TLSFingerprint(BaseModel):
@@ -134,6 +104,42 @@ class TLSFingerprint(BaseModel):
         super().save(*args, **kwargs)
 
 
+class Geolocation(BaseModel):
+    objects = managers.GeolocationManager()
+
+    city = models.CharField(max_length=32)
+    country = models.CharField(max_length=2)
+    isp = models.CharField(max_length=32, blank=True, null=True)
+
+    class Meta:
+        db_table = 'djspoofer_geolocation'
+        ordering = ['-created']
+        app_label = 'djspoofer'
+
+
+class IPFingerprint(BaseModel):
+    objects = managers.IPFingerprintManager()
+
+    city = models.CharField(max_length=32)
+    country = models.CharField(max_length=2)
+    isp = models.CharField(max_length=32)
+    ip = models.GenericIPAddressField()
+
+    class Meta:
+        db_table = 'djspoofer_ip_fingerprint'
+        ordering = ['-created']
+        app_label = 'djspoofer'
+
+        indexes = [
+            models.Index(fields=['city', ], name='ip_fp_city'),
+            models.Index(fields=['country', ], name='ip_fp_country'),
+            models.Index(fields=['isp', ], name='ip_fp_isp'),
+        ]
+
+    def __str__(self):
+        return f'IPFingerprint -> ip: {self.ip}'
+
+
 class Fingerprint(BaseModel):
     objects = managers.FingerprintManager()
 
@@ -155,13 +161,15 @@ class Fingerprint(BaseModel):
         null=True
     )
 
-    ip_fingerprint = models.ForeignKey(
-        to=IPFingerprint,
+    geolocation = models.ForeignKey(
+        to=Geolocation,
         related_name='fingerprints',
         on_delete=models.CASCADE,
         blank=True,
         null=True
     )
+
+    ip_fingerprints = models.ManyToManyField(IPFingerprint)
 
     class Meta:
         db_table = 'djspoofer_fingerprint'
@@ -176,6 +184,28 @@ class Fingerprint(BaseModel):
 
     def __str__(self):
         return f'Fingerprint -> user_agent: {self.user_agent}'
+
+    def save(self, *args, **kwargs):
+        if not self.tls_fingerprint:
+            self.tls_fingerprint = TLSFingerprint.objects.create(browser=self.browser)
+        super().save(*args, **kwargs)
+
+    def set_geolocation(self, geolocation):
+        self.geolocation = geolocation
+        self.save()
+
+    def get_last_n_ip_fingerprints(self, count=3):
+        return self.ip_fingerprints.all().order_by('-created')[:count]
+
+    def add_ip_fingerprint(self, ip_fingerprint):
+        self.ip_fingerprints.add(ip_fingerprint)
+        if not self.geolocation:
+            self.geolocation = Geolocation.objects.create(
+                city=ip_fingerprint.city,
+                country=ip_fingerprint.country,
+                isp=ip_fingerprint.isp,
+            )
+        self.save()
 
 
 class Profile(BaseModel):

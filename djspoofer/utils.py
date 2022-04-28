@@ -87,3 +87,12 @@ class UserAgentParser:
 
     def __str__(self):
         return f'UserAgentParser -> {self.ua_parser}'
+
+
+def proxy_dict(proxy_url):
+    if proxy_url:
+        return {
+            'http://': proxy_url,
+            'https://': proxy_url,
+        }
+    return dict()

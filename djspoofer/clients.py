@@ -1,70 +1,53 @@
 import logging
-from abc import ABC
 from ssl import TLSVersion
 
 import httpx
 from djstarter.clients import Http2Client
 
-from . import utils
-from .models import Fingerprint, TLSFingerprint
+from djspoofer import utils
+from djspoofer.remote.proxyrack import backends
 
 logger = logging.getLogger(__name__)
 
 
-class DesktopClient(ABC, Http2Client):
-    def __init__(self, fingerprint=None, proxy_url=None, *args, **kwargs):
-        self.fingerprint = fingerprint or self.temp_fingerprint()
-        self.proxy_url = proxy_url
-        self.tls_fingerprint = self.fingerprint.tls_fingerprint or self.generate_tls_fingerprint()
-        self.user_agent = self.fingerprint.user_agent
+class DesktopClient(Http2Client, backends.ProxyRackProxyBackend):
+    def __init__(self, fingerprint, *args, **kwargs):
+        self.fingerprint = fingerprint
         super().__init__(
-            proxies=self.proxies,
-            verify=self.new_ssl_context(),
+            proxies=self._proxies,
+            verify=self._new_ssl_context(),
             *args,
             **kwargs
         )
+
+    @property
+    def _proxies(self):
+        return utils.proxy_dict(self.get_proxy_url(self.fingerprint))
 
     def send(self, *args, **kwargs):
         self.headers.pop('Accept-Encoding', None)
         self.headers.pop('Connection', None)
         return super().send(*args, **kwargs)
 
-    def new_ssl_context(self):
+    def _new_ssl_context(self):
+        tls_fingerprint = self.fingerprint.tls_fingerprint
+
         context = httpx.create_ssl_context(http2=True)
         context.minimum_version = TLSVersion.TLSv1_2
-        context.set_ciphers(self.tls_fingerprint.ciphers)
-        context.options = self.tls_fingerprint.extensions
+        context.set_ciphers(tls_fingerprint.ciphers)
+        context.options = tls_fingerprint.extensions
 
         return context
-
-    @property
-    def proxies(self):
-        if self.proxy_url:
-            return {
-                'http://': self.proxy_url,
-                'https://': self.proxy_url
-            }
-        return dict()
-
-    @staticmethod
-    def temp_fingerprint():
-        return Fingerprint.objects.get_random_desktop_fingerprint()
-
-    def generate_tls_fingerprint(self):
-        tls_fingerprint = TLSFingerprint.objects.create(browser=self.fingerprint.browser)
-        self.fingerprint.tls_fingerprint = tls_fingerprint
-        self.fingerprint.save()
-        return tls_fingerprint
 
 
 class DesktopChromeClient(DesktopClient):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.ua_parser = utils.UserAgentParser(self.user_agent)
+        self.ua_parser = utils.UserAgentParser(self.fingerprint.user_agent)
 
     def init_headers(self):
         return {
-            'user-agent': self.user_agent,
+            'user-agent': self.fingerprint.user_agent,
         }
 
     @property
@@ -88,5 +71,5 @@ class DesktopFirefoxClient(DesktopClient):
 
     def init_headers(self):
         return {
-            'User-Agent': self.user_agent,
+            'User-Agent': self.fingerprint.user_agent,
         }

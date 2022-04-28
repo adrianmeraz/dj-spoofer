@@ -25,6 +25,12 @@ To copy to clipboard, run:
 
 `xclip -sel clip < ~/.ssh/id_rsa.pub`
 
+### Install git
+
+```
+sudo apt install git-all
+```
+
 ### Install IntelliJ Toolbox
 
 Download tarball from [HERE](https://www.jetbrains.com/toolbox-app/)
@@ -52,7 +58,7 @@ Follow prompts and install Pycharm Community IDE
 
 ### Install distutils
 
-`sudo apt install python3-distutils `
+`sudo apt install python3-distutils`
 
 ### Install Poetry
 
@@ -226,6 +232,24 @@ poetry run zappa manage <STAGE_NAME> "createsuperuser --noinput"
 
 ## Admin Commands
 
+### Create desktop fingerprints
+
+```
+djspoofer_create_desktop_fingerprints --num_to_create "10" --settings=config.settings.local
+```
+
+### Get all Chrome fingerprints report
+
+```
+djspoofer_all_chrome_fingerprints --proxy-url "premium.residential.proxyrack.net:10000" --proxy-args "country=US" --settings=config.settings.local
+```
+
+### Get all Intoli Profiles
+
+```
+intoli_get_profiles --settings=config.settings.local
+```
+
 ## Poetry Utilities
 
 ### Create Initial Poetry File
@@ -281,6 +305,26 @@ poetry run python manage.py createsuperuser
 
 ```
 
+## Proxy Backends
+
+### ProxyRack Backend
+
+To set custom weights when selecting countries for geolocation, 
+use the PROXYRACK_COUNTRY_WEIGHTS setting.
+
+Example:
+
+```
+PROXY_COUNTRY_WEIGHTS = [
+    ('US', .70),
+    ('CA', .12),
+    ('UK', .12),
+    ('AU', .06),
+]
+```
+
+PROXYRACK_COUNTRY_WEIGHTS
+
 ## Testing
 
 Specify settings with `--settings`
@@ -291,7 +335,7 @@ Specify settings with `--settings`
 
 To run against a single module, add the module name:
 
-`poetry run python manage.py test djspoofer.tests.test_views --settings=config.settings.local --no-input --parallel`
+`poetry run python manage.py test djspoofer.tests.test_views --settings=config.settings.local --no-input`
 
 ### Faster Tests
 

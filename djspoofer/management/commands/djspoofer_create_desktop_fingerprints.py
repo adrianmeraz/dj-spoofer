@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 
 from djspoofer.models import Fingerprint, TLSFingerprint
 from djspoofer import utils
-from djspoofer.remote.intoli import Profile
+from djspoofer.models import Profile
 
 
 class Command(BaseCommand):

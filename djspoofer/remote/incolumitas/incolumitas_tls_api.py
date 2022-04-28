@@ -10,7 +10,7 @@ BASE_URL = 'https://tls.incolumitas.com'
 
 
 @decorators.wrap_exceptions(raise_as=IncolumitasError)
-def fps(client):
+def tls_fingerprint(client):
     url = f'{BASE_URL}/fps'
 
     params = {
@@ -19,5 +19,13 @@ def fps(client):
 
     r = client.get(url, params=params)
     r.raise_for_status()
-    return r.json()
+    return TLSFingerprint(r.json())
 
+
+class TLSFingerprint:
+    def __init__(self, data):
+        self.ciphers_length = data['ciphers_length']
+        self.ec_point_formats = data['ec_point_formats']
+        self.extensions = data['extensions']
+        self.signature_algorithms_length = data['signature_algorithms_length']
+        self.tls_fp = data['tls_fp']

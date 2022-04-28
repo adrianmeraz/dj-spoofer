@@ -20,7 +20,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         try:
             with DesktopChromeClient(proxy_url=Proxy.objects.get_sticky_proxy().http_url) as client:
-                r_tls = incolumitas_api.get_ip_fingerprint(client, ip_addr=kwargs.get('ip_addr'))
+                r_tls = incolumitas_api.ip_fingerprint(client, ip_addr=kwargs.get('ip_addr'))
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error while running command:\n{str(e)}'))
             raise e

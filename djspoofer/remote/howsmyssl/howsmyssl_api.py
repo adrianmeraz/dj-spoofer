@@ -20,7 +20,6 @@ def ssl_check(client, *args, **kwargs):
 class SSLCheckResponse:
 
     def __init__(self, data):
-        self.data = data
         self.given_cipher_suites = data['given_cipher_suites']
         self.ephemeral_keys_supported = data['ephemeral_keys_supported']
         self.session_ticket_supported = data['session_ticket_supported']

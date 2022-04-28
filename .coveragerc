@@ -17,6 +17,7 @@ omit =
     *admin.py
     *urls.py
     */dictionary.py
+source = .
 
 [report]
 omit =

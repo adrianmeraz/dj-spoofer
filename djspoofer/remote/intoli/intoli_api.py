@@ -19,12 +19,12 @@ MIN_WEIGHT = .0001
 
 
 @decorators.wrap_exceptions(raise_as=IntoliError)
-def get_profiles(i_client):
+def get_profiles(client):
     params = {
         'format': 'json',
     }
 
-    with i_client.stream('GET', BASE_URL, params=params) as response:
+    with client.stream('GET', BASE_URL, params=params) as response:
         json_io = BytesIO()
         try:
             for chunk in response.iter_bytes(chunk_size=8192):

@@ -11,7 +11,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         try:
-            with DesktopChromeClient(proxy_url=Proxy.objects.get_sticky_proxy()) as chrome_client:
+            with DesktopChromeClient(proxy_url=Proxy.objects.get_sticky_proxy().http_url) as chrome_client:
                 r_check = howsmyssl_api.ssl_check(chrome_client)
                 self.stdout.write(utils.pretty_dict(r_check.data))
         except Exception as e:

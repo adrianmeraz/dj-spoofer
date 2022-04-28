@@ -32,8 +32,8 @@ class GetProfiles:
         except Exception as e:
             raise IntoliError(info=f'Error adding user agents: {str(e)}')
         else:
-            print(f'Created New Intoli Profiles: {len(new_profiles)}')
-            print(f'Deleted Old Intoli Profiles: {Profile.objects.bulk_delete(oids=old_oids)[0]}')
+            logger.info(f'Created New Intoli Profiles: {len(new_profiles)}')
+            logger.info(f'Deleted Old Intoli Profiles: {Profile.objects.bulk_delete(oids=old_oids)[0]}')
 
     @staticmethod
     def build_profiles(r_profiles):
@@ -53,5 +53,5 @@ class GetProfiles:
                 weight=profile.weight,
             )
             new_profiles.append(temp_profile)
-            print(f'{temp_profile}\n{ua_parser}\n')
+            # print(f'{temp_profile}\n{ua_parser}\n')
         return new_profiles

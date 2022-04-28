@@ -11,7 +11,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         try:
-            with DesktopChromeClient(proxy_url=Proxy.objects.get_sticky_proxy()) as chrome_client:
+            with DesktopChromeClient(proxy_url=Proxy.objects.get_sticky_proxy().http_url) as chrome_client:
                 self.get_ja3_details(chrome_client)
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error while running command:\n{str(e)}'))
@@ -23,7 +23,7 @@ class Command(BaseCommand):
         self.stdout.write(f'Spoofed User Agent: {chrome_client.user_agent}')
 
         self.stdout.write(utils.eye_catcher_line('JA3 Details'))
-        r_json = ja3er_api.get_json(chrome_client)
+        r_json = ja3er_api.details(chrome_client)
         self.stdout.write(utils.pretty_dict(r_json.data))
 
         self.stdout.write(f'ssl_version: {r_json.ssl_version}')
