@@ -19,7 +19,7 @@ class ProxyBuilder:
 
     @property
     def _all_options(self):
-        return ';'.join([self._username] + [f'{k}={v}' for k, v in self._options.items() if v])
+        return ';'.join([self._username] + [f'{k}={str(v).replace(" ", "")}' for k, v in self._options.items() if v])
 
 
 def proxy_weighted_country():

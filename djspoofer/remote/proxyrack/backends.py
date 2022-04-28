@@ -15,13 +15,14 @@ logger = logging.getLogger(__name__)
 class ProxyRackProxyBackend(backends.ProxyBackend):
     def get_proxy_url(self, ip_fingerprint):
         return self._build_proxy_url(
-            proxyIp=ip_fingerprint.ip,  # Only need the proxyIp field, too many fields sometimes confuses proxyrack
+            proxyIp=ip_fingerprint.ip,
+            # session=str(uuid.uuid4()),
         )
 
     def new_ip_fingerprint(self, fingerprint):
         proxies = utils.proxy_dict(self._test_proxy_url(fingerprint))
         if self.is_valid_proxy(proxies=proxies):
-            with Http2Client(proxies=proxies) as client:
+            with Client(proxies=proxies) as client:
                 r_stats = proxyrack_api.stats(client)
             ip_fingerprint = IPFingerprint.objects.create(
                 city=r_stats.ipinfo.city,
@@ -33,29 +34,18 @@ class ProxyRackProxyBackend(backends.ProxyBackend):
             fingerprint.add_ip_fingerprint(ip_fingerprint)
             return ip_fingerprint
         else:
-            raise exceptions.DJSpooferError('Failed to get a valid proxy')
+            raise exceptions.DJSpooferError('Failed to get a new valid proxy')
 
     def is_valid_proxy(self, proxies):
         return proxyrack_api.is_valid_proxy(proxies)
 
     def _test_proxy_url(self, fingerprint):
-        if fingerprint.geolocation:
-            return self._geo_proxy_url(fingerprint)
-        else:
-            return self._non_geo_proxy_url(fingerprint)
-
-    def _geo_proxy_url(self, fingerprint):
+        geolocation = fingerprint.geolocation
         return self._build_proxy_url(
-            country=fingerprint.geolocation.country,
-            city=fingerprint.geolocation.city,
-            isp=fingerprint.geolocation.isp,
-            osName=fingerprint.os
-        )
-
-    def _non_geo_proxy_url(self, fingerprint):
-        return self._build_proxy_url(
-            country=pr_utils.proxy_weighted_country(),
-            osName=fingerprint.os
+            osName=fingerprint.os,
+            country=getattr(geolocation, 'country', None),
+            city=getattr(geolocation, 'city', None),
+            isp=getattr(geolocation, 'isp', None),
         )
 
     @staticmethod
@@ -64,7 +54,6 @@ class ProxyRackProxyBackend(backends.ProxyBackend):
             username=settings.PROXY_USERNAME,
             password=settings.PROXY_PASSWORD,
             netloc=Proxy.objects.get_rotating_proxy().url,
-            session=str(uuid.uuid4()),
             timeoutSeconds=60,
             **kwargs
         ).http_url

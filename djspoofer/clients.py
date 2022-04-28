@@ -43,7 +43,6 @@ class DesktopClient(Http2Client, backends.ProxyRackProxyBackend):
     def _get_ip_fingerprint(self):
         for ip_fingerprint in self.fingerprint.get_last_n_ip_fingerprints(count=3):
             proxy_url = self.get_proxy_url(ip_fingerprint=ip_fingerprint)
-            print(f'proxy_url: {proxy_url}')
             if self.is_valid_proxy(proxies=utils.proxy_dict(proxy_url)):
                 logger.info(f'Found valid IP Fingerprint: {ip_fingerprint}')
                 return ip_fingerprint

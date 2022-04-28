@@ -115,9 +115,12 @@ status_errors_map = {
 
 def is_valid_proxy(proxies):
     url = 'https://api.ipify.org?format=json'
-    r = httpx.get(url, proxies=proxies)
-    logger.info(f'ipify ip: {r.json()}')
-    return not r.is_error
+    try:
+        r = httpx.get(url, proxies=proxies)
+        return not r.is_error
+    except httpx.TransportError as e:
+        logger.warning(f'Error while testing proxies: {proxies}, error: {str(e)}')
+        return False
 
 
 @decorators.wrap_exceptions(raise_as=exceptions.ProxyRackError)

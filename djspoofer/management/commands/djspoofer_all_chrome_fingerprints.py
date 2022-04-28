@@ -62,9 +62,12 @@ class Command(BaseCommand):
         self.stdout.write(utils.pretty_dict(r_tcpip))
 
     def show_tls_fingerprint(self, client):
-        r_tls = incolumitas_tls_api.tls_fingerprint(client)
-        self.stdout.write(utils.eye_catcher_line('TLS Fingerprint'))
-        self.stdout.write(utils.pretty_dict(r_tls))
+        try:
+            r_tls = incolumitas_tls_api.tls_fingerprint(client)
+            self.stdout.write(utils.eye_catcher_line('TLS Fingerprint'))
+            self.stdout.write(utils.pretty_dict(r_tls))
+        except Exception as e:
+            self.stdout.write(utils.eye_catcher_line(f'TLS Fingerprint Failed: {str(e)}'))
 
     def show_ja3er_details(self, client):
         r_json = ja3er_api.details(client)
@@ -76,9 +79,14 @@ class Command(BaseCommand):
         self.stdout.write(utils.pretty_dict(vars(r_search)))
 
     def show_ssl_check(self, client):
-        r_check = howsmyssl_api.ssl_check(client)
         self.stdout.write(utils.eye_catcher_line('SSL Check'))
-        self.stdout.write(utils.pretty_dict(vars(r_check)))
+        try:
+            r_check = howsmyssl_api.ssl_check(client)
+            self.stdout.write(utils.pretty_dict(vars(r_check)))
+        except Exception as e:
+            self.stdout.write(utils.eye_catcher_line(f'SSL Check Failed: {str(e)}'))
+
+
 
     @staticmethod
     def proxy_options(proxy_args):
