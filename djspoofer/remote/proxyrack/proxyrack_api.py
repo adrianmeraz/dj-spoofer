@@ -119,7 +119,7 @@ def is_valid_proxy(proxies):
         r = httpx.get(url, proxies=proxies)
         return not r.is_error
     except httpx.TransportError as e:
-        logger.warning(f'Error while testing proxies: {proxies}, error: {str(e)}')
+        logger.warning(f'Error while testing proxies. Error: {str(e)}')
         return False
 
 
