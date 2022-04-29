@@ -46,7 +46,7 @@ class ProxyRackProxyBackend(backends.ProxyBackend):
             fingerprint=fingerprint
         )
         fingerprint.add_ip_fingerprint(ip_fingerprint)
-        logger.info(f'Created new ip fingerprint: {ip_fingerprint}')
+        logger.info(f'Successfully created new ip fingerprint: {ip_fingerprint}')
 
     def _test_proxy_url(self, fingerprint):
         geolocation = fingerprint.geolocation

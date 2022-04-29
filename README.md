@@ -54,7 +54,7 @@ Follow prompts and install Pycharm Community IDE
 
 ### Install python-venv
 
-`sudo apt install python3.8-venv`
+`sudo apt install python3.9-venv`
 
 ### Install distutils
 
