@@ -120,9 +120,9 @@ class Geolocation(BaseModel):
 class IPFingerprint(BaseModel):
     objects = managers.IPFingerprintManager()
 
-    city = models.CharField(max_length=32)
+    city = models.CharField(max_length=64)
     country = models.CharField(max_length=2)
-    isp = models.CharField(max_length=32)
+    isp = models.CharField(max_length=64)
     ip = models.GenericIPAddressField()
 
     class Meta:
