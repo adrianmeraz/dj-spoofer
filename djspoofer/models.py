@@ -107,9 +107,9 @@ class TLSFingerprint(BaseModel):
 class Geolocation(BaseModel):
     objects = managers.GeolocationManager()
 
-    city = models.CharField(max_length=32)
+    city = models.CharField(max_length=64)
     country = models.CharField(max_length=2)
-    isp = models.CharField(max_length=32, blank=True, null=True)
+    isp = models.CharField(max_length=64, blank=True, null=True)
 
     class Meta:
         db_table = 'djspoofer_geolocation'
