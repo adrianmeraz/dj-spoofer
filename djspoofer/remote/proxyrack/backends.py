@@ -19,16 +19,17 @@ class ProxyRackProxyBackend(backends.ProxyBackend):
                 logger.info(f'Found valid IP Fingerprint: {ip_fingerprint}')
                 return proxy_url
         else:
-            logger.info(f'No valid IP Fingerprints found. {fingerprint}')
+            logger.info(f'{fingerprint}. No valid IP Fingerprints found. ')
             return self._new_proxy_url(fingerprint)   # Generate if no valid IP Fingerprints
 
     def _new_proxy_url(self, fingerprint):
+        logger.info(f'{fingerprint}. Generating new IP Fingerprint. ')
         proxy_url = self._test_proxy_url(fingerprint)
         proxies = utils.proxy_dict(proxy_url)
         if self._is_valid_proxy(proxies=proxies):
             self._create_ip_fingerprint(fingerprint, proxies)
             return proxy_url
-        raise exceptions.DJSpooferError('Failed to get a new valid proxy')
+        raise exceptions.DJSpooferError(f'{fingerprint}. Failed to get a new valid proxy')
 
     @staticmethod
     def _is_valid_proxy(proxies):
@@ -46,7 +47,7 @@ class ProxyRackProxyBackend(backends.ProxyBackend):
             fingerprint=fingerprint
         )
         fingerprint.add_ip_fingerprint(ip_fingerprint)
-        logger.info(f'Successfully created new ip fingerprint: {ip_fingerprint}')
+        logger.info(f'{ip_fingerprint}. Successfully created new ip fingerprint')
 
     def _test_proxy_url(self, fingerprint):
         geolocation = fingerprint.geolocation
