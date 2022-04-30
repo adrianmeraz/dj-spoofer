@@ -1,10 +1,8 @@
 from django.core.management.base import BaseCommand
-from djstarter.clients import Http2Client
 from httpx import Client
 
 from djspoofer.clients import DesktopChromeClient
 from djspoofer.models import Fingerprint
-from djspoofer.models import Proxy
 
 
 class Command(BaseCommand):

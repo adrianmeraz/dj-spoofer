@@ -123,6 +123,7 @@ TEMPLATES = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+PROXY_URL = env.get_value('PROXY_URL', default=None)
 PROXY_USERNAME = env('PROXY_USERNAME')
 PROXY_PASSWORD = env('PROXY_PASSWORD')
 
@@ -131,14 +132,4 @@ PROXYRACK_COUNTRY_WEIGHTS = [
     ('CA', .12),
     ('UK', .12),
     ('AU', .06),
-]
-
-PROXYRACK_ISP_WEIGHTS = [
-    ('AT&T U-verse', 1),
-    ('Comcast Cable', 1),
-    ('Cox Communications', 1),
-    ('Hughes Network Systems', 1),
-    ('Mediacom Cable', 1),
-    ('Spectrum', 1),
-    ('Verizon Fios', 1),
 ]

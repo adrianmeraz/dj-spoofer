@@ -3,8 +3,7 @@ import logging
 import h2
 from h2.settings import Settings
 from httpcore._models import Request
-from httpcore._sync.http2 import HTTP2Connection
-from djspoofer import utils
+
 from djspoofer.models import H2FrameFingerprint
 
 logger = logging.getLogger(__name__)
@@ -18,17 +17,16 @@ def _send_connection_init(self, request: Request) -> None:
     # Need to set these manually here instead of manipulating via
     # __setitem__() otherwise the H2Connection will emit SettingsUpdate
     # frames in addition to sending the undesired defaults.
-
+    h2_frame_fingerprint = get_h2_frame_fingerprint()
     self._h2_state.local_settings = h2.settings.Settings(
         client=True,
         initial_values={
-            # Disable PUSH_PROMISE frames from the server since we don't do anything
-            # with them for now.  Maybe when we support caching?
-            h2.settings.SettingCodes.HEADER_TABLE_SIZE: 65536,
-            h2.settings.SettingCodes.ENABLE_PUSH: 0,
-            # These two are taken from h2 for safe defaults
-            h2.settings.SettingCodes.MAX_CONCURRENT_STREAMS: 1000,
-            h2.settings.SettingCodes.MAX_HEADER_LIST_SIZE: 65536,
+            h2.settings.SettingCodes.HEADER_TABLE_SIZE: h2_frame_fingerprint.header_table_size,
+            h2.settings.SettingCodes.ENABLE_PUSH: int(h2_frame_fingerprint.enable_push),
+            h2.settings.SettingCodes.MAX_CONCURRENT_STREAMS: h2_frame_fingerprint.max_concurrent_streams,
+            h2.settings.SettingCodes.INITIAL_WINDOW_SIZE: h2_frame_fingerprint.initial_window_size,
+            h2.settings.SettingCodes.MAX_FRAME_SIZE: h2_frame_fingerprint.max_frame_size,
+            h2.settings.SettingCodes.MAX_HEADER_LIST_SIZE: h2_frame_fingerprint.max_header_list_size,
         },
     )
 
@@ -44,17 +42,15 @@ def _send_connection_init(self, request: Request) -> None:
     self._write_outgoing_data(request)
 
 
-def get_h2_frame_fingerprint(request):
-    user_agent = request.headers['user-agent']
-    ua_parser = utils.UserAgentParser(user_agent)
+def get_h2_frame_fingerprint():
     # TODO Pull H2FrameFingerprint record using os and browser
 
     return H2FrameFingerprint(
-        header_table_size=4096,
+        header_table_size=8192,
         enable_push=True,
-
+        max_concurrent_streams=1024,
+        initial_window_size=32768,
+        max_frame_size=16384,
+        max_header_list_size=131072,
+        psuedo_header_order='p,m,a,s'
     )
-
-
-# Monkey patching to allow for dynamic h2 settings frame
-HTTP2Connection._send_connection_init = _send_connection_init

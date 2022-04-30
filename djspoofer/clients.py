@@ -6,6 +6,7 @@ from djstarter.clients import Http2Client
 
 from djspoofer import utils
 from djspoofer.remote.proxyrack import backends
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +23,8 @@ class DesktopClient(Http2Client, backends.ProxyRackProxyBackend):
 
     @property
     def _proxies(self):
-        return utils.proxy_dict(self.get_proxy_url(self.fingerprint))
+        proxy_url = settings.PROXY_URL or self.get_proxy_url(self.fingerprint)
+        return utils.proxy_dict(proxy_url)
 
     def send(self, *args, **kwargs):
         self.headers.pop('Accept-Encoding', None)
