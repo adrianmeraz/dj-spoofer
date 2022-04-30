@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from djstarter import utils
 
 from djspoofer.clients import DesktopChromeClient
-from djspoofer.models import Proxy
+from djspoofer.models import Fingerprint, Proxy
 from djspoofer.remote.incolumitas import incolumitas_api
 
 
@@ -19,7 +19,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         try:
-            with DesktopChromeClient(proxy_url=Proxy.objects.get_sticky_proxy().http_url) as client:
+            fingerprint = Fingerprint.objects.get_random_desktop_fingerprint()
+            with DesktopChromeClient(fingerprint=fingerprint) as client:
                 r_tls = incolumitas_api.ip_fingerprint(client, ip_addr=kwargs.get('ip_addr'))
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error while running command:\n{str(e)}'))

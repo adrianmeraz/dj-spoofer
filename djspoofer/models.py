@@ -117,6 +117,26 @@ class Geolocation(BaseModel):
         app_label = 'djspoofer'
 
 
+class H2FrameFingerprint(BaseModel):
+    objects = managers.H2FrameFingerprintManager()
+
+    header_table_size = models.IntegerField()
+    enable_push = models.BooleanField(blank=True, null=True)
+    max_concurrent_streams = models.IntegerField(blank=True, null=True)
+    initial_window_size = models.IntegerField()
+    max_frame_size = models.IntegerField(blank=True, null=True)
+    max_header_list_size = models.IntegerField(blank=True, null=True)
+    psuedo_header_order = models.TextField()
+
+    class Meta:
+        db_table = 'djspoofer_h2_frame_fingerprint'
+        ordering = ['-created']
+        app_label = 'djspoofer'
+
+    def __str__(self):
+        return f'H2FrameFingerprint -> oid: {self.oid}'
+
+
 class IPFingerprint(BaseModel):
     objects = managers.IPFingerprintManager()
 

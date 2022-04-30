@@ -177,25 +177,41 @@ You are connected to database "postgres" as user "postgres" via socket in "/var/
 
 ### Create Local Postgres Database
 
-Replace placeholder values with real values
+Log into postgres database
 
 ```
 sudo -u postgres psql
-postgres=# create database <DB_NAME>;
-postgres=# create user <DB_USERNAME> with encrypted password '<DB_PASSWORD>';
+```
+
+The postgres shell is started and the prompt should start with `postgres=#`
+
+Replace placeholder values with real values
+
+```
+create database <DB_NAME>;
+create user <DB_USERNAME> with encrypted password '<DB_PASSWORD>';
 postgres=# grant all privileges on database <DB_NAME> to <DB_USERNAME>;
 postgres=# ALTER USER <DB_USERNAME> CREATEDB;
-```
-
-To Delete the local database, run:
-
-```
-postgres=# DROP DATABASE <DB_NAME>;
 ```
 
 ### Local jdbc string
 
 `postgres://<DB_USERNAME>:<DB_PASSWORD>@localhost:5432/<DB_NAME>`
+
+### Deleting Local Database (Optional)
+
+Start the Postgres Shell:
+
+```
+sudo -u postgres psql
+```
+
+Run:
+
+```
+DROP DATABASE <DB_NAME>;
+```
+
 
 ### Create Database on Existing Instance using admin command (Optional)
 

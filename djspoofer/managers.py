@@ -14,6 +14,10 @@ class GeolocationManager(models.Manager):
     pass
 
 
+class H2FrameFingerprintManager(models.Manager):
+    pass
+
+
 class IPFingerprintManager(models.Manager):
     pass
 
