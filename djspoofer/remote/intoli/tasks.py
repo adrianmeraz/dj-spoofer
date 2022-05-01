@@ -4,7 +4,7 @@ from djstarter import decorators
 from djstarter.clients import Http2Client
 
 from djspoofer import utils as s_utils
-from djspoofer.remote.intoli import intoli_api
+from djspoofer.remote.intoli import intoli_api, const
 from djspoofer.remote.intoli.exceptions import IntoliError
 from djspoofer.models import Profile
 
@@ -18,7 +18,7 @@ def get_profiles(*args, **kwargs):
 
 class GetProfiles:
     def __init__(self, *args, **kwargs):
-        pass
+        self.max_profiles = kwargs.get('max_profiles', const.MAX_PROFILES)
 
     def start(self):
         with Http2Client() as client:
@@ -32,13 +32,13 @@ class GetProfiles:
         except Exception as e:
             raise IntoliError(info=f'Error adding user agents: {str(e)}')
         else:
+            logger.info(f'Max Profiles: {self.max_profiles}')
             logger.info(f'Created New Intoli Profiles: {len(new_profiles)}')
             logger.info(f'Deleted Old Intoli Profiles: {Profile.objects.bulk_delete(oids=old_oids)[0]}')
 
-    @staticmethod
-    def build_profiles(r_profiles):
+    def build_profiles(self, r_profiles):
         new_profiles = list()
-        for profile in r_profiles.valid_profiles:
+        for profile in r_profiles.valid_profiles[:self.max_profiles]:
             ua_parser = s_utils.UserAgentParser(profile.user_agent)
             temp_profile = Profile(
                 browser=ua_parser.browser,
@@ -53,5 +53,4 @@ class GetProfiles:
                 weight=profile.weight,
             )
             new_profiles.append(temp_profile)
-            # print(f'{temp_profile}\n{ua_parser}\n')
         return new_profiles

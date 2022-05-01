@@ -140,7 +140,7 @@ PROXYRACK_COUNTRY_WEIGHTS = [
     ('AU', .06),
 ]
 
-H2_FINGERPRINT_BASE_URL = 'https://ec2-54-241-136-35.us-west-1.compute.amazonaws.com'
+H2_FINGERPRINT_API_BASE_URL = 'https://ec2-54-241-136-35.us-west-1.compute.amazonaws.com'
 HOWSMYSSL_API_BASE_URL = 'https://www.howsmyssl.com'
 INCOLUMITAS_API_BASE_URL = 'https://api.incolumitas.com'
 INCOLUMITAS_TCPIP_API_BASE_URL = 'https://tcpip.incolumitas.com'

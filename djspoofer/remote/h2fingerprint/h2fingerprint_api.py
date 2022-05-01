@@ -8,7 +8,7 @@ from .exceptions import H2Error
 logger = logging.getLogger(__name__)
 
 
-BASE_URL = settings.H2_FINGERPRINT_BASE_URL
+BASE_URL = settings.H2_FINGERPRINT_API_BASE_URL
 
 
 @decorators.wrap_exceptions(raise_as=H2Error)
