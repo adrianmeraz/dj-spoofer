@@ -6,6 +6,7 @@ from io import BytesIO
 from django.conf import settings
 from djstarter import decorators
 
+from djspoofer import utils
 from .exceptions import IntoliError
 from . import const
 
@@ -37,8 +38,15 @@ def get_profiles(client):
 
 class GetProfilesResponse:
     def __init__(self, json_data):
-        # Sorting weights in descending order
         self.profiles = sorted([IntoliProfile(profile) for profile in json_data], key=lambda p: p.weight, reverse=True)
+
+    @property
+    def valid_mobile_profiles(self):
+        return [p for p in self.valid_profiles if p.is_mobile]
+
+    @property
+    def valid_desktop_profiles(self):
+        return [p for p in self.valid_profiles if p.is_desktop]
 
     @property
     def valid_profiles(self):
@@ -48,14 +56,25 @@ class GetProfilesResponse:
 class IntoliProfile:
 
     def __init__(self, data):
+        self.user_agent = data.get('userAgent').strip(const.USER_AGENT_BAD_CHARS)
+        ua_parser = utils.UserAgentParser(self.user_agent)
+        self.browser = ua_parser.browser
+        self.os = ua_parser.os
         self.device_category = data.get('deviceCategory')
         self.platform = data.get('platform')
         self.screen_height = data.get('screenHeight') or 1080
         self.screen_width = data.get('screenWidth') or 1920
-        self.user_agent = data.get('userAgent').strip(const.USER_AGENT_BAD_CHARS)
         self.viewport_height = data.get('viewportHeight') or 920
         self.viewport_width = data.get('viewportWidth') or 1415
         self.weight = data.get('weight')
+
+    @property
+    def is_mobile(self):
+        return self.device_category == 'mobile'
+
+    @property
+    def is_desktop(self):
+        return self.device_category == 'desktop'
 
     @property
     def is_valid_profile(self):

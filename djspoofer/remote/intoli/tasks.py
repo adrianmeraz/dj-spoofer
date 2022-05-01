@@ -19,6 +19,8 @@ def get_profiles(*args, **kwargs):
 class GetProfiles:
     def __init__(self, *args, **kwargs):
         self.max_profiles = kwargs.get('max_profiles', const.MAX_PROFILES)
+        self.desktop_only = kwargs.get('desktop_only')
+        self.os_list = kwargs.get('os_list')
 
     def start(self):
         with Http2Client() as client:
@@ -38,12 +40,12 @@ class GetProfiles:
 
     def build_profiles(self, r_profiles):
         new_profiles = list()
-        for profile in r_profiles.valid_profiles[:self.max_profiles]:
+        for profile in self.filtered_profiles(r_profiles):
             ua_parser = s_utils.UserAgentParser(profile.user_agent)
             temp_profile = Profile(
                 browser=ua_parser.browser,
-                device_category=profile.device_category,
                 os=ua_parser.os,
+                device_category=profile.device_category,
                 platform=profile.platform,
                 screen_height=profile.screen_height,
                 screen_width=profile.screen_width,
@@ -54,3 +56,12 @@ class GetProfiles:
             )
             new_profiles.append(temp_profile)
         return new_profiles
+
+    def filtered_profiles(self, r_profiles):
+        if self.desktop_only:
+            profiles = r_profiles.valid_desktop_profiles
+        else:
+            profiles = r_profiles.valid_profiles
+        if self.os_list:
+            profiles = [p for p in profiles if p.os in self.os_list]
+        return profiles[:self.max_profiles]
