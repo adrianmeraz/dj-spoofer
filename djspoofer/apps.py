@@ -1,6 +1,6 @@
 import logging
+
 from django.apps import AppConfig
-from h2.connection import H2Connection
 
 logger = logging.getLogger(__name__)
 
@@ -15,4 +15,5 @@ class DJSpooferConfig(AppConfig):
 
         # Monkey patching to allow for dynamic h2 settings frame
         HTTP2Connection._send_connection_init = connections._send_connection_init
+        HTTP2Connection._send_request_headers = connections._send_request_headers
         logger.debug('Monkey patched HTTP2Connection._send_connection_init')

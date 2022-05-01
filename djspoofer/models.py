@@ -117,7 +117,7 @@ class Geolocation(BaseModel):
         app_label = 'djspoofer'
 
 
-class H2FrameFingerprint(BaseModel):
+class H2SettingsFingerprint(BaseModel):
     objects = managers.H2FrameFingerprintManager()
 
     header_table_size = models.IntegerField()
@@ -129,12 +129,12 @@ class H2FrameFingerprint(BaseModel):
     psuedo_header_order = models.TextField()
 
     class Meta:
-        db_table = 'djspoofer_h2_frame_fingerprint'
+        db_table = 'djspoofer_h2_settings_fingerprint'
         ordering = ['-created']
         app_label = 'djspoofer'
 
     def __str__(self):
-        return f'H2FrameFingerprint -> oid: {self.oid}'
+        return f'H2SettingsFingerprint -> oid: {self.oid}'
 
 
 class IPFingerprint(BaseModel):
