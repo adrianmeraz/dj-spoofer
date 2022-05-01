@@ -37,7 +37,8 @@ def get_profiles(client):
 
 class GetProfilesResponse:
     def __init__(self, json_data):
-        self.profiles = [IntoliProfile(profile) for profile in json_data]
+        # Sorting weights in descending order
+        self.profiles = sorted([IntoliProfile(profile) for profile in json_data], key=lambda p: p.weight, reverse=True)
 
     @property
     def valid_profiles(self):
