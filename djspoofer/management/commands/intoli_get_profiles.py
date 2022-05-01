@@ -25,12 +25,6 @@ class Command(BaseCommand):
             nargs='*',
             help="Only Include Intoli Profiles that belong to OS list",
         )
-        parser.add_argument(
-            "--proxy-args",
-            required=False,
-            nargs='*',
-            help="Set the proxy password",
-        )
 
     def handle(self, *args, **kwargs):
         try:
