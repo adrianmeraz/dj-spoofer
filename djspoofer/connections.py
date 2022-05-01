@@ -1,7 +1,7 @@
 import logging
 
 import h2
-from h2.settings import Settings
+from h2.settings import Settings, SettingCodes
 from httpcore._models import Request
 
 from djspoofer.models import H2FrameFingerprint
@@ -17,18 +17,7 @@ def _send_connection_init(self, request: Request) -> None:
     # Need to set these manually here instead of manipulating via
     # __setitem__() otherwise the H2Connection will emit SettingsUpdate
     # frames in addition to sending the undesired defaults.
-    h2_frame_fingerprint = get_h2_frame_fingerprint()
-    self._h2_state.local_settings = h2.settings.Settings(
-        client=True,
-        initial_values={
-            h2.settings.SettingCodes.HEADER_TABLE_SIZE: h2_frame_fingerprint.header_table_size,
-            h2.settings.SettingCodes.ENABLE_PUSH: int(h2_frame_fingerprint.enable_push),
-            h2.settings.SettingCodes.MAX_CONCURRENT_STREAMS: h2_frame_fingerprint.max_concurrent_streams,
-            h2.settings.SettingCodes.INITIAL_WINDOW_SIZE: h2_frame_fingerprint.initial_window_size,
-            h2.settings.SettingCodes.MAX_FRAME_SIZE: h2_frame_fingerprint.max_frame_size,
-            h2.settings.SettingCodes.MAX_HEADER_LIST_SIZE: h2_frame_fingerprint.max_header_list_size,
-        },
-    )
+    self._h2_state.local_settings = build_h2_settings(get_h2_frame_fingerprint())
 
     # Some websites (*cough* Yahoo *cough*) balk at this setting being
     # present in the initial handshake since it's not defined in the original
@@ -52,5 +41,22 @@ def get_h2_frame_fingerprint():
         initial_window_size=32768,
         max_frame_size=16384,
         max_header_list_size=131072,
-        psuedo_header_order='p,m,a,s'
+        psuedo_header_order='p,m,a,s'   # TODO Implement psuedo header order
+    )
+
+
+def build_h2_settings(h2_settings_fingerprint):
+    h2_fp = h2_settings_fingerprint
+    initial_values = {
+        SettingCodes.HEADER_TABLE_SIZE: h2_fp.header_table_size,                            # 1 (Required)
+        SettingCodes.ENABLE_PUSH: int(h2_fp.enable_push) if h2_fp.enable_push else None,    # 2 (Required)
+        SettingCodes.MAX_CONCURRENT_STREAMS: h2_fp.max_concurrent_streams,                  # 3 (Optional)
+        SettingCodes.INITIAL_WINDOW_SIZE: h2_fp.initial_window_size,                        # 4 (Required)
+        SettingCodes.MAX_FRAME_SIZE: h2_fp.max_frame_size,                                  # 5 (Required)
+        SettingCodes.MAX_HEADER_LIST_SIZE: h2_fp.max_header_list_size,                      # 6 (Optional)
+    }
+    initial_values = {k: v for k, v in initial_values.items() if v}
+    return h2.settings.Settings(
+        client=True,
+        initial_values=initial_values,
     )

@@ -23,6 +23,8 @@ class DesktopClient(Http2Client, backends.ProxyRackProxyBackend):
 
     @property
     def _proxies(self):
+        if settings.PROXY_URL == 'False':
+            return dict()
         proxy_url = settings.PROXY_URL or self.get_proxy_url(self.fingerprint)
         return utils.proxy_dict(proxy_url)
 

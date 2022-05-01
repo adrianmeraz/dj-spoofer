@@ -56,6 +56,11 @@ LOGGING_CFG = {
             'level': 'WARNING',
             'propagate': False,
         },
+        'hpack': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': False,
+        },
     },
 }
 logging.config.dictConfig(LOGGING_CFG)

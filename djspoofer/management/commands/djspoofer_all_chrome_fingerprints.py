@@ -8,6 +8,7 @@ from djspoofer.remote.incolumitas import incolumitas_api, incolumitas_tcpip_api,
 from djspoofer.remote.ja3er import ja3er_api
 from djspoofer.remote.howsmyssl import howsmyssl_api
 from djspoofer.remote.proxyrack import utils as pr_utils
+from djspoofer.remote.h2fingerprint import h2fingerprint_api
 
 
 class Command(BaseCommand):
@@ -36,6 +37,7 @@ class Command(BaseCommand):
                 self.show_ip_fingerprint(client)
                 self.show_tcpip_fingerprint(client)
                 self.show_tls_fingerprint(client)
+                self.show_h2_fingerprint(client)
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error while running command:\n{str(e)}'))
             raise e
@@ -86,7 +88,13 @@ class Command(BaseCommand):
         except Exception as e:
             self.stdout.write(utils.eye_catcher_line(f'SSL Check Failed: {str(e)}'))
 
-
+    def show_h2_fingerprint(self, client):
+        self.stdout.write(utils.eye_catcher_line('H2 Fingerprint Check'))
+        try:
+            r_h2 = h2fingerprint_api.get_h2_fingerprint(client)
+            self.stdout.write(utils.pretty_dict(vars(r_h2)))
+        except Exception as e:
+            self.stdout.write(utils.eye_catcher_line(f'H2 Fingerprint Check Failed: {str(e)}'))
 
     @staticmethod
     def proxy_options(proxy_args):
