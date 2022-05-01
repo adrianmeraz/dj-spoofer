@@ -3,13 +3,14 @@ import json
 import logging
 from io import BytesIO
 
+from django.conf import settings
 from djstarter import decorators
 
 from .exceptions import IntoliError
 
 logger = logging.getLogger(__name__)
 
-BASE_URL = 'https://raw.githubusercontent.com/intoli/user-agents/master/src/user-agents.json.gz'
+BASE_URL = settings.INTOLI_API_BASE_URL
 UA_BAD_CHARS = '\"\''
 UA_BLACKLIST = ('coc_coc_browser', 'QQBrowser', 'WeChat', 'YaBrowser', 'zh-CN', 'zh_CN', 'zhihu')
 UA_LEN_RANGE = (40, 160)
@@ -20,11 +21,13 @@ MIN_WEIGHT = .0001
 
 @decorators.wrap_exceptions(raise_as=IntoliError)
 def get_profiles(client):
+    url = f'{BASE_URL}/intoli/user-agents/master/src/user-agents.json.gz'
+
     params = {
         'format': 'json',
     }
 
-    with client.stream('GET', BASE_URL, params=params) as response:
+    with client.stream('GET', url, params=params) as response:
         json_io = BytesIO()
         try:
             for chunk in response.iter_bytes(chunk_size=8192):

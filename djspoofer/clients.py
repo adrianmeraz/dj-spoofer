@@ -34,7 +34,7 @@ class DesktopClient(Http2Client, backends.ProxyRackProxyBackend):
     def _new_ssl_context(self):
         tls_fingerprint = self.fingerprint.tls_fingerprint
 
-        context = httpx.create_ssl_context(http2=True)
+        context = httpx.create_ssl_context(http2=True, verify=settings.SSL_VERIFY)
         context.minimum_version = TLSVersion.TLSv1_2
         context.set_ciphers(tls_fingerprint.ciphers)
         context.options = tls_fingerprint.extensions

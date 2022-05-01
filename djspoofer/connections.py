@@ -46,7 +46,7 @@ def get_h2_frame_fingerprint():
     # TODO Pull H2FrameFingerprint record using os and browser
 
     return H2FrameFingerprint(
-        header_table_size=8192,
+        header_table_size=4096,
         enable_push=True,
         max_concurrent_streams=1024,
         initial_window_size=32768,

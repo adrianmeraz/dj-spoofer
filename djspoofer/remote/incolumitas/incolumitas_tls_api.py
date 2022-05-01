@@ -1,12 +1,13 @@
 import logging
 
+from django.conf import settings
 from djstarter import decorators
 
 from .exceptions import IncolumitasError
 
 logger = logging.getLogger(__name__)
 
-BASE_URL = 'https://tls.incolumitas.com'
+BASE_URL = settings.INCOLUMITAS_TLS_API_BASE_URL
 
 
 @decorators.wrap_exceptions(raise_as=IncolumitasError)
