@@ -2,11 +2,11 @@ import logging
 from ssl import TLSVersion
 
 import httpx
+from django.conf import settings
 from djstarter.clients import Http2Client
 
 from djspoofer import utils
 from djspoofer.remote.proxyrack import backends
-from django.conf import settings
 
 logger = logging.getLogger(__name__)
 

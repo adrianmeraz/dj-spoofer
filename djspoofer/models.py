@@ -128,6 +128,13 @@ class H2SettingsFingerprint(BaseModel):
     max_header_list_size = models.IntegerField(blank=True, null=True)
     psuedo_header_order = models.TextField()
 
+    window_update_increment = models.IntegerField()
+
+    priority_stream_id = models.IntegerField()
+    priority_exclusive = models.BooleanField()
+    priority_depends_on_id = models.IntegerField()
+    priority_weight = models.IntegerField()             # TODO Add validator set to 1-256
+
     class Meta:
         db_table = 'djspoofer_h2_settings_fingerprint'
         ordering = ['-created']
