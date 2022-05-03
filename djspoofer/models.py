@@ -120,6 +120,8 @@ class Geolocation(BaseModel):
 class H2SettingsFingerprint(BaseModel):
     objects = managers.H2FrameFingerprintManager()
 
+    # browser_min_version = models.IntegerField() #
+
     header_table_size = models.IntegerField()
     enable_push = models.BooleanField(blank=True, null=True)
     max_concurrent_streams = models.IntegerField(blank=True, null=True)
@@ -133,7 +135,7 @@ class H2SettingsFingerprint(BaseModel):
     priority_stream_id = models.IntegerField()
     priority_exclusive = models.BooleanField()
     priority_depends_on_id = models.IntegerField()
-    priority_weight = models.IntegerField()             # TODO Add validator set to 1-256
+    priority_weight = models.IntegerField()
 
     class Meta:
         db_table = 'djspoofer_h2_settings_fingerprint'

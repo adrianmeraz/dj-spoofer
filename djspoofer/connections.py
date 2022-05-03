@@ -80,8 +80,7 @@ def get_authority(request):
 
 
 def get_h2_fingerprint():
-    # TODO Pull real h2 fingerprints and add priority fields
-
+    # TODO Pull real h2 fingerprints
     return H2SettingsFingerprint(
         header_table_size=65536,
         enable_push=True,
@@ -99,7 +98,6 @@ def get_h2_fingerprint():
 
 
 def build_h2_settings(h2_settings_fingerprint):
-    # TODO Figure out how to omit some fields
     h2_fp = h2_settings_fingerprint
     initial_values = {
         SettingCodes.HEADER_TABLE_SIZE: h2_fp.header_table_size,                            # 0x01 (Required)

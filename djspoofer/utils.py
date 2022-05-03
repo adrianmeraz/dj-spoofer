@@ -94,7 +94,7 @@ class H2FingerprintParser:
         def __init__(self, data):
             self._data = data
             pairs = [pair.split(':') for pair in data.split(';')]
-            kv_map = {str(k): v for k, v in pairs}
+            kv_map = {str(k): int(v) for k, v in pairs}
             self.header_table_size = kv_map.get('1')
             self.push_enabled = kv_map.get('2')
             self.max_concurrent_streams = kv_map.get('3')
@@ -102,13 +102,9 @@ class H2FingerprintParser:
             self.max_frame_size = kv_map.get('5')
             self.max_header_list_size = kv_map.get('6')
 
-    class WindowFrame:
-        def __init__(self, data):
-            self.window_update_increment = data
-
     class PriorityFrame:
         def __init__(self, data):
-            parts = [v for v in data.split(':')]
+            parts = [int(v) for v in data.split(':')]
             self.stream_id = parts[0]
             self.is_exclusive = parts[1]
             self.depends_on_id = parts[2]
@@ -117,7 +113,7 @@ class H2FingerprintParser:
     def __init__(self, fingerprint):
         parts = fingerprint.split('|')
         self.settings_frame = self.SettingsFrame(parts[0])
-        self.window_frame = parts[1]
+        self.window_frame = int(parts[1] or 0)
         self.priority_frame = self.PriorityFrame(parts[2])
         self.pseudo_headers = parts[3]
 

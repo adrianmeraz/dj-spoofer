@@ -51,4 +51,19 @@ class UtilTests(TestCase):
     def test_h2_fingerprint_parser(self):
         parser = utils.H2FingerprintParser('1:65536;2:1;3:1000;4:6291456;5:16384;6:262144|15663105|1:1:0:256|m,a,s,p')
 
-        self.assertEquals(parser.settings_frame.header_table_size, 65536)
+        settings_frame = parser.settings_frame
+        self.assertEquals(settings_frame.header_table_size, 65536)
+        self.assertEquals(settings_frame.push_enabled, True)
+        self.assertEquals(settings_frame.max_concurrent_streams, 1000)
+        self.assertEquals(settings_frame.initial_window_size, 6291456)
+        self.assertEquals(settings_frame.max_frame_size, 16384)
+        self.assertEquals(settings_frame.max_header_list_size, 262144)
+
+        windows_frame = parser.window_frame
+        self.assertEquals(windows_frame, 15663105)
+
+        priority_frame = parser.priority_frame
+        self.assertEquals(priority_frame.stream_id, 1)
+        self.assertEquals(priority_frame.is_exclusive, 1)
+        self.assertEquals(priority_frame.depends_on_id, 0)
+        self.assertEquals(priority_frame.weight, 256)
