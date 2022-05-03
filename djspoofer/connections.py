@@ -1,10 +1,10 @@
+import collections
 import logging
 
 import h2
-import time
 from h2.settings import Settings, SettingCodes
-from httpcore._sync import http2
 from httpcore._models import Request
+from httpcore._sync import http2
 
 from djspoofer.models import H2SettingsFingerprint
 
@@ -23,14 +23,7 @@ def _send_connection_init(self, request: Request) -> None:
     h2_frame_fingerprint = get_h2_fingerprint()
     self._h2_state.local_settings = build_h2_settings(h2_frame_fingerprint)
 
-    # Some websites (*cough* Yahoo *cough*) balk at this setting being
-    # present in the initial handshake since it's not defined in the original
-    # RFC despite the RFC mandating ignoring settings you don't know about.
-    del self._h2_state.local_settings[
-        h2.settings.SettingCodes.ENABLE_CONNECT_PROTOCOL
-    ]
-
-    self._h2_state.get_next_available_stream_id = lambda: 7
+    self._h2_state.get_next_available_stream_id = lambda: h2_frame_fingerprint.priority_stream_id
     self._h2_state.initiate_connection()
     self._h2_state.increment_flow_control_window(h2_frame_fingerprint.window_update_increment)
 
@@ -58,9 +51,9 @@ def _send_request_headers(self, request: Request, stream_id: int) -> None:
         stream_id,
         headers,
         end_stream=end_stream,
-        priority_weight=201,
-        priority_depends_on=0,
-        priority_exclusive=False
+        priority_weight=h2_fingerprint.priority_weight,
+        priority_depends_on=h2_fingerprint.priority_depends_on_id,
+        priority_exclusive=h2_fingerprint.priority_exclusive
     )
     self._h2_state.increment_flow_control_window(h2_fingerprint.window_update_increment, stream_id=stream_id)
     self._write_outgoing_data(request)
@@ -90,14 +83,18 @@ def get_h2_fingerprint():
     # TODO Pull real h2 fingerprints and add priority fields
 
     return H2SettingsFingerprint(
-        header_table_size=4096,
+        header_table_size=65536,
         enable_push=True,
-        max_concurrent_streams=1024,
-        initial_window_size=32768,
+        max_concurrent_streams=1000,
+        initial_window_size=6291456,
         max_frame_size=16384,
-        max_header_list_size=131072,
-        psuedo_header_order='a,m,p,s',
-        window_update_increment=2**24
+        max_header_list_size=262144,
+        psuedo_header_order='m,a,s,p',
+        window_update_increment=15663105,
+        priority_stream_id=1,
+        priority_exclusive=True,
+        priority_depends_on_id=0,
+        priority_weight=256,
     )
 
 
@@ -113,7 +110,15 @@ def build_h2_settings(h2_settings_fingerprint):
         SettingCodes.MAX_HEADER_LIST_SIZE: h2_fp.max_header_list_size,                      # 0x06 (Optional)
     }
     initial_values = {k: v for k, v in initial_values.items() if v}
-    return h2.settings.Settings(
-        client=True,
-        initial_values=initial_values,
-    )
+    return H2Settings(initial_values=initial_values)
+
+
+class H2Settings(h2.settings.Settings):
+    """
+        Allows for setting the settings value in any particular order.
+        There is no validation of settings since validation throws errors for missing or invalid values
+        Use with caution!
+    """
+    def __init__(self, initial_values=None):
+        super().__init__()
+        self._settings = {k: collections.deque([v]) for k, v in initial_values.items()}

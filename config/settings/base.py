@@ -33,7 +33,7 @@ LOGGING_CFG = {
     'loggers': {
         '': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': LOGLEVEL,
             'propagate': True,
         },
         'django': {
@@ -58,7 +58,7 @@ LOGGING_CFG = {
         },
         'hpack': {
             'handlers': ['console'],
-            'level': 'INFO',
+            'level': LOGLEVEL,
             'propagate': False,
         },
     },
