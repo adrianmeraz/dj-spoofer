@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from djspoofer import const, exceptions
-from djspoofer.models import Fingerprint, Proxy, IPFingerprint
+from djspoofer.models import DeviceFingerprint, Fingerprint, Proxy, IP
 
 
 class FingerprintManagerTests(TestCase):
@@ -11,7 +11,7 @@ class FingerprintManagerTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.fingerprint_data = {
+        cls.device_fingerprint_data = {
             'browser': 'Chrome',
             'device_category': 'desktop',
             'platform': 'US',
@@ -31,10 +31,10 @@ class FingerprintManagerTests(TestCase):
 
     def test_get_random_desktop_fingerprint(self):
         with self.assertRaises(exceptions.DJSpooferError):
-            Fingerprint.objects.get_random_desktop_fingerprint()
+            Fingerprint.objects.random_desktop()
 
-        Fingerprint.objects.create(**self.fingerprint_data)
-        self.assertIsNotNone(Fingerprint.objects.get_random_desktop_fingerprint())
+        Fingerprint.objects.create(device_fingerprint=DeviceFingerprint.objects.create(**self.device_fingerprint_data))
+        self.assertIsNotNone(Fingerprint.objects.random_desktop())
 
 
 class ProxyManagerTests(TestCase):

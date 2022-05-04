@@ -3,15 +3,23 @@ from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 
 from . import const, resources
-from .models import Fingerprint, Proxy, Profile
+from .models import Fingerprint, DeviceFingerprint, Proxy, IntoliFingerprint
 
 en_formats.DATETIME_FORMAT = "M d y H:i"
 
 
 @admin.register(Fingerprint)
 class FingerprintAdmin(ImportExportModelAdmin):
-    list_display = ['created', 'device_category', 'platform', 'user_agent']
-    list_filter = ('device_category', 'platform',)
+    list_display = ['created', ]
+    ordering = ['-created']
+    search_fields = ['user_agent']
+
+    show_full_result_count = False
+
+
+@admin.register(DeviceFingerprint)
+class DeviceFingerprintAdmin(ImportExportModelAdmin):
+    list_display = ['created', 'user_agent']
     ordering = ['-created']
     search_fields = ['user_agent']
 
@@ -46,7 +54,7 @@ class ProxyAdmin(ImportExportModelAdmin):
     actions = [set_rotating, set_sticky, set_general]
 
 
-@admin.register(Profile)
+@admin.register(IntoliFingerprint)
 class IntoliProfileAdmin(ImportExportModelAdmin):
     list_display = ['created', 'device_category', 'platform', 'user_agent', 'weight']
     list_filter = ('device_category', 'platform',)

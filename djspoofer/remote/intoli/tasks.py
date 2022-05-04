@@ -6,7 +6,7 @@ from djstarter.clients import Http2Client
 from djspoofer import utils as s_utils
 from djspoofer.remote.intoli import intoli_api, const
 from djspoofer.remote.intoli.exceptions import IntoliError
-from djspoofer.models import Profile
+from djspoofer.models import IntoliFingerprint
 
 logger = logging.getLogger(__name__)
 
@@ -26,23 +26,23 @@ class GetProfiles:
         with Http2Client() as client:
             r_profiles = intoli_api.get_profiles(client)
 
-        old_oids = list(Profile.objects.all_oids())
+        old_oids = list(IntoliFingerprint.objects.all_oids())
         profiles = self.build_profiles(r_profiles)
 
         try:
-            new_profiles = Profile.objects.bulk_create(profiles)
+            new_profiles = IntoliFingerprint.objects.bulk_create(profiles)
         except Exception as e:
             raise IntoliError(info=f'Error adding user agents: {str(e)}')
         else:
             logger.info(f'Max Profiles: {self.max_profiles}')
             logger.info(f'Created New Intoli Profiles: {len(new_profiles)}')
-            logger.info(f'Deleted Old Intoli Profiles: {Profile.objects.bulk_delete(oids=old_oids)[0]}')
+            logger.info(f'Deleted Old Intoli Profiles: {IntoliFingerprint.objects.bulk_delete(oids=old_oids)[0]}')
 
     def build_profiles(self, r_profiles):
         new_profiles = list()
         for profile in self.filtered_profiles(r_profiles):
             ua_parser = s_utils.UserAgentParser(profile.user_agent)
-            temp_profile = Profile(
+            temp_profile = IntoliFingerprint(
                 browser=ua_parser.browser,
                 os=ua_parser.os,
                 device_category=profile.device_category,

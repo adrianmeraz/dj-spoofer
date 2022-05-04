@@ -11,7 +11,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         try:
-            fingerprint = Fingerprint.objects.get_random_desktop_fingerprint()
+            fingerprint = Fingerprint.objects.random_desktop()
             with DesktopChromeClient(fingerprint=fingerprint) as client:
                 r_h2 = h2fingerprint_api.get_h2_fingerprint(client)
         except Exception as e:

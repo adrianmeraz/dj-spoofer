@@ -6,7 +6,7 @@ from h2.settings import Settings, SettingCodes
 from httpcore._models import Request
 from httpcore._sync import http2
 
-from djspoofer.models import H2SettingsFingerprint
+from djspoofer.models import H2Fingerprint
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +81,7 @@ def get_authority(request):
 
 def get_h2_fingerprint():
     # TODO Pull real h2 fingerprints
-    return H2SettingsFingerprint(
+    return H2Fingerprint(
         header_table_size=65536,
         enable_push=True,
         max_concurrent_streams=1000,

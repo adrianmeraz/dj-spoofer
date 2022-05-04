@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 
 from djspoofer.models import Fingerprint, TLSFingerprint
 from djspoofer import utils
-from djspoofer.models import Profile
+from djspoofer.models import IntoliFingerprint
 
 
 class Command(BaseCommand):
@@ -33,7 +33,7 @@ class Command(BaseCommand):
 
     @staticmethod
     def create_fingerprint():
-        profile = Profile.objects.random_desktop_profile()
+        profile = IntoliFingerprint.objects.random_desktop()
         ua_parser = utils.UserAgentParser(profile.user_agent)
         return Fingerprint.objects.create(
             browser=ua_parser.browser,

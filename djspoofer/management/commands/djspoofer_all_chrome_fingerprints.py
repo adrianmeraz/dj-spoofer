@@ -29,7 +29,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **kwargs):
-        fingerprint = Fingerprint.objects.get_random_desktop_fingerprint()
+        fingerprint = Fingerprint.objects.random_desktop()
         try:
             with DesktopChromeClient(fingerprint=fingerprint) as client:
                 self.show_ja3er_details(client)

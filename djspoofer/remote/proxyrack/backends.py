@@ -5,7 +5,7 @@ from django.conf import settings
 from httpx import Client
 
 from djspoofer import backends, exceptions, utils
-from djspoofer.models import IPFingerprint, Proxy
+from djspoofer.models import IP, Proxy
 from djspoofer.remote.proxyrack import proxyrack_api, utils as pr_utils
 
 logger = logging.getLogger(__name__)
@@ -13,8 +13,8 @@ logger = logging.getLogger(__name__)
 
 class ProxyRackProxyBackend(backends.ProxyBackend):
     def get_proxy_url(self, fingerprint):
-        for ip_fingerprint in fingerprint.get_last_n_ip_fingerprints(count=3):
-            proxy_url = self._build_proxy_url(proxyIp=ip_fingerprint.ip)
+        for ip_fingerprint in fingerprint.get_last_n_ips(count=3):
+            proxy_url = self._build_proxy_url(proxyIp=ip_fingerprint.address)
             if self._is_valid_proxy(proxies=utils.proxy_dict(proxy_url)):
                 logger.info(f'Found valid IP Fingerprint: {ip_fingerprint}')
                 return proxy_url
@@ -39,14 +39,14 @@ class ProxyRackProxyBackend(backends.ProxyBackend):
     def _create_ip_fingerprint(fingerprint, proxies):
         with Client(proxies=proxies) as client:
             r_stats = proxyrack_api.stats(client)
-        ip_fingerprint = IPFingerprint.objects.create(
+        ip_fingerprint = IP.objects.create(
             city=r_stats.ipinfo.city,
             country=r_stats.ipinfo.country,
             isp=r_stats.ipinfo.isp,
-            ip=r_stats.ipinfo.ip,
+            ip=r_stats.ipinfo.address,
             fingerprint=fingerprint
         )
-        fingerprint.add_ip_fingerprint(ip_fingerprint)
+        fingerprint.add_ip(ip_fingerprint)
         logger.info(f'{ip_fingerprint}. Successfully created new ip fingerprint')
 
     def _test_proxy_url(self, fingerprint):

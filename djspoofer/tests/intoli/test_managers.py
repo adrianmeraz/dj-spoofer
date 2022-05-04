@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from djspoofer.remote.intoli import exceptions
-from djspoofer.models import Profile
+from djspoofer.models import IntoliFingerprint
 
 
 class ProfileManagerTests(TestCase):
@@ -22,18 +22,18 @@ class ProfileManagerTests(TestCase):
         }
 
     def test_all_oids(self):
-        profile = Profile.objects.create(device_category='desktop', **self.profile_data)
+        profile = IntoliFingerprint.objects.create(device_category='desktop', **self.profile_data)
 
-        self.assertEquals(list(Profile.objects.all_oids()), [profile.oid])
+        self.assertEquals(list(IntoliFingerprint.objects.all_oids()), [profile.oid])
 
     def test_all_user_agents(self):
-        Profile.objects.create(**self.profile_data)
+        IntoliFingerprint.objects.create(**self.profile_data)
 
         new_data = self.profile_data.copy()
         new_data['user_agent'] = 'The 2nd User Agent 2.0'
-        Profile.objects.create(**new_data)
+        IntoliFingerprint.objects.create(**new_data)
 
-        user_agents = Profile.objects.all_user_agents()
+        user_agents = IntoliFingerprint.objects.all_user_agents()
 
         self.assertListEqual(
             list(user_agents),
@@ -42,48 +42,48 @@ class ProfileManagerTests(TestCase):
 
     def test_random_desktop_chrome_profile(self):
         with self.assertRaises(exceptions.IntoliError):
-            Profile.objects.random_desktop_profile()
+            IntoliFingerprint.objects.random_desktop()
 
-        Profile.objects.create(browser='Chrome', device_category='desktop', os='Windows', **self.profile_data)
+        IntoliFingerprint.objects.create(browser='Chrome', device_category='desktop', os='Windows', **self.profile_data)
 
-        profile = Profile.objects.random_desktop_profile()
+        profile = IntoliFingerprint.objects.random_desktop()
 
         self.assertEquals(profile.user_agent, 'My User Agent 1.0')
 
     def test_random_mobile_profile(self):
         with self.assertRaises(exceptions.IntoliError):
-            Profile.objects.random_mobile_profile()
+            IntoliFingerprint.objects.random_mobile()
 
-        Profile.objects.create(device_category='mobile', **self.profile_data)
+        IntoliFingerprint.objects.create(device_category='mobile', **self.profile_data)
 
-        profile = Profile.objects.random_mobile_profile()
+        profile = IntoliFingerprint.objects.random_mobile()
 
         self.assertEquals(profile.user_agent, 'My User Agent 1.0')
 
     def test_weighted_desktop_chrome_user_agent(self):
         with self.assertRaises(exceptions.IntoliError):
-            Profile.objects.weighted_desktop_profile()
+            IntoliFingerprint.objects.weighted_desktop()
 
-        Profile.objects.create(browser='Chrome', device_category='desktop', os='Windows', **self.profile_data)
+        IntoliFingerprint.objects.create(browser='Chrome', device_category='desktop', os='Windows', **self.profile_data)
 
-        profile = Profile.objects.weighted_desktop_profile()
+        profile = IntoliFingerprint.objects.weighted_desktop()
 
         self.assertEquals(profile.user_agent, 'My User Agent 1.0')
 
     def test_weighted_mobile_user_agent(self):
         with self.assertRaises(exceptions.IntoliError):
-            Profile.objects.weighted_mobile_profile()
+            IntoliFingerprint.objects.weighted_mobile()
 
-        Profile.objects.create(device_category='mobile', **self.profile_data)
+        IntoliFingerprint.objects.create(device_category='mobile', **self.profile_data)
 
-        profile = Profile.objects.weighted_mobile_profile()
+        profile = IntoliFingerprint.objects.weighted_mobile()
 
         self.assertEquals(profile.user_agent, 'My User Agent 1.0')
 
     def test_bulk_delete(self):
-        profile = Profile.objects.create(device_category='desktop', os='Linux', **self.profile_data)
+        profile = IntoliFingerprint.objects.create(device_category='desktop', os='Linux', **self.profile_data)
 
-        Profile.objects.bulk_delete(oids=[profile.oid])
+        IntoliFingerprint.objects.bulk_delete(oids=[profile.oid])
 
-        with self.assertRaises(Profile.DoesNotExist):
+        with self.assertRaises(IntoliFingerprint.DoesNotExist):
             profile.refresh_from_db()

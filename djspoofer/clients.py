@@ -14,6 +14,7 @@ logger = logging.getLogger(__name__)
 class DesktopClient(Http2Client, backends.ProxyRackProxyBackend):
     def __init__(self, fingerprint, *args, **kwargs):
         self.fingerprint = fingerprint
+        self.user_agent = self.fingerprint.device_fingerprint.user_agent
         super().__init__(
             proxies=self._proxies,
             verify=self._new_ssl_context(),
@@ -47,11 +48,11 @@ class DesktopClient(Http2Client, backends.ProxyRackProxyBackend):
 class DesktopChromeClient(DesktopClient):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.ua_parser = utils.UserAgentParser(self.fingerprint.user_agent)
+        self.ua_parser = utils.UserAgentParser(self.user_agent)
 
     def init_headers(self):
         return {
-            'user-agent': self.fingerprint.user_agent,
+            'user-agent': self.user_agent,
         }
 
     @property
@@ -75,5 +76,5 @@ class DesktopFirefoxClient(DesktopClient):
 
     def init_headers(self):
         return {
-            'User-Agent': self.fingerprint.user_agent,
+            'User-Agent': self.user_agent,
         }

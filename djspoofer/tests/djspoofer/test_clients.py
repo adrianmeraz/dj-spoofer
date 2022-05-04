@@ -6,7 +6,7 @@ from django.test import TestCase
 from httpx import Request, Response, codes
 
 from djspoofer import clients, utils
-from djspoofer.models import Fingerprint, IPFingerprint, Proxy, Geolocation
+from djspoofer.models import Fingerprint, DeviceFingerprint, IP, Proxy, Geolocation
 from djspoofer.remote.proxyrack import proxyrack_api
 
 
@@ -19,28 +19,25 @@ class DesktopChromeClientTests(TestCase):
         )
         user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.82 Safari/537.36'
         ua_parser = utils.UserAgentParser(user_agent)
-        cls.fingerprint = Fingerprint.objects.create(
-            browser=ua_parser.browser,
-            device_category='desktop',
-            os=ua_parser.os,
-            platform='US',
-            screen_height=1920,
-            screen_width=1080,
-            user_agent=user_agent,
-            viewport_height=768,
-            viewport_width=1024,
-        )
-        cls.ip_fingerprint_data = {
-            'city': 'Los Angeles',
-            'country': 'US',
-            'isp': 'Spectrum',
-            'ip': '194.60.86.250',
+        device_fingerprint_data = {
+            'browser': ua_parser.browser,
+            'device_category': 'desktop',
+            'os': ua_parser.os,
+            'platform': 'US',
+            'screen_height': 1920,
+            'screen_width': 1080,
+            'user_agent': user_agent,
+            'viewport_height': 768,
+            'viewport_width': 1024
         }
         cls.geo_location_data = {
             'city': 'Los Angeles',
             'country': 'US',
             'isp': 'Spectrum',
         }
+        cls.fingerprint = Fingerprint.objects.create(
+            device_fingerprint=DeviceFingerprint.objects.create(**device_fingerprint_data)
+        )
         with open_text('djspoofer.tests.proxyrack.resources', 'stats.json') as stats_json:
             cls.r_stats_data = proxyrack_api.StatsResponse(json.loads(stats_json.read()))
 
@@ -98,18 +95,21 @@ class DesktopFirefoxClientTests(TestCase):
         cls.proxy = Proxy.objects.create_rotating_proxy(
             url='test123:5000',
         )
-        user_agent = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:98.0) Gecko/20100101 Firefox/98.0'
+        user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.82 Safari/537.36'
         ua_parser = utils.UserAgentParser(user_agent)
+        device_fingerprint_data = {
+            'browser': ua_parser.browser,
+            'device_category': 'desktop',
+            'os': ua_parser.os,
+            'platform': 'US',
+            'screen_height': 1920,
+            'screen_width': 1080,
+            'user_agent': user_agent,
+            'viewport_height': 768,
+            'viewport_width': 1024
+        }
         cls.fingerprint = Fingerprint.objects.create(
-            browser=ua_parser.browser,
-            device_category='desktop',
-            os=ua_parser.os,
-            platform='US',
-            screen_height=1920,
-            screen_width=1080,
-            user_agent=user_agent,
-            viewport_height=768,
-            viewport_width=1024,
+            device_fingerprint=DeviceFingerprint.objects.create(**device_fingerprint_data)
         )
         with open_text('djspoofer.tests.proxyrack.resources', 'stats.json') as stats_json:
             cls.r_stats_data = proxyrack_api.StatsResponse(json.loads(stats_json.read()))
