@@ -89,7 +89,7 @@ class UserAgentParser:
         return f'UserAgentParser -> {self.ua_parser}'
 
 
-class H2FingerprintParser:
+class H2HashParser:
     class SettingsFrame:
         def __init__(self, data):
             self._data = data
@@ -110,8 +110,8 @@ class H2FingerprintParser:
             self.depends_on_id = parts[2]
             self.weight = parts[3]
 
-    def __init__(self, fingerprint):
-        parts = fingerprint.split('|')
+    def __init__(self, hash):
+        parts = hash.split('|')
         self.settings_frame = self.SettingsFrame(parts[0])
         self.window_frame = int(parts[1] or 0)
         self.priority_frame = self.PriorityFrame(parts[2])

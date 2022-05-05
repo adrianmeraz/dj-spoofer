@@ -13,10 +13,10 @@ logger = logging.getLogger(__name__)
 
 class ProxyRackProxyBackend(backends.ProxyBackend):
     def get_proxy_url(self, fingerprint):
-        for ip_fingerprint in fingerprint.get_last_n_ips(count=3):
-            proxy_url = self._build_proxy_url(proxyIp=ip_fingerprint.address)
+        for ip in fingerprint.get_last_n_ips(count=3):
+            proxy_url = self._build_proxy_url(proxyIp=ip.address)
             if self._is_valid_proxy(proxies=utils.proxy_dict(proxy_url)):
-                logger.info(f'Found valid IP Fingerprint: {ip_fingerprint}')
+                logger.info(f'Found valid IP Fingerprint: {ip}')
                 return proxy_url
         else:
             logger.info(f'{fingerprint}. No valid IP Fingerprints found. ')
@@ -43,7 +43,7 @@ class ProxyRackProxyBackend(backends.ProxyBackend):
             city=r_stats.ipinfo.city,
             country=r_stats.ipinfo.country,
             isp=r_stats.ipinfo.isp,
-            ip=r_stats.ipinfo.address,
+            address=r_stats.ipinfo.ip,
             fingerprint=fingerprint
         )
         fingerprint.add_ip(ip_fingerprint)
@@ -52,7 +52,7 @@ class ProxyRackProxyBackend(backends.ProxyBackend):
     def _test_proxy_url(self, fingerprint):
         geolocation = fingerprint.geolocation
         return self._build_proxy_url(
-            osName=fingerprint.os,
+            osName=fingerprint.device_fingerprint.os,
             country=getattr(geolocation, 'country', None),
             city=getattr(geolocation, 'city', None),
             isp=getattr(geolocation, 'isp', None),

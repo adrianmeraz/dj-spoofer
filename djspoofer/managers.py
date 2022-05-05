@@ -15,7 +15,10 @@ class GeolocationManager(models.Manager):
 
 
 class H2FingerprintManager(models.Manager):
-    pass
+    def get_h2_fingerprint(self):
+        q = Q(device_fingerprint__device_category='desktop',
+              device_fingerprint__browser__in=const.SUPPORTED_BROWSERS)
+        return super().get_queryset().filter(q)
 
 
 class IPManager(models.Manager):

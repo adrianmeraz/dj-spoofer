@@ -49,7 +49,7 @@ class UtilTests(TestCase):
         self.assertEquals(ua_parser.os, 'Windows')
 
     def test_h2_fingerprint_parser(self):
-        parser = utils.H2FingerprintParser('1:65536;2:1;3:1000;4:6291456;5:16384;6:262144|15663105|1:1:0:256|m,a,s,p')
+        parser = utils.H2HashParser('1:65536;2:1;3:1000;4:6291456;5:16384;6:262144|15663105|1:1:0:256|m,a,s,p')
 
         settings_frame = parser.settings_frame
         self.assertEquals(settings_frame.header_table_size, 65536)
