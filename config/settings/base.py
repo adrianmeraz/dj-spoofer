@@ -37,7 +37,7 @@ LOGGING_CFG = {
             'propagate': True,
         },
         'django': {
-            'level': 'INFO',
+            'level': LOGLEVEL,
             'handlers': ['console'],
             'propagate': True,
         },

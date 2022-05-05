@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from djspoofer import const, exceptions
-from djspoofer.models import DeviceFingerprint, Fingerprint, Proxy, IP
+from djspoofer.models import DeviceFingerprint, H2Fingerprint, Fingerprint, Proxy, IP
 
 
 class FingerprintManagerTests(TestCase):
@@ -35,6 +35,51 @@ class FingerprintManagerTests(TestCase):
 
         Fingerprint.objects.create(device_fingerprint=DeviceFingerprint.objects.create(**self.device_fingerprint_data))
         self.assertIsNotNone(Fingerprint.objects.random_desktop())
+
+
+class H2FingerprintManagerTests(TestCase):
+    """
+    H2FingerprintManager Tests
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.h2_fingerprint_data = {
+            'os': 'Windows',
+            'browser': 'Chrome',
+            'browser_min_major_version': 95,
+            'browser_max_major_version': 100,
+            'header_table_size': 65536,
+            'enable_push': True,
+            'max_concurrent_streams': 1000,
+            'initial_window_size': 6291456,
+            'max_frame_size': 16384,
+            'max_header_list_size': 262144,
+            'psuedo_header_order': 'm,a,s,p',
+            'window_update_increment': 15663105,
+            'priority_stream_id': 1,
+            'priority_exclusive': True,
+            'priority_depends_on_id': 0,
+            'priority_weight': 256
+        }
+
+    def test_get_by_browser_info(self):
+        with self.assertRaises(exceptions.DJSpooferError):
+            Fingerprint.objects.random_desktop()
+
+        H2Fingerprint.objects.create(**self.h2_fingerprint_data)
+        h2_fingerprint = H2Fingerprint.objects.get_by_browser_info(
+            os='Windows',
+            browser='Chrome',
+            browser_major_version=78
+        )
+        self.assertIsNone(h2_fingerprint)
+        h2_fingerprint = H2Fingerprint.objects.get_by_browser_info(
+            os='Windows',
+            browser='Chrome',
+            browser_major_version=96
+        )
+        self.assertIsInstance(h2_fingerprint, H2Fingerprint)
 
 
 class ProxyManagerTests(TestCase):

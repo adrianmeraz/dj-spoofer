@@ -9,9 +9,6 @@ from . import const, managers
 
 
 class BaseFingerprint(BaseModel):
-    # TODO May want to store os, browser, and browser version, so records can be pulled using min/max browser versions
-    # TODO as well as os and browser. It appears that browsers have the same fingerprints for a large chunk of releases
-
     browser = models.CharField(max_length=32)
     browser_min_major_version = models.IntegerField(default=0)
     browser_max_major_version = models.IntegerField(default=999)
@@ -102,6 +99,7 @@ class TLSFingerprint(BaseFingerprint):
 
 class BaseDeviceFingerprint(BaseModel):
     browser = models.CharField(max_length=32)
+    browser_major_version = models.IntegerField()
     device_category = models.CharField(max_length=32)
     os = models.CharField(max_length=32)
     platform = models.CharField(max_length=32)
@@ -208,6 +206,14 @@ class Fingerprint(BaseModel):
         null=True
     )
 
+    h2_fingerprint = models.ForeignKey(
+        to=H2Fingerprint,
+        related_name='fingerprints',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True
+    )
+
     tls_fingerprint = models.ForeignKey(
         to=TLSFingerprint,
         related_name='fingerprints',
@@ -237,6 +243,12 @@ class Fingerprint(BaseModel):
     def save(self, *args, **kwargs):
         if not self.tls_fingerprint:
             self.tls_fingerprint = TLSFingerprint.objects.create(browser=self.device_fingerprint.browser)
+        if not self.h2_fingerprint:
+            self.h2_fingerprint = H2Fingerprint.objects.get_by_browser_info(
+                os=self.device_fingerprint.os,
+                browser=self.device_fingerprint.browser,
+                browser_major_version=self.device_fingerprint.browser_major_version
+            )
         super().save(*args, **kwargs)
 
     def set_geolocation(self, geolocation):
