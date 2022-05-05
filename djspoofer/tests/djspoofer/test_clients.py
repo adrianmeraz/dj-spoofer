@@ -21,6 +21,7 @@ class DesktopChromeClientTests(TestCase):
         ua_parser = utils.UserAgentParser(user_agent)
         device_fingerprint_data = {
             'browser': ua_parser.browser,
+            'browser_major_version': ua_parser.browser_major_version,
             'device_category': 'desktop',
             'os': ua_parser.os,
             'platform': 'US',
@@ -99,6 +100,7 @@ class DesktopFirefoxClientTests(TestCase):
         ua_parser = utils.UserAgentParser(user_agent)
         device_fingerprint_data = {
             'browser': ua_parser.browser,
+            'browser_major_version': ua_parser.browser_major_version,
             'device_category': 'desktop',
             'os': ua_parser.os,
             'platform': 'US',

@@ -38,6 +38,7 @@ class Command(BaseCommand):
         return Fingerprint.objects.create(
             device_fingerprint=DeviceFingerprint.objects.create(
                 browser=ua_parser.browser,
+                browser_major_version=ua_parser.browser_major_version,
                 device_category=profile.device_category,
                 os=ua_parser.os,
                 platform=profile.platform,

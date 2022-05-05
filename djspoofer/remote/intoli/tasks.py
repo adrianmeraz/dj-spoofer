@@ -44,6 +44,7 @@ class GetProfiles:
             ua_parser = s_utils.UserAgentParser(profile.user_agent)
             temp_profile = IntoliFingerprint(
                 browser=ua_parser.browser,
+                browser_major_version=ua_parser.browser_major_version,
                 os=ua_parser.os,
                 device_category=profile.device_category,
                 platform=profile.platform,

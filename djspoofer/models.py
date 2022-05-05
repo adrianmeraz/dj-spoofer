@@ -5,7 +5,7 @@ from django.db import models
 from django.utils import timezone
 from djstarter.models import BaseModel
 
-from . import const, managers
+from . import const, managers, utils
 
 
 class BaseFingerprint(BaseModel):
@@ -111,6 +111,14 @@ class BaseDeviceFingerprint(BaseModel):
 
     class Meta:
         abstract = True
+
+    def save(self, *args, **kwargs):
+        if not all([self.browser, self.browser_major_version, self.os]):
+            ua_parser = utils.UserAgentParser(self.user_agent)
+            self.browser = ua_parser.browser
+            self.browser_major_version = ua_parser.browser_major_version
+            self.os = ua_parser.os
+        super().save(*args, **kwargs)
 
 
 class DeviceFingerprint(BaseDeviceFingerprint):
