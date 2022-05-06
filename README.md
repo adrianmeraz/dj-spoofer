@@ -272,22 +272,34 @@ poetry run zappa manage <STAGE_NAME> "createsuperuser --noinput"
 
 ## Admin Commands
 
+### Add Rotating Proxy
+
+```
+djspoofer_add_rotating_proxy --proxy-url "premium.residential.proxyrack.net:10000" --settings=config.settings.local
+```
+
 ### Create desktop fingerprints
 
 ```
 djspoofer_create_desktop_fingerprints --num_to_create "10" --settings=config.settings.local
 ```
 
-### Get all Chrome fingerprints report
-
-```
-djspoofer_all_chrome_fingerprints --proxy-url "premium.residential.proxyrack.net:10000" --proxy-args "country=US" --settings=config.settings.local
-```
-
 ### Get all Intoli Profiles
 
 ```
 intoli_get_profiles --settings=config.settings.local
+```
+
+### Save H2 Hash
+
+```
+save_h2_hash --hash "1:65536;2:1;3:1000;4:6291456;5:16384;6:262144|15663105|1:1:0:256|m,a,s,p" --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36" --browser-min-major-version 60 --browser-max-major-version 110 --settings=config.settings.local
+```
+
+### Get all Chrome fingerprints report
+
+```
+djspoofer_all_chrome_fingerprints --proxy-url "premium.residential.proxyrack.net:10000" --proxy-args "country=US" --settings=config.settings.local
 ```
 
 ## Poetry Utilities

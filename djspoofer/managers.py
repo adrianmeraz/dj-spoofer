@@ -106,13 +106,13 @@ class IntoliFingerprintManager(models.Manager):
         try:
             return self.desktop_only().order_by('?')[0]
         except Exception:
-            raise intoli_exceptions.IntoliError('No Desktop Device Fingerprints Exist')
+            raise intoli_exceptions.IntoliError('No Desktop Intoli Fingerprints Exist')
 
     def random_mobile(self):
         try:
             return self.mobile_only().order_by('?')[0]
         except Exception:
-            raise intoli_exceptions.IntoliError('No Mobile Device Fingerprints Exist')
+            raise intoli_exceptions.IntoliError('No Mobile Intoli Fingerprints Exist')
 
     def weighted_desktop(self):
         try:
