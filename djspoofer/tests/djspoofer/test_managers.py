@@ -1,7 +1,7 @@
 from django.test import TestCase
 
 from djspoofer import const, exceptions
-from djspoofer.models import DeviceFingerprint, H2Fingerprint, Fingerprint, Proxy, IP
+from djspoofer.models import DeviceFingerprint, H2Fingerprint, Fingerprint, Proxy
 
 
 class FingerprintManagerTests(TestCase):

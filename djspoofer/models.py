@@ -214,7 +214,7 @@ class Fingerprint(BaseModel):
         null=True
     )
 
-    h2_fingerprint = models.ForeignKey(
+    _h2_fingerprint = models.ForeignKey(
         to=H2Fingerprint,
         related_name='fingerprints',
         on_delete=models.CASCADE,
@@ -222,7 +222,7 @@ class Fingerprint(BaseModel):
         null=True
     )
 
-    tls_fingerprint = models.ForeignKey(
+    _tls_fingerprint = models.ForeignKey(
         to=TLSFingerprint,
         related_name='fingerprints',
         on_delete=models.CASCADE,
@@ -248,16 +248,23 @@ class Fingerprint(BaseModel):
     def __str__(self):
         return f'Fingerprint -> user_agent: {self.device_fingerprint.user_agent}'
 
-    def save(self, *args, **kwargs):
-        if not self.tls_fingerprint:
-            self.tls_fingerprint = TLSFingerprint.objects.create(browser=self.device_fingerprint.browser)
-        if not self.h2_fingerprint:
-            self.h2_fingerprint = H2Fingerprint.objects.get_by_browser_info(
+    @property
+    def h2_fingerprint(self):
+        if not self._h2_fingerprint:
+            self._h2_fingerprint = H2Fingerprint.objects.get_by_browser_info(
                 os=self.device_fingerprint.os,
                 browser=self.device_fingerprint.browser,
                 browser_major_version=self.device_fingerprint.browser_major_version
             )
-        super().save(*args, **kwargs)
+            self.save()
+        return self._h2_fingerprint
+
+    @property
+    def tls_fingerprint(self):
+        if not self._tls_fingerprint:
+            self._tls_fingerprint = TLSFingerprint.objects.create(browser=self.device_fingerprint.browser)
+            self.save()
+        return self._tls_fingerprint
 
     def set_geolocation(self, geolocation):
         self.geolocation = geolocation

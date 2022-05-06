@@ -15,19 +15,19 @@ class Command(BaseCommand):
             help="H2 Fingerprint Hash",
         )
         parser.add_argument(
-            "--user_agent",
+            "--user-agent",
             required=True,
             type=str,
-            help="Browser Name",
+            help="User Agent",
         )
         parser.add_argument(
-            "--browser_min_major_version",
+            "--browser-min-major-version",
             required=False,
             type=int,
             help="Browser Minimum Major Version",
         )
         parser.add_argument(
-            "--browser_max_major_version",
+            "--browser-max-major-version",
             required=False,
             type=int,
             help="Browser Minimum Major Version",
@@ -35,7 +35,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         try:
-            h2_fingerprint = self.create_h2_fingerprint()
+            h2_fingerprint = self.create_h2_fingerprint(kwargs)
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error while running command:\n{str(e)}'))
             raise e

@@ -6,7 +6,7 @@ from django.test import TestCase
 from httpx import Request, Response, codes
 
 from djspoofer import clients, utils
-from djspoofer.models import Fingerprint, DeviceFingerprint, IP, Proxy, Geolocation
+from djspoofer.models import Fingerprint, DeviceFingerprint, H2Fingerprint, IP, Proxy, Geolocation
 from djspoofer.remote.proxyrack import proxyrack_api
 
 
@@ -18,12 +18,8 @@ class DesktopChromeClientTests(TestCase):
             url='test123:5000',
         )
         user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.82 Safari/537.36'
-        ua_parser = utils.UserAgentParser(user_agent)
         device_fingerprint_data = {
-            'browser': ua_parser.browser,
-            'browser_major_version': ua_parser.browser_major_version,
             'device_category': 'desktop',
-            'os': ua_parser.os,
             'platform': 'US',
             'screen_height': 1920,
             'screen_width': 1080,
@@ -31,13 +27,32 @@ class DesktopChromeClientTests(TestCase):
             'viewport_height': 768,
             'viewport_width': 1024
         }
+        h2_fingerprint_data = {
+            'os': 'Windows',
+            'browser': 'Chrome',
+            'browser_min_major_version': 95,
+            'browser_max_major_version': 100,
+            'header_table_size': 65536,
+            'enable_push': True,
+            'max_concurrent_streams': 1000,
+            'initial_window_size': 6291456,
+            'max_frame_size': 16384,
+            'max_header_list_size': 262144,
+            'psuedo_header_order': 'm,a,s,p',
+            'window_update_increment': 15663105,
+            'priority_stream_id': 1,
+            'priority_exclusive': True,
+            'priority_depends_on_id': 0,
+            'priority_weight': 256
+        }
         cls.geo_location_data = {
             'city': 'Los Angeles',
             'country': 'US',
             'isp': 'Spectrum',
         }
         cls.fingerprint = Fingerprint.objects.create(
-            device_fingerprint=DeviceFingerprint.objects.create(**device_fingerprint_data)
+            device_fingerprint=DeviceFingerprint.objects.create(**device_fingerprint_data),
+            _h2_fingerprint=H2Fingerprint.objects.create(**h2_fingerprint_data)
         )
         with open_text('djspoofer.tests.proxyrack.resources', 'stats.json') as stats_json:
             cls.r_stats_data = proxyrack_api.StatsResponse(json.loads(stats_json.read()))
@@ -97,12 +112,8 @@ class DesktopFirefoxClientTests(TestCase):
             url='test123:5000',
         )
         user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.82 Safari/537.36'
-        ua_parser = utils.UserAgentParser(user_agent)
         device_fingerprint_data = {
-            'browser': ua_parser.browser,
-            'browser_major_version': ua_parser.browser_major_version,
             'device_category': 'desktop',
-            'os': ua_parser.os,
             'platform': 'US',
             'screen_height': 1920,
             'screen_width': 1080,
@@ -110,8 +121,27 @@ class DesktopFirefoxClientTests(TestCase):
             'viewport_height': 768,
             'viewport_width': 1024
         }
+        h2_fingerprint_data = {
+            'os': 'Windows',
+            'browser': 'Chrome',
+            'browser_min_major_version': 95,
+            'browser_max_major_version': 100,
+            'header_table_size': 65536,
+            'enable_push': True,
+            'max_concurrent_streams': 1000,
+            'initial_window_size': 6291456,
+            'max_frame_size': 16384,
+            'max_header_list_size': 262144,
+            'psuedo_header_order': 'm,a,s,p',
+            'window_update_increment': 15663105,
+            'priority_stream_id': 1,
+            'priority_exclusive': True,
+            'priority_depends_on_id': 0,
+            'priority_weight': 256
+        }
         cls.fingerprint = Fingerprint.objects.create(
-            device_fingerprint=DeviceFingerprint.objects.create(**device_fingerprint_data)
+            device_fingerprint=DeviceFingerprint.objects.create(**device_fingerprint_data),
+            _h2_fingerprint=H2Fingerprint.objects.create(**h2_fingerprint_data)
         )
         with open_text('djspoofer.tests.proxyrack.resources', 'stats.json') as stats_json:
             cls.r_stats_data = proxyrack_api.StatsResponse(json.loads(stats_json.read()))

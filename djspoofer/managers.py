@@ -24,6 +24,9 @@ class H2FingerprintManager(models.Manager):
         )
         return super().get_queryset().filter(q).first()
 
+    def get_by_oid(self, oid):
+        return super().get_queryset().get(oid=oid)
+
 
 class IPManager(models.Manager):
     pass

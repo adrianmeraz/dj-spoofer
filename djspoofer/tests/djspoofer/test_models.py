@@ -14,9 +14,7 @@ class FingerprintTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         user_agent = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:98.0) Gecko/20100101 Firefox/98.0'
-        ua_parser = utils.UserAgentParser(user_agent)
         cls.device_fingerprint_data = {
-            'browser': ua_parser.browser,
             'device_category': 'mobile',
             'platform': 'US',
             'screen_height': 1920,
@@ -117,10 +115,8 @@ class TLSFingerprintTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        user_agent = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:98.0) Gecko/20100101 Firefox/98.0'
-        ua_parser = utils.UserAgentParser(user_agent)
         cls.tls_fingerprint_data = {
-            'browser': ua_parser.browser,
+            'browser': 'Chrome',
         }
 
     def test_ciphers(self):
