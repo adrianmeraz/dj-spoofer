@@ -5,7 +5,7 @@ from django.db import models
 from django.utils import timezone
 from djstarter.models import BaseModel
 
-from . import const, managers, utils
+from . import const, exceptions, managers, utils
 
 
 class BaseFingerprint(BaseModel):
@@ -251,18 +251,24 @@ class Fingerprint(BaseModel):
     @property
     def h2_fingerprint(self):
         if not self._h2_fingerprint:
-            self._h2_fingerprint = H2Fingerprint.objects.get_by_browser_info(
+            new_h2_fingerprint = H2Fingerprint.objects.get_by_browser_info(
                 os=self.device_fingerprint.os,
                 browser=self.device_fingerprint.browser,
                 browser_major_version=self.device_fingerprint.browser_major_version
             )
+            if not new_h2_fingerprint:
+                raise exceptions.DJSpooferError('No Available H2 Fingerprints')
+            self._h2_fingerprint = new_h2_fingerprint
             self.save()
         return self._h2_fingerprint
 
     @property
     def tls_fingerprint(self):
         if not self._tls_fingerprint:
-            self._tls_fingerprint = TLSFingerprint.objects.create(browser=self.device_fingerprint.browser)
+            tls_fingerprint = TLSFingerprint.objects.create(browser=self.device_fingerprint.browser)
+            if not tls_fingerprint:
+                raise exceptions.DJSpooferError('No Available TLS Fingerprints')
+            self._tls_fingerprint = tls_fingerprint
             self.save()
         return self._tls_fingerprint
 
