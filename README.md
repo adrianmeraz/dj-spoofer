@@ -223,28 +223,19 @@ Run the command from the project root to create the database and service user
 
 `poetry run python manage.py create_db --db-url="<DB_INSTANCE_URL>" --db-name="<NEW_DB_NAME>" --db-username="<NEW_DB_USERNAME>" --db-password="<NEW_DB_PASSWORD>"`
 
-## PGAdmin
+## PG Admin 4
 
 ### Installation
 
-#### Install the public key
+Follow Guide [HERE](https://www.pgadmin.org/download/pgadmin-4-python/)
 
-Install the public key for the repository (if not done previously):
+### Start
 
-```
-sudo curl https://www.pgadmin.org/static/packages_pgadmin_org.pub | sudo apt-key add
-```
-
-#### Create the repository configuration file:
+Run the following:
 
 ```
-sudo sh -c 'echo "deb https://ftp.postgresql.org/pub/pgadmin/pgadmin4/apt/focal/ pgadmin4 main" > /etc/apt/sources.list.d/pgadmin4.list && apt update'
-```
-
-####  Install for both desktop and web modes:
-
-```
-sudo apt install pgadmin4
+source pgadmin4/bin/activate
+pgadmin4
 ```
 
 ### Initialize Database
