@@ -67,3 +67,19 @@ class UtilTests(TestCase):
         self.assertEquals(priority_frame.is_exclusive, 1)
         self.assertEquals(priority_frame.depends_on_id, 0)
         self.assertEquals(priority_frame.weight, 256)
+
+    def test_h2_hash(self):
+        user_agent = ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                      'Chrome/99.0.4844.82 Safari/537.36')
+        h2_hash = '1:65536;2:1;3:1000;4:6291456;5:16384;6:262144|15663105|1:1:0:256|m,a,s,p'
+        h2_fingerprint = utils.h2_hash_to_h2_fingerprint(
+            user_agent=user_agent,
+            h2_hash=h2_hash,
+            browser_min_major_version=50,
+            browser_max_major_version=100
+        )
+        self.assertEquals(h2_fingerprint.browser, 'Chrome')
+        self.assertEquals(h2_fingerprint.os, 'Windows')
+        self.assertEquals(h2_fingerprint.initial_window_size, 6291456)
+        self.assertEquals(h2_fingerprint.window_update_increment, 15663105)
+        self.assertEquals(h2_fingerprint.priority_weight, 256)

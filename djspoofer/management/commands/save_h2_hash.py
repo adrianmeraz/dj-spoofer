@@ -44,23 +44,9 @@ class Command(BaseCommand):
 
     @staticmethod
     def create_h2_fingerprint(kwargs):
-        ua_parser = utils.UserAgentParser(kwargs['user_agent'])
-        h2_parser = utils.H2HashParser(hash=kwargs['hash'])
-        return H2Fingerprint.objects.create(
-            browser=ua_parser.browser,
-            os=ua_parser.os,
-            browser_min_major_version=kwargs.get('browser_min_major_version') or ua_parser.browser_major_version,
-            browser_max_major_version=kwargs.get('browser_max_major_version') or ua_parser.browser_major_version,
-            header_table_size=h2_parser.settings_frame.header_table_size,
-            enable_push=bool(h2_parser.settings_frame.push_enabled),
-            max_concurrent_streams=h2_parser.settings_frame.max_concurrent_streams,
-            initial_window_size=h2_parser.settings_frame.initial_window_size,
-            max_frame_size=h2_parser.settings_frame.max_frame_size,
-            max_header_list_size=h2_parser.settings_frame.max_header_list_size,
-            psuedo_header_order=h2_parser.pseudo_headers,
-            window_update_increment=h2_parser.window_frame,
-            priority_stream_id=h2_parser.priority_frame.stream_id,
-            priority_exclusive=h2_parser.priority_frame.is_exclusive,
-            priority_depends_on_id=h2_parser.priority_frame.depends_on_id,
-            priority_weight=h2_parser.priority_frame.weight,
+        return utils.h2_hash_to_h2_fingerprint(
+            user_agent=kwargs['user_agent'],
+            h2_hash=kwargs['hash'],
+            browser_min_major_version=kwargs.get('browser_min_major_version'),
+            browser_max_major_version=kwargs.get('browser_max_major_version')
         )

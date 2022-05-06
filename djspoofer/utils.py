@@ -4,7 +4,7 @@ import random
 from faker import Faker
 from ua_parser import user_agent_parser
 
-from . import providers
+from . import models, providers
 
 logger = logging.getLogger(__name__)
 
@@ -116,6 +116,29 @@ class H2HashParser:
         self.window_frame = int(parts[1] or 0)
         self.priority_frame = self.PriorityFrame(parts[2])
         self.pseudo_headers = parts[3]
+
+
+def h2_hash_to_h2_fingerprint(user_agent, h2_hash, browser_min_major_version=None, browser_max_major_version=None):
+    ua_parser = UserAgentParser(user_agent)
+    h2_parser = H2HashParser(hash=h2_hash)
+    return models.H2Fingerprint.objects.create(
+        browser=ua_parser.browser,
+        os=ua_parser.os,
+        browser_min_major_version=browser_min_major_version or ua_parser.browser_major_version,
+        browser_max_major_version=browser_max_major_version or ua_parser.browser_major_version,
+        header_table_size=h2_parser.settings_frame.header_table_size,
+        enable_push=bool(h2_parser.settings_frame.push_enabled),
+        max_concurrent_streams=h2_parser.settings_frame.max_concurrent_streams,
+        initial_window_size=h2_parser.settings_frame.initial_window_size,
+        max_frame_size=h2_parser.settings_frame.max_frame_size,
+        max_header_list_size=h2_parser.settings_frame.max_header_list_size,
+        psuedo_header_order=h2_parser.pseudo_headers,
+        window_update_increment=h2_parser.window_frame,
+        priority_stream_id=h2_parser.priority_frame.stream_id,
+        priority_exclusive=h2_parser.priority_frame.is_exclusive,
+        priority_depends_on_id=h2_parser.priority_frame.depends_on_id,
+        priority_weight=h2_parser.priority_frame.weight,
+    )
 
 
 def proxy_dict(proxy_url):

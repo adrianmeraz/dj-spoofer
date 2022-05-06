@@ -106,13 +106,17 @@ class IntoliFingerprintManager(models.Manager):
         try:
             return self.desktop_only().order_by('?')[0]
         except Exception:
-            raise intoli_exceptions.IntoliError('No Desktop Intoli Fingerprints Exist')
+            raise intoli_exceptions.IntoliError(
+                'No Desktop Intoli Fingerprints Exist. Did you run the "intoli_get_profiles" command?'
+            )
 
     def random_mobile(self):
         try:
             return self.mobile_only().order_by('?')[0]
         except Exception:
-            raise intoli_exceptions.IntoliError('No Mobile Intoli Fingerprints Exist')
+            raise intoli_exceptions.IntoliError(
+                'No Mobile Intoli Fingerprints Exist. Did you run the "intoli_get_profiles" command?'
+            )
 
     def weighted_desktop(self):
         try:
