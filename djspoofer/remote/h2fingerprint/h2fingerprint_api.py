@@ -26,3 +26,4 @@ class H2FingerprintResponse:
         self.window_frame = data['window_frame']
         self.priority_frame = data['priority_frame']
         self.pseudo_headers = data['pseudo_headers']
+        self.user_agent = data['user_agent']

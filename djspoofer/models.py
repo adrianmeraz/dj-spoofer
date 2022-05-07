@@ -209,7 +209,7 @@ class Fingerprint(BaseModel):
     device_fingerprint = models.ForeignKey(
         to=DeviceFingerprint,
         related_name='fingerprints',
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         blank=True,
         null=True
     )
@@ -217,7 +217,7 @@ class Fingerprint(BaseModel):
     _h2_fingerprint = models.ForeignKey(
         to=H2Fingerprint,
         related_name='fingerprints',
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         blank=True,
         null=True
     )
@@ -225,7 +225,7 @@ class Fingerprint(BaseModel):
     _tls_fingerprint = models.ForeignKey(
         to=TLSFingerprint,
         related_name='fingerprints',
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         blank=True,
         null=True
     )
@@ -233,7 +233,7 @@ class Fingerprint(BaseModel):
     geolocation = models.ForeignKey(
         to=Geolocation,
         related_name='fingerprints',
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
         blank=True,
         null=True
     )
