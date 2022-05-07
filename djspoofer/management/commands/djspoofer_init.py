@@ -59,16 +59,17 @@ class Command(BaseCommand):
             browser_min_major_version=70,
             browser_max_major_version=110,
         )
-        self.stdout.write(self.style.ERROR(f'Error while running command:\n{str(e)}'))
+        self.stdout.write(self.style.MIGRATE_LABEL(f'Successfully Created H2 Fingerprints'))
 
     def create_rotating_proxy(self, proxy_url):
-        Proxy.objects.create_rotating_proxy(url=proxy_url)
+        proxy = Proxy.objects.create_rotating_proxy(url=proxy_url)
+        self.stdout.write(self.style.MIGRATE_LABEL(f'Successfully Created Rotating Proxy: {proxy}'))
 
     def store_intoli_fingerprints(self):
         tasks.get_profiles(max_profiles=150, desktop_only=True, os_list=const.SUPPORTED_OS)
+        self.stdout.write(self.style.MIGRATE_LABEL(f'Successfully Created Intoli Fingerprints'))
 
-    @staticmethod
-    def create_fingerprints(count):
+    def create_fingerprints(self, count):
         for i_fp in IntoliFingerprint.objects.weighted_n_desktop(count=count):
             ua_parser = utils.UserAgentParser(i_fp.user_agent)
             Fingerprint.objects.create(
@@ -85,3 +86,4 @@ class Command(BaseCommand):
                     viewport_width=i_fp.viewport_width,
                 )
             )
+        self.stdout.write(self.style.MIGRATE_LABEL(f'Successfully Created {count} Fingerprints'))
