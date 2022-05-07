@@ -19,17 +19,17 @@ class Command(BaseCommand):
             self.stdout.write(self.style.MIGRATE_LABEL(f'Successfully Reset DJ Spoofer'))
 
     def delete_h2_fingerprints(self):
-        deleted = H2Fingerprint.objects.all().delete()
-        self.stdout.write(self.style.MIGRATE_LABEL(f'Successfully Deleted {deleted} H2 Fingerprints'))
+        deleted, _ = H2Fingerprint.objects.all().delete()
+        self.stdout.write(self.style.MIGRATE_LABEL(f'Deleted H2 Fingerprints: {deleted}'))
 
     def delete_proxies(self):
-        deleted = Proxy.objects.all().delete()
-        self.stdout.write(self.style.MIGRATE_LABEL(f'Successfully Deleted {deleted} Proxies'))
+        deleted, _ = Proxy.objects.all().delete()
+        self.stdout.write(self.style.MIGRATE_LABEL(f'Deleted Proxies: {deleted}'))
 
     def delete_intoli_fingerprints(self):
-        deleted = IntoliFingerprint.objects.all().delete()
-        self.stdout.write(self.style.MIGRATE_LABEL(f'Successfully Deleted {deleted} Intoli Fingerprints'))
+        deleted, _ = IntoliFingerprint.objects.all().delete()
+        self.stdout.write(self.style.MIGRATE_LABEL(f'Deleted Intoli Fingerprints: {deleted}'))
 
     def delete_fingerprints(self):
-        deleted = Fingerprint.objects.all().delete()
-        self.stdout.write(self.style.MIGRATE_LABEL(f'Successfully Deleted {deleted} Fingerprints'))
+        deleted, _ = Fingerprint.objects.all().delete()
+        self.stdout.write(self.style.MIGRATE_LABEL(f'Deleted Fingerprints: {deleted}'))
