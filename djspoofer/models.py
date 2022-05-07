@@ -293,7 +293,7 @@ class Fingerprint(BaseModel):
 class Proxy(BaseModel):
     objects = managers.ProxyManager()
 
-    url = models.TextField(unique=True, blank=False)
+    url = models.TextField(blank=False)
     mode = models.IntegerField(default=const.ProxyModes.GENERAL.value, choices=const.ProxyModes.choices())
     country = models.CharField(max_length=3, blank=True, null=True)
     city = models.CharField(max_length=64, blank=True, null=True)

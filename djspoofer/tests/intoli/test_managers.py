@@ -65,21 +65,21 @@ class ProfileManagerTests(TestCase):
 
     def test_weighted_desktop_chrome_user_agent(self):
         with self.assertRaises(exceptions.IntoliError):
-            IntoliFingerprint.objects.weighted_desktop()
+            IntoliFingerprint.objects.weighted_n_desktop()
 
         IntoliFingerprint.objects.create(browser='Chrome', device_category='desktop', os='Windows', **self.profile_data)
 
-        profile = IntoliFingerprint.objects.weighted_desktop()
+        profile = IntoliFingerprint.objects.weighted_n_desktop()[0]
 
         self.assertEquals(profile.user_agent, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.82 Safari/537.36')
 
     def test_weighted_mobile_user_agent(self):
         with self.assertRaises(exceptions.IntoliError):
-            IntoliFingerprint.objects.weighted_mobile()
+            IntoliFingerprint.objects.weighted_n_mobile()
 
         IntoliFingerprint.objects.create(device_category='mobile', **self.profile_data)
 
-        profile = IntoliFingerprint.objects.weighted_mobile()
+        profile = IntoliFingerprint.objects.weighted_n_mobile()[0]
 
         self.assertEquals(profile.user_agent, 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/99.0.4844.82 Safari/537.36')
 

@@ -92,19 +92,19 @@ class IntoliFingerprintManager(models.Manager):
     def all_user_agents(self):
         return super().get_queryset().values_list('user_agent', flat=True)
 
-    def desktop_only(self):
+    def all_desktop(self):
         return super().get_queryset().filter(
             device_category='desktop',
             browser__in=const.SUPPORTED_BROWSERS,
             os__in=const.SUPPORTED_OS,
         )
 
-    def mobile_only(self):
+    def all_mobile(self):
         return super().get_queryset().filter(device_category='mobile')
 
     def random_desktop(self):
         try:
-            return self.desktop_only().order_by('?')[0]
+            return self.all_desktop().order_by('?')[0]
         except Exception:
             raise intoli_exceptions.IntoliError(
                 'No Desktop Intoli Fingerprints Exist. Did you run the "intoli_get_profiles" command?'
@@ -112,25 +112,25 @@ class IntoliFingerprintManager(models.Manager):
 
     def random_mobile(self):
         try:
-            return self.mobile_only().order_by('?')[0]
+            return self.all_mobile().order_by('?')[0]
         except Exception:
             raise intoli_exceptions.IntoliError(
                 'No Mobile Intoli Fingerprints Exist. Did you run the "intoli_get_profiles" command?'
             )
 
-    def weighted_desktop(self):
+    def weighted_n_desktop(self, count=1):
         try:
-            desktop_profiles = self.desktop_only()
+            desktop_profiles = self.all_desktop()
             weights = [float(p.weight) for p in desktop_profiles]
-            return random.choices(population=desktop_profiles, weights=weights, k=1)[0]
+            return random.choices(population=desktop_profiles, weights=weights, k=count)
         except IndexError:
             raise intoli_exceptions.IntoliError('No Desktop Profiles Exist')
 
-    def weighted_mobile(self):
+    def weighted_n_mobile(self, count=1):
         try:
-            mobile_profiles = self.mobile_only()
+            mobile_profiles = self.all_mobile()
             weights = [float(p.weight) for p in mobile_profiles]
-            return random.choices(population=mobile_profiles, weights=weights, k=1)[0]
+            return random.choices(population=mobile_profiles, weights=weights, k=count)
         except IndexError:
             raise intoli_exceptions.IntoliError('No Mobile Profiles Exist')
 

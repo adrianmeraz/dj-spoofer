@@ -118,14 +118,13 @@ class H2HashParser:
         self.pseudo_headers = parts[3]
 
 
-def h2_hash_to_h2_fingerprint(user_agent, h2_hash, browser_min_major_version=None, browser_max_major_version=None):
-    ua_parser = UserAgentParser(user_agent)
+def h2_hash_to_h2_fingerprint(os, browser, h2_hash, browser_min_major_version=None, browser_max_major_version=None):
     h2_parser = H2HashParser(hash=h2_hash)
     return models.H2Fingerprint.objects.create(
-        browser=ua_parser.browser,
-        os=ua_parser.os,
-        browser_min_major_version=browser_min_major_version or ua_parser.browser_major_version,
-        browser_max_major_version=browser_max_major_version or ua_parser.browser_major_version,
+        browser=browser,
+        os=os,
+        browser_min_major_version=browser_min_major_version,
+        browser_max_major_version=browser_max_major_version,
         header_table_size=h2_parser.settings_frame.header_table_size,
         enable_push=bool(h2_parser.settings_frame.push_enabled),
         max_concurrent_streams=h2_parser.settings_frame.max_concurrent_streams,

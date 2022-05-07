@@ -3,7 +3,6 @@ from ssl import Options
 from django.test import TestCase
 
 from djspoofer.models import Geolocation, DeviceFingerprint, Fingerprint, IP, Proxy, TLSFingerprint
-from djspoofer import utils
 
 
 class FingerprintTests(TestCase):
