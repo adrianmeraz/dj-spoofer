@@ -51,6 +51,7 @@ class ProxyRackProxyBackend(backends.ProxyBackend):
 
     def _test_proxy_url(self, fingerprint):
         geolocation = fingerprint.geolocation
+        logger.info(f'{fingerprint}. Using Geolocation: {geolocation}')
         return self._build_proxy_url(
             osName=fingerprint.device_fingerprint.os,
             country=getattr(geolocation, 'country', None),

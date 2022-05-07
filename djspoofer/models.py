@@ -179,6 +179,9 @@ class Geolocation(BaseModel):
         ordering = ['-created']
         app_label = 'djspoofer'
 
+    def __str__(self):
+        return f'Geolocation -> city: {self.city}, country: {self.country}, isp: {self.isp}'
+
 
 class IP(BaseModel):
     objects = managers.IPManager()
