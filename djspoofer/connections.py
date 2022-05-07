@@ -6,9 +6,12 @@ from h2.settings import Settings, SettingCodes
 from httpcore._models import Request
 from httpcore._sync import http2
 
+from djspoofer import exceptions
 from djspoofer.models import H2Fingerprint
 
 logger = logging.getLogger(__name__)
+
+H2_FINGERPRINT_HEADER = b'h2-fingerprint-id'
 
 
 def _send_connection_init(self, request: Request) -> None:
@@ -44,6 +47,7 @@ def _send_request_headers(self, request: Request, stream_id: int) -> None:
         not in (
             b"host",
             b"transfer-encoding",
+            H2_FINGERPRINT_HEADER
         )
     ]
 
@@ -80,22 +84,10 @@ def get_authority(request):
 
 
 def get_h2_fingerprint(request):
-    # H2Fingerprint.objects.get_by_browser_info()
-    # TODO Pull real h2 fingerprints
-    return H2Fingerprint(
-        header_table_size=65536,
-        enable_push=True,
-        max_concurrent_streams=1000,
-        initial_window_size=6291456,
-        max_frame_size=16384,
-        max_header_list_size=262144,
-        psuedo_header_order='m,a,s,p',
-        window_update_increment=15663105,
-        priority_stream_id=1,
-        priority_exclusive=True,
-        priority_depends_on_id=0,
-        priority_weight=256,
-    )
+    for i, (h_key, h_val) in enumerate(request.headers):
+        if h_key == H2_FINGERPRINT_HEADER:
+            return H2Fingerprint.objects.get_by_oid(str(h_val, 'utf-8'))
+    raise exceptions.DJSpooferError(f'Header "{H2_FINGERPRINT_HEADER}" missing')
 
 
 def build_h2_settings(h2_settings_fingerprint):
