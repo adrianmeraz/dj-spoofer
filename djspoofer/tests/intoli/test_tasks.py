@@ -17,9 +17,9 @@ class GetProfilesTaskTests(TestCase):
         with open_text('djspoofer.tests.intoli.resources', 'user-agents.json') as user_agents_json:
             cls.r_data = json.loads(user_agents_json.read())
 
-    # @mock.patch.object(intoli_api, 'get_profiles')
-    # def test_ok(self, get_profiles):
-    #     get_profiles.return_value = intoli_api.GetProfilesResponse(self.r_data)
-    #
-    #     tasks.get_profiles()
-    #     self.assertEquals(IntoliFingerprint.objects.count(), 5)
+    @mock.patch.object(intoli_api, 'get_profiles')
+    def test_ok(self, get_profiles):
+        get_profiles.return_value = intoli_api.GetProfilesResponse(self.r_data)
+
+        tasks.get_profiles()
+        self.assertEquals(IntoliFingerprint.objects.count(), 5)

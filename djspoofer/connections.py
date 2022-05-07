@@ -23,7 +23,7 @@ def _send_connection_init(self, request: Request) -> None:
     # Need to set these manually here instead of manipulating via
     # __setitem__() otherwise the H2Connection will emit SettingsUpdate
     # frames in addition to sending the undesired defaults.
-    h2_frame_fingerprint = get_h2_fingerprint(request)
+    h2_frame_fingerprint = _get_h2_fingerprint(request)
     self._h2_state.local_settings = build_h2_settings(h2_frame_fingerprint)
 
     self._h2_state.get_next_available_stream_id = lambda: h2_frame_fingerprint.priority_stream_id
@@ -39,8 +39,8 @@ def _send_request_headers(self, request: Request, stream_id: int) -> None:
     """
     end_stream = not http2.has_body_headers(request)
 
-    h2_fingerprint = get_h2_fingerprint(request)
-    headers = get_psuedo_headers(request, h2_fingerprint=h2_fingerprint) + [
+    h2_fingerprint = _get_h2_fingerprint(request)
+    headers = _get_psuedo_headers(request, h2_fingerprint=h2_fingerprint) + [
         (k.lower(), v)
         for k, v in request.headers
         if k.lower()
@@ -63,17 +63,17 @@ def _send_request_headers(self, request: Request, stream_id: int) -> None:
     self._write_outgoing_data(request)
 
 
-def get_psuedo_headers(request, h2_fingerprint):
+def _get_psuedo_headers(request, h2_fingerprint):
     header_map = {
         'm': (b":method", request.method),
-        'a': (b":authority", get_authority(request)),
+        'a': (b":authority", _get_authority(request)),
         's': (b":scheme", request.url.scheme),
         'p': (b":path", request.url.target),
     }
     return [header_map[k] for k in h2_fingerprint.psuedo_header_order.split(',')]
 
 
-def get_authority(request):
+def _get_authority(request):
     """
         In HTTP/2 the ':authority' pseudo-header is used instead of 'Host'.
         In order to gracefully handle HTTP/1.1 and HTTP/2 we always require
@@ -83,7 +83,7 @@ def get_authority(request):
     return [v for k, v in request.headers if k.lower() == b"host"][0]
 
 
-def get_h2_fingerprint(request):
+def _get_h2_fingerprint(request):
     for i, (h_key, h_val) in enumerate(request.headers):
         if h_key == H2_FINGERPRINT_HEADER:
             return H2Fingerprint.objects.get_by_oid(str(h_val, 'utf-8'))
