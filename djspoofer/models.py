@@ -1,11 +1,14 @@
 import datetime
 import random
+import logging
 
 from django.db import models
 from django.utils import timezone
 from djstarter.models import BaseModel
 
 from . import const, exceptions, managers, utils
+
+logger = logging.getLogger(__name__)
 
 
 class BaseFingerprint(BaseModel):
@@ -290,6 +293,7 @@ class Fingerprint(BaseModel):
                 country=ip.country,
                 isp=ip.isp,
             )
+            logger.info(f'{self}. Now using Geolocation: {self.geolocation}')
         self.save()
 
 
