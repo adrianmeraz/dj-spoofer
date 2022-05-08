@@ -3,7 +3,7 @@ from django.contrib import admin
 from import_export.admin import ImportExportModelAdmin
 
 from . import const, resources
-from .models import Fingerprint, DeviceFingerprint, Proxy, IntoliFingerprint
+from .models import Fingerprint, DeviceFingerprint, TLSFingerprint, H2Fingerprint, Proxy, IntoliFingerprint
 
 en_formats.DATETIME_FORMAT = "M d y H:i"
 
@@ -22,6 +22,25 @@ class DeviceFingerprintAdmin(ImportExportModelAdmin):
     list_display = ['created', 'user_agent']
     ordering = ['-created']
     search_fields = ['user_agent']
+
+    show_full_result_count = False
+
+
+@admin.register(TLSFingerprint)
+class TLSFingerprintAdmin(ImportExportModelAdmin):
+    list_display = ['created', 'browser', 'os', 'extensions', 'ciphers']
+    list_filter = ('browser', 'os',)
+    ordering = ['-created']
+    search_fields = ['extensions']
+
+    show_full_result_count = False
+
+
+@admin.register(H2Fingerprint)
+class H2FingerprintAdmin(ImportExportModelAdmin):
+    list_display = ['created', 'browser', 'os']
+    list_filter = ('browser', 'os', )
+    ordering = ['-created']
 
     show_full_result_count = False
 
