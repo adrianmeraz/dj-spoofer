@@ -19,6 +19,7 @@ jobs:
       PROXY_USERNAME: ${{secrets.PROXY_USERNAME}}
       PYTHONUNBUFFERED: ${{secrets.PYTHONUNBUFFERED}}
       SECRET_KEY: ${{secrets.SECRET_KEY}}
+      SSL_VERIFY: ${{secrets.SSL_VERIFY}}
     services:
       postgres:
         image: postgres:13.4
