@@ -263,7 +263,7 @@ class Fingerprint(BaseModel):
                 browser_major_version=self.device_fingerprint.browser_major_version
             )
             if not new_h2_fingerprint:
-                raise exceptions.DJSpooferError('No Available H2 Fingerprints')
+                raise exceptions.DJSpooferError('No Available H2 Fingerprints. Did you run the djspoofer_init command?')
             self._h2_fingerprint = new_h2_fingerprint
             self.save()
         return self._h2_fingerprint
@@ -273,7 +273,7 @@ class Fingerprint(BaseModel):
         if not self._tls_fingerprint:
             tls_fingerprint = TLSFingerprint.objects.create(browser=self.device_fingerprint.browser)
             if not tls_fingerprint:
-                raise exceptions.DJSpooferError('No Available TLS Fingerprints')
+                raise exceptions.DJSpooferError('No Available TLS Fingerprints. Did you run the djspoofer_init command?')
             self._tls_fingerprint = tls_fingerprint
             self.save()
         return self._tls_fingerprint
