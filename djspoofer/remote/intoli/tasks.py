@@ -1,7 +1,7 @@
 import logging
 
 from djstarter import decorators
-from djstarter.clients import Http2Client
+from httpx import Client
 
 from djspoofer import utils as s_utils
 from djspoofer.remote.intoli import intoli_api, const
@@ -23,7 +23,7 @@ class GetProfiles:
         self.os_list = kwargs.get('os_list')
 
     def start(self):
-        with Http2Client() as client:
+        with Client() as client:
             r_profiles = intoli_api.get_profiles(client)
 
         old_oids = list(IntoliFingerprint.objects.all_oids())
