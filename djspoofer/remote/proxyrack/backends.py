@@ -1,4 +1,5 @@
 import logging
+import random
 import uuid
 
 from django.conf import settings
@@ -54,7 +55,7 @@ class ProxyRackProxyBackend(backends.ProxyBackend):
         logger.info(f'{fingerprint}. Using Geolocation: {geolocation}')
         return self._build_proxy_url(
             osName=fingerprint.device_fingerprint.os,
-            country=getattr(geolocation, 'country', None),
+            country=getattr(geolocation, 'country', self._weighted_proxy_country()),
             city=getattr(geolocation, 'city', None),
             isp=getattr(geolocation, 'isp', None),
         )
@@ -69,3 +70,8 @@ class ProxyRackProxyBackend(backends.ProxyBackend):
             session=str(uuid.uuid4()),
             **kwargs
         ).http_url
+
+    @staticmethod
+    def _weighted_proxy_country():
+        countries, weights = zip(*settings.PROXYRACK_COUNTRY_WEIGHTS)
+        return random.choices(population=countries, weights=weights, k=1)[0]

@@ -50,9 +50,15 @@ class DesktopChromeClientTests(TestCase):
             'country': 'US',
             'isp': 'Spectrum',
         }
+        cls.ip_data = {
+            'city': 'Dallas',
+            'country': 'US',
+            'isp': 'Spectrum',
+            'address': '194.60.86.250',
+        }
         cls.fingerprint = Fingerprint.objects.create(
             device_fingerprint=DeviceFingerprint.objects.create(**device_fingerprint_data),
-            _h2_fingerprint=H2Fingerprint.objects.create(**h2_fingerprint_data)
+            _h2_fingerprint=H2Fingerprint.objects.create(**h2_fingerprint_data),
         )
         with open_text('djspoofer.tests.proxyrack.resources', 'stats.json') as stats_json:
             cls.r_stats_data = proxyrack_api.StatsResponse(json.loads(stats_json.read()))
@@ -68,6 +74,8 @@ class DesktopChromeClientTests(TestCase):
         )
         mock_is_valid_proxy.return_value = True
         mock_stats.return_value = self.r_stats_data
+
+        self.fingerprint.add_ip(IP.objects.create(**self.ip_data))
 
         with clients.DesktopChromeClient(fingerprint=self.fingerprint) as chrome_client:
             chrome_client.get('http://example.com')

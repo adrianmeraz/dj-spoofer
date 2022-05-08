@@ -2,7 +2,8 @@ from ssl import Options
 
 from django.test import TestCase
 
-from djspoofer.models import Geolocation, DeviceFingerprint, Fingerprint, IP, Proxy, TLSFingerprint
+from djspoofer.models import Geolocation, DeviceFingerprint, H2Fingerprint, TLSFingerprint, Fingerprint, IP, Proxy
+from djspoofer.exceptions import DJSpooferError
 
 
 class FingerprintTests(TestCase):
@@ -12,7 +13,6 @@ class FingerprintTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        user_agent = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:98.0) Gecko/20100101 Firefox/98.0'
         cls.device_fingerprint_data = {
             'device_category': 'mobile',
             'platform': 'US',
@@ -28,6 +28,24 @@ class FingerprintTests(TestCase):
             'country': 'US',
             'isp': 'Spectrum',
             'address': '194.60.86.250',
+        }
+        cls.h2_fingerprint_data = {
+            'os': 'Windows',
+            'browser': 'Chrome',
+            'browser_min_major_version': 95,
+            'browser_max_major_version': 100,
+            'header_table_size': 65536,
+            'enable_push': True,
+            'max_concurrent_streams': 1000,
+            'initial_window_size': 6291456,
+            'max_frame_size': 16384,
+            'max_header_list_size': 262144,
+            'psuedo_header_order': 'm,a,s,p',
+            'window_update_increment': 15663105,
+            'priority_stream_id': 1,
+            'priority_exclusive': True,
+            'priority_depends_on_id': 0,
+            'priority_weight': 256
         }
 
     def test_str(self):
@@ -74,10 +92,30 @@ class FingerprintTests(TestCase):
         self.assertEquals(fp.ip.all().count(), 1)
         self.assertEquals(fp.geolocation.isp, 'Spectrum')
 
+    def test_h2_fingerprint(self):
+        H2Fingerprint.objects.create(**self.h2_fingerprint_data)
+        fp = Fingerprint.objects.create(
+            device_fingerprint=DeviceFingerprint.objects.create(**self.device_fingerprint_data),
+        )
+        self.assertIsInstance(fp.h2_fingerprint, H2Fingerprint)
 
-class IPFingerprintTests(TestCase):
+    def test_no_h2_fingerprint(self):
+        fp = Fingerprint.objects.create(
+            device_fingerprint=DeviceFingerprint.objects.create(**self.device_fingerprint_data)
+        )
+        with self.assertRaises(DJSpooferError):
+            _ = fp.h2_fingerprint
+
+    def test_tls_fingerprint(self):
+        fp = Fingerprint.objects.create(
+            device_fingerprint=DeviceFingerprint.objects.create(**self.device_fingerprint_data)
+        )
+        self.assertIsInstance(fp.tls_fingerprint, TLSFingerprint)
+
+
+class IPTests(TestCase):
     """
-    IPFingerprint Tests
+    IP Tests
     """
 
     @classmethod
@@ -105,6 +143,63 @@ class IPFingerprintTests(TestCase):
             **self.ip_data,
         )
         self.assertEqual(str(ip_fingerprint), f'IP -> address: 194.60.86.250')
+
+
+class H2FingerprintTests(TestCase):
+    """
+    H2Fingerprint Tests
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.h2_fingerprint_data = {
+            'os': 'Windows',
+            'browser': 'Chrome',
+            'browser_min_major_version': 95,
+            'browser_max_major_version': 100,
+            'header_table_size': 65536,
+            'enable_push': True,
+            'max_concurrent_streams': 1000,
+            'initial_window_size': 6291456,
+            'max_frame_size': 16384,
+            'max_header_list_size': 262144,
+            'psuedo_header_order': 'm,a,s,p',
+            'window_update_increment': 15663105,
+            'priority_stream_id': 1,
+            'priority_exclusive': True,
+            'priority_depends_on_id': 0,
+            'priority_weight': 256
+        }
+
+    def test_str(self):
+        h2_fp = H2Fingerprint.objects.create(**self.h2_fingerprint_data)
+        self.assertEquals(str(h2_fp), f'H2Fingerprint -> oid: {h2_fp.oid}')
+
+
+class DeviceFingerprintTests(TestCase):
+    """
+    DeviceFingerprint Tests
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.device_fingerprint_data = {
+            'device_category': 'mobile',
+            'platform': 'US',
+            'screen_height': 1920,
+            'screen_width': 1080,
+            'user_agent': ('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                           'Chrome/99.0.4844.74 Safari/537.36'),
+            'viewport_height': 768,
+            'viewport_width': 1024,
+        }
+
+    def test_str(self):
+        d_fp = DeviceFingerprint.objects.create(**self.device_fingerprint_data)
+        self.assertEquals(
+            str(d_fp),
+            (f'DeviceFingerprint -> user_agent: {d_fp.user_agent}, device_category: {d_fp.device_category}, '
+             f'platform: {d_fp.platform}'))
 
 
 class TLSFingerprintTests(TestCase):
