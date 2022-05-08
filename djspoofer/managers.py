@@ -14,7 +14,21 @@ class GeolocationManager(models.Manager):
     pass
 
 
-class IPFingerprintManager(models.Manager):
+class H2FingerprintManager(models.Manager):
+    def get_by_browser_info(self, os, browser, browser_major_version):
+        q = Q(
+            os=os,
+            browser=browser,
+            browser_min_major_version__lte=browser_major_version,
+            browser_max_major_version__gte=browser_major_version
+        )
+        return super().get_queryset().filter(q).first()
+
+    def get_by_oid(self, oid):
+        return super().get_queryset().get(oid=oid)
+
+
+class IPManager(models.Manager):
     pass
 
 
@@ -23,12 +37,13 @@ class TLSFingerprintManager(models.Manager):
 
 
 class FingerprintManager(models.Manager):
-    def all_desktop_profiles(self):
-        return super().get_queryset().filter(device_category='desktop', browser__in=const.SUPPORTED_BROWSERS)
+    def desktop_only(self):
+        q = Q(device_fingerprint__device_category='desktop', device_fingerprint__browser__in=const.SUPPORTED_BROWSERS)
+        return super().get_queryset().filter(q)
 
-    def get_random_desktop_fingerprint(self):
+    def random_desktop(self):
         try:
-            return self.all_desktop_profiles().order_by('?')[0]
+            return self.desktop_only().order_by('?')[0]
         except Exception:
             raise exceptions.DJSpooferError('No Desktop Fingerprints Exist')
 
@@ -70,48 +85,52 @@ class ProxyManager(models.Manager):
         return super().get_queryset().values_list('url', flat=True)
 
 
-class ProfileManager(models.Manager):
+class IntoliFingerprintManager(models.Manager):
     def all_oids(self):
         return super().get_queryset().values_list('oid', flat=True)
 
     def all_user_agents(self):
         return super().get_queryset().values_list('user_agent', flat=True)
 
-    def all_desktop_profiles(self):
+    def all_desktop(self):
         return super().get_queryset().filter(
             device_category='desktop',
             browser__in=const.SUPPORTED_BROWSERS,
             os__in=const.SUPPORTED_OS,
         )
 
-    def all_mobile_profiles(self):
+    def all_mobile(self):
         return super().get_queryset().filter(device_category='mobile')
 
-    def random_desktop_profile(self):
+    def random_desktop(self):
         try:
-            return self.all_desktop_profiles().order_by('?')[0]
+            return self.all_desktop().order_by('?')[0]
         except Exception:
-            raise intoli_exceptions.IntoliError('No Desktop Profiles Exist')
+            raise intoli_exceptions.IntoliError(
+                'No Desktop Intoli Fingerprints Exist. Did you run the "intoli_get_profiles" command?'
+            )
 
-    def random_mobile_profile(self):
+    def random_mobile(self):
         try:
-            return self.all_mobile_profiles().order_by('?')[0]
+            return self.all_mobile().order_by('?')[0]
         except Exception:
-            raise intoli_exceptions.IntoliError('No Mobile Profiles Exist')
+            raise intoli_exceptions.IntoliError(
+                'No Mobile Intoli Fingerprints Exist. Did you run the "intoli_get_profiles" command?'
+            )
 
-    def weighted_desktop_profile(self):
+    def weighted_n_desktop(self, count=1):
         try:
-            desktop_profiles = self.all_desktop_profiles()
+            desktop_profiles = self.all_desktop()
             weights = [float(p.weight) for p in desktop_profiles]
-            return random.choices(population=desktop_profiles, weights=weights, k=1)[0]
+            return random.choices(population=desktop_profiles, weights=weights, k=count)
         except IndexError:
             raise intoli_exceptions.IntoliError('No Desktop Profiles Exist')
 
-    def weighted_mobile_profile(self):
+    def weighted_n_mobile(self, count=1):
         try:
-            mobile_profiles = self.all_mobile_profiles()
+            mobile_profiles = self.all_mobile()
             weights = [float(p.weight) for p in mobile_profiles]
-            return random.choices(population=mobile_profiles, weights=weights, k=1)[0]
+            return random.choices(population=mobile_profiles, weights=weights, k=count)
         except IndexError:
             raise intoli_exceptions.IntoliError('No Mobile Profiles Exist')
 

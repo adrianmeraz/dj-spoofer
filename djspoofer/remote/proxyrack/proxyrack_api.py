@@ -1,5 +1,6 @@
 import logging
 import httpx
+from django.conf import settings
 
 from djstarter import decorators
 
@@ -7,7 +8,7 @@ from djspoofer.remote.proxyrack import exceptions
 
 logger = logging.getLogger(__name__)
 
-BASE_URL = 'http://api.proxyrack.net'
+BASE_URL = settings.PROXYRACK_API_BASE_URL
 
 
 @decorators.wrap_exceptions(raise_as=exceptions.ProxyRackError)
@@ -119,7 +120,7 @@ def is_valid_proxy(proxies):
         r = httpx.get(url, proxies=proxies)
         return not r.is_error
     except httpx.TransportError as e:
-        logger.warning(f'Error while testing proxies: {proxies}, error: {str(e)}')
+        logger.warning(f'Error while testing proxies. Error: {str(e)}')
         return False
 
 

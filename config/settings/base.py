@@ -33,11 +33,11 @@ LOGGING_CFG = {
     'loggers': {
         '': {
             'handlers': ['console'],
-            'level': 'DEBUG',
+            'level': LOGLEVEL,
             'propagate': True,
         },
         'django': {
-            'level': 'INFO',
+            'level': LOGLEVEL,
             'handlers': ['console'],
             'propagate': True,
         },
@@ -54,6 +54,11 @@ LOGGING_CFG = {
         'faker': {
             'handlers': ['console'],
             'level': 'WARNING',
+            'propagate': False,
+        },
+        'hpack': {
+            'handlers': ['console'],
+            'level': LOGLEVEL,
             'propagate': False,
         },
     },
@@ -123,6 +128,8 @@ TEMPLATES = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+SSL_VERIFY = env.bool('SSL_VERIFY')
+PROXY_URL = env.get_value('PROXY_URL', default=None)
 PROXY_USERNAME = env('PROXY_USERNAME')
 PROXY_PASSWORD = env('PROXY_PASSWORD')
 
@@ -133,12 +140,10 @@ PROXYRACK_COUNTRY_WEIGHTS = [
     ('AU', .06),
 ]
 
-PROXYRACK_ISP_WEIGHTS = [
-    ('AT&T U-verse', 1),
-    ('Comcast Cable', 1),
-    ('Cox Communications', 1),
-    ('Hughes Network Systems', 1),
-    ('Mediacom Cable', 1),
-    ('Spectrum', 1),
-    ('Verizon Fios', 1),
-]
+H2_FINGERPRINT_API_BASE_URL = 'https://ec2-54-241-136-35.us-west-1.compute.amazonaws.com'
+HOWSMYSSL_API_BASE_URL = 'https://www.howsmyssl.com'
+INCOLUMITAS_API_BASE_URL = 'https://api.incolumitas.com'
+INCOLUMITAS_TCPIP_API_BASE_URL = 'https://tcpip.incolumitas.com'
+INCOLUMITAS_TLS_API_BASE_URL = 'https://tls.incolumitas.com'
+INTOLI_API_BASE_URL = 'https://raw.githubusercontent.com'
+PROXYRACK_API_BASE_URL = 'http://api.proxyrack.net'

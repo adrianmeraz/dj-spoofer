@@ -27,4 +27,4 @@ class GetProfilesTests(TestCase):
             mock_client,
         )
         self.assertEquals(len(r_profiles.profiles), 5594)
-        self.assertEquals(len(r_profiles.valid_profiles), 3195)
+        self.assertEquals(len(r_profiles.valid_profiles), 5515)

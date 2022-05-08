@@ -177,25 +177,41 @@ You are connected to database "postgres" as user "postgres" via socket in "/var/
 
 ### Create Local Postgres Database
 
-Replace placeholder values with real values
+Log into postgres database
 
 ```
 sudo -u postgres psql
-postgres=# create database <DB_NAME>;
-postgres=# create user <DB_USERNAME> with encrypted password '<DB_PASSWORD>';
+```
+
+The postgres shell is started and the prompt should start with `postgres=#`
+
+Replace placeholder values with real values
+
+```
+create database <DB_NAME>;
+create user <DB_USERNAME> with encrypted password '<DB_PASSWORD>';
 postgres=# grant all privileges on database <DB_NAME> to <DB_USERNAME>;
 postgres=# ALTER USER <DB_USERNAME> CREATEDB;
-```
-
-To Delete the local database, run:
-
-```
-postgres=# DROP DATABASE <DB_NAME>;
 ```
 
 ### Local jdbc string
 
 `postgres://<DB_USERNAME>:<DB_PASSWORD>@localhost:5432/<DB_NAME>`
+
+### Deleting Local Database (Optional)
+
+Start the Postgres Shell:
+
+```
+sudo -u postgres psql
+```
+
+Run:
+
+```
+DROP DATABASE <DB_NAME>;
+```
+
 
 ### Create Database on Existing Instance using admin command (Optional)
 
@@ -206,6 +222,21 @@ The initial database url <DB_INSTANCE_URL> will be:
 Run the command from the project root to create the database and service user
 
 `poetry run python manage.py create_db --db-url="<DB_INSTANCE_URL>" --db-name="<NEW_DB_NAME>" --db-username="<NEW_DB_USERNAME>" --db-password="<NEW_DB_PASSWORD>"`
+
+## PG Admin 4
+
+### Installation
+
+Follow Guide [HERE](https://www.pgadmin.org/download/pgadmin-4-python/)
+
+### Start
+
+Run the following:
+
+```
+source pgadmin4/bin/activate
+pgadmin4
+```
 
 ### Initialize Database
 
@@ -232,22 +263,34 @@ poetry run zappa manage <STAGE_NAME> "createsuperuser --noinput"
 
 ## Admin Commands
 
+### Add Rotating Proxy
+
+```
+djspoofer_add_rotating_proxy --proxy-url "premium.residential.proxyrack.net:10000" --settings=config.settings.local
+```
+
 ### Create desktop fingerprints
 
 ```
 djspoofer_create_desktop_fingerprints --num_to_create "10" --settings=config.settings.local
 ```
 
-### Get all Chrome fingerprints report
-
-```
-djspoofer_all_chrome_fingerprints --proxy-url "premium.residential.proxyrack.net:10000" --proxy-args "country=US" --settings=config.settings.local
-```
-
 ### Get all Intoli Profiles
 
 ```
 intoli_get_profiles --settings=config.settings.local
+```
+
+### Save H2 Hash
+
+```
+save_h2_hash --hash "1:65536;2:1;3:1000;4:6291456;5:16384;6:262144|15663105|1:1:0:256|m,a,s,p" --user-agent "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36" --browser-min-major-version 60 --browser-max-major-version 110 --settings=config.settings.local
+```
+
+### Get all Chrome fingerprints report
+
+```
+djspoofer_all_chrome_fingerprints --proxy-url "premium.residential.proxyrack.net:10000" --proxy-args "country=US" --settings=config.settings.local
 ```
 
 ## Poetry Utilities

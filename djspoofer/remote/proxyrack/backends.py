@@ -1,11 +1,12 @@
 import logging
+import random
 import uuid
 
 from django.conf import settings
 from httpx import Client
 
 from djspoofer import backends, exceptions, utils
-from djspoofer.models import IPFingerprint, Proxy
+from djspoofer.models import IP, Proxy
 from djspoofer.remote.proxyrack import proxyrack_api, utils as pr_utils
 
 logger = logging.getLogger(__name__)
@@ -13,22 +14,23 @@ logger = logging.getLogger(__name__)
 
 class ProxyRackProxyBackend(backends.ProxyBackend):
     def get_proxy_url(self, fingerprint):
-        for ip_fingerprint in fingerprint.get_last_n_ip_fingerprints(count=3):
-            proxy_url = self._build_proxy_url(proxyIp=ip_fingerprint.ip)
+        for ip in fingerprint.get_last_n_ips(count=3):
+            proxy_url = self._build_proxy_url(proxyIp=ip.address)
             if self._is_valid_proxy(proxies=utils.proxy_dict(proxy_url)):
-                logger.info(f'Found valid IP Fingerprint: {ip_fingerprint}')
+                logger.info(f'Found valid IP Fingerprint: {ip}')
                 return proxy_url
         else:
-            logger.info(f'No valid IP Fingerprints found. {fingerprint}')
+            logger.info(f'{fingerprint}. No valid IP Fingerprints found. ')
             return self._new_proxy_url(fingerprint)   # Generate if no valid IP Fingerprints
 
     def _new_proxy_url(self, fingerprint):
+        logger.info(f'{fingerprint}. Generating new IP Fingerprint. ')
         proxy_url = self._test_proxy_url(fingerprint)
         proxies = utils.proxy_dict(proxy_url)
         if self._is_valid_proxy(proxies=proxies):
             self._create_ip_fingerprint(fingerprint, proxies)
             return proxy_url
-        raise exceptions.DJSpooferError('Failed to get a new valid proxy')
+        raise exceptions.DJSpooferError(f'{fingerprint}. Failed to get a new valid proxy')
 
     @staticmethod
     def _is_valid_proxy(proxies):
@@ -38,21 +40,22 @@ class ProxyRackProxyBackend(backends.ProxyBackend):
     def _create_ip_fingerprint(fingerprint, proxies):
         with Client(proxies=proxies) as client:
             r_stats = proxyrack_api.stats(client)
-        ip_fingerprint = IPFingerprint.objects.create(
+        ip_fingerprint = IP.objects.create(
             city=r_stats.ipinfo.city,
             country=r_stats.ipinfo.country,
             isp=r_stats.ipinfo.isp,
-            ip=r_stats.ipinfo.ip,
+            address=r_stats.ipinfo.ip,
             fingerprint=fingerprint
         )
-        fingerprint.add_ip_fingerprint(ip_fingerprint)
-        logger.info(f'Successfully created new ip fingerprint: {ip_fingerprint}')
+        fingerprint.add_ip(ip_fingerprint)
+        logger.info(f'{ip_fingerprint}. Successfully created new ip fingerprint')
 
     def _test_proxy_url(self, fingerprint):
         geolocation = fingerprint.geolocation
+        logger.info(f'{fingerprint}. Using Geolocation: {geolocation}')
         return self._build_proxy_url(
-            osName=fingerprint.os,
-            country=getattr(geolocation, 'country', None),
+            osName=fingerprint.device_fingerprint.os,
+            country=getattr(geolocation, 'country', self._weighted_proxy_country()),
             city=getattr(geolocation, 'city', None),
             isp=getattr(geolocation, 'isp', None),
         )
@@ -67,3 +70,8 @@ class ProxyRackProxyBackend(backends.ProxyBackend):
             session=str(uuid.uuid4()),
             **kwargs
         ).http_url
+
+    @staticmethod
+    def _weighted_proxy_country():
+        countries, weights = zip(*settings.PROXYRACK_COUNTRY_WEIGHTS)
+        return random.choices(population=countries, weights=weights, k=1)[0]

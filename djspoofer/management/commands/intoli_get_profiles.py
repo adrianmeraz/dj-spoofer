@@ -5,9 +5,30 @@ from djspoofer.remote.intoli import tasks
 class Command(BaseCommand):
     help = 'Get Intoli Profiles'
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--max-profiles",
+            required=True,
+            type=int,
+            help="Max Number of Intoli Profiles",
+        )
+        parser.add_argument(
+            "--desktop-only",
+            default=False,
+            required=False,
+            type=bool,
+            help="Only Desktop Intoli Profiles",
+        )
+        parser.add_argument(
+            "--os-list",
+            required=False,
+            nargs='*',
+            help="Only Include Intoli Profiles that belong to OS list",
+        )
+
     def handle(self, *args, **kwargs):
         try:
-            tasks.get_profiles()
+            tasks.get_profiles(**kwargs)
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error while running command:\n{str(e)}'))
             raise e

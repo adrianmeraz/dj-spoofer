@@ -85,14 +85,3 @@ SUPPORTED_OS = (
     'Linux',
     'FreeBSD'
 )
-
-
-class OsTTL:
-    LINUX = 64
-    WINDOWS = 128   # TODO Test This
-    MACOS = 64
-
-
-class OsMSSRecv:
-    LINUX = 64240
-    WINDOWS = 8192  # TODO Test this

@@ -1,9 +1,8 @@
 from django.core.management.base import BaseCommand
-from djstarter.clients import Http2Client
 from httpx import Client
-from djspoofer.remote.proxyrack import proxyrack_api
 
-from djspoofer.models import Proxy
+from djspoofer.clients import DesktopChromeClient
+from djspoofer.models import Fingerprint
 
 
 class Command(BaseCommand):
@@ -11,25 +10,26 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--proxy-url",
+            "--url",
             required=True,
             type=str,
-            help="Set the proxy url",
+            help="Target URL for proxies",
         )
         parser.add_argument(
-            "--proxy-args",
-            required=False,
-            nargs='*',
-            help="Set the proxy password",
+            "--no-proxies",
+            action='store_true',
+            help="Omit proxies",
         )
 
     def handle(self, *args, **kwargs):
+        url = kwargs['url']
         try:
             if kwargs['no_proxies']:
                 with Client() as client:
                     client.get(url)
             else:
-                with Http2Client(proxy_str=Proxy.objects.get_rotating_proxy().url) as client:
+                fingerprint = Fingerprint.objects.random_desktop()
+                with DesktopChromeClient(fingerprint=fingerprint) as client:
                     client.get(url)
 
         except Exception as e:
