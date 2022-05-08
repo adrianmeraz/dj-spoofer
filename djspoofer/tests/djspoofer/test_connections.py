@@ -1,12 +1,11 @@
 
 from unittest import mock
-from django.test import TestCase
-import socket
 
-from httpcore import _sync
-from httpcore._sync import HTTPConnection, HTTP2Connection
+from django.test import TestCase
 from httpcore._models import Origin, Request, URL
+from httpcore._sync import HTTPConnection, HTTP2Connection
 from httpcore.backends import sync
+
 from djspoofer.models import H2Fingerprint
 
 
