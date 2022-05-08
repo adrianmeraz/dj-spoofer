@@ -11,7 +11,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         try:
             proxy_url = input('Enter rotating proxy url (Example: premium.residential.proxyrack.net:10000): ')
-            fingerprint_count = input('Enter number of Desktop Fingerprints to create (Default 50): ') or 50
+            fingerprint_count = int(input('Enter number of Desktop Fingerprints to create (Default 50): ')) or 50
 
             self.create_h2_fingerprints()
             self.create_rotating_proxy(proxy_url)
