@@ -45,7 +45,7 @@ class FingerprintManager(models.Manager):
         try:
             return self.desktop_only().order_by('?')[0]
         except Exception:
-            raise exceptions.DJSpooferError('No Desktop Fingerprints Exist')
+            raise exceptions.DJSpooferError('No Desktop Fingerprints Exist. Did you run the djspoofer_init command?')
 
 
 class ProxyManager(models.Manager):
@@ -64,8 +64,7 @@ class ProxyManager(models.Manager):
         try:
             return super().get_queryset().filter(q_filter)[0]
         except IndexError:
-            raise exceptions.DJSpooferError('No rotating proxy is available. '
-                                            'Have you run the "djspoofer_add_rotating_proxy" command?')
+            raise exceptions.DJSpooferError('No rotating proxy is available. Did you run the djspoofer_init command?')
 
     def get_sticky_proxy(self):
         with transaction.atomic():
