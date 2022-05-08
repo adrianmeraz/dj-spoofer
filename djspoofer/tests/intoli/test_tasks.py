@@ -23,3 +23,10 @@ class GetProfilesTaskTests(TestCase):
 
         tasks.get_profiles()
         self.assertEquals(IntoliFingerprint.objects.count(), 5)
+
+    @mock.patch.object(intoli_api, 'get_profiles')
+    def test_desktop_only_and_os_list(self, get_profiles):
+        get_profiles.return_value = intoli_api.GetProfilesResponse(self.r_data)
+
+        tasks.get_profiles(desktop_only=True, os_list='Windows')
+        self.assertEquals(IntoliFingerprint.objects.count(), 2)
