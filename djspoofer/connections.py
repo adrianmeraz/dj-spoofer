@@ -4,7 +4,7 @@ import logging
 import h2
 from h2.settings import Settings, SettingCodes
 from httpcore._models import Request
-from httpcore._sync import http2
+from httpcore._sync import http2, HTTP2Connection
 
 from djspoofer import exceptions
 from djspoofer.models import H2Fingerprint
@@ -40,6 +40,10 @@ def _send_request_headers(self, request: Request, stream_id: int) -> None:
     end_stream = not http2.has_body_headers(request)
 
     h2_fingerprint = _get_h2_fingerprint(request)
+    if not h2_fingerprint:
+        HTTP2Connection._send_connection_init = connections._send_connection_init
+        HTTP2Connection._send_request_headers = connections._send_request_headers
+
     headers = _get_psuedo_headers(request, h2_fingerprint=h2_fingerprint) + [
         (k.lower(), v)
         for k, v in request.headers
@@ -87,7 +91,6 @@ def _get_h2_fingerprint(request):
     for i, (h_key, h_val) in enumerate(request.headers):
         if h_key == H2_FINGERPRINT_HEADER:
             return H2Fingerprint.objects.get_by_oid(str(h_val, 'utf-8'))
-    raise exceptions.DJSpooferError(f'Header "{H2_FINGERPRINT_HEADER}" missing')
 
 
 def build_h2_settings(h2_settings_fingerprint):

@@ -3,7 +3,7 @@ from ssl import TLSVersion
 
 import httpx
 from django.conf import settings
-from djstarter.clients import Http2Client
+from djstarter.clients import RetryClient
 
 from djspoofer import utils
 from djspoofer.remote.proxyrack import backends
@@ -11,13 +11,14 @@ from djspoofer.remote.proxyrack import backends
 logger = logging.getLogger(__name__)
 
 
-class DesktopClient(Http2Client, backends.ProxyRackProxyBackend):
+class DesktopClient(RetryClient, backends.ProxyRackProxyBackend):
     def __init__(self, fingerprint, proxy_enabled=True, *args, **kwargs):
         logger.info(f'Starting session with fingerprint: {fingerprint}')
         self._proxy_enabled = proxy_enabled
         self.fingerprint = fingerprint
         self.user_agent = self.fingerprint.device_fingerprint.user_agent
         super().__init__(
+            http2=True,
             proxies=self._get_proxies() if self._proxy_enabled else dict(),
             verify=self._get_ssl_context(),
             *args,
@@ -25,9 +26,9 @@ class DesktopClient(Http2Client, backends.ProxyRackProxyBackend):
         )
 
     def init_headers(self):
-        h2_fingerprint = self.fingerprint.h2_fingerprint
-        return super().init_headers() | {
-            'h2-fingerprint-id': h2_fingerprint.oid_str
+        return {
+            # 'accept': 'application/json',
+            'h2-fingerprint-id': self.fingerprint.h2_fingerprint.oid_str
         }
 
     def _get_proxies(self):
