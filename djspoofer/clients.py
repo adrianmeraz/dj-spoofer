@@ -6,8 +6,8 @@ from django.conf import settings
 from djstarter.clients import RetryClient
 
 from djspoofer import utils
-from djspoofer.remote.proxyrack import backends
 from djspoofer.models import Fingerprint
+from djspoofer.remote.proxyrack import backends
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +19,7 @@ class DesktopClient(RetryClient, backends.ProxyRackProxyBackend):
         self.fingerprint = fingerprint or Fingerprint.objects.random_desktop()
         self.user_agent = self.fingerprint.device_fingerprint.user_agent
         super().__init__(
+            headers=self.init_headers(),
             http2=True,
             proxies=self._get_proxies() if self._proxy_enabled else dict(),
             verify=self._get_ssl_context(),
