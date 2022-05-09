@@ -19,8 +19,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         try:
-            fingerprint = Fingerprint.objects.random_desktop()
-            with DesktopChromeClient(fingerprint=fingerprint) as client:
+            with DesktopChromeClient() as client:
                 r_tls = incolumitas_api.ip_fingerprint(client, ip_addr=kwargs.get('ip_addr'))
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error while running command:\n{str(e)}'))
