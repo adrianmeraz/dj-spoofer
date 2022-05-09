@@ -14,9 +14,9 @@ logger = logging.getLogger(__name__)
 
 class DesktopClient(RetryClient, backends.ProxyRackProxyBackend):
     def __init__(self, fingerprint=None, proxy_enabled=True, *args, **kwargs):
-        logger.info(f'Starting session with fingerprint: {fingerprint}')
         self._proxy_enabled = proxy_enabled
         self.fingerprint = fingerprint or Fingerprint.objects.random_desktop()
+        logger.info(f'Starting session with fingerprint: {self.fingerprint}')
         self.user_agent = self.fingerprint.device_fingerprint.user_agent
         super().__init__(
             headers=self.init_headers(),
