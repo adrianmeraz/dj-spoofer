@@ -12,12 +12,13 @@ logger = logging.getLogger(__name__)
 
 
 class DesktopClient(Http2Client, backends.ProxyRackProxyBackend):
-    def __init__(self, fingerprint, *args, **kwargs):
+    def __init__(self, fingerprint, proxy_enabled=True, *args, **kwargs):
         logger.info(f'Starting session with fingerprint: {fingerprint}')
+        self._proxy_enabled = proxy_enabled
         self.fingerprint = fingerprint
         self.user_agent = self.fingerprint.device_fingerprint.user_agent
         super().__init__(
-            proxies=self._get_proxies(),
+            proxies=self._get_proxies() if self._proxy_enabled else dict(),
             verify=self._get_ssl_context(),
             *args,
             **kwargs
