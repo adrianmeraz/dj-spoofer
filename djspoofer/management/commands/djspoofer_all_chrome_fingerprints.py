@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from djstarter import utils, clients
+from djstarter import utils
 
 from djspoofer.clients import DesktopChromeClient
 from djspoofer.models import Fingerprint
