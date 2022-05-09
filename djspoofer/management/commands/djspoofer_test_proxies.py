@@ -28,8 +28,7 @@ class Command(BaseCommand):
                 with Client() as client:
                     client.get(url)
             else:
-                fingerprint = Fingerprint.objects.random_desktop()
-                with DesktopChromeClient(fingerprint=fingerprint) as client:
+                with DesktopChromeClient() as client:
                     client.get(url)
 
         except Exception as e:
