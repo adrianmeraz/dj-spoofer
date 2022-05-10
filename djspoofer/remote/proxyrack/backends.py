@@ -3,6 +3,7 @@ import random
 import uuid
 
 from django.conf import settings
+from djstarter import decorators
 from httpx import Client
 
 from djspoofer import backends, exceptions, utils
@@ -23,6 +24,7 @@ class ProxyRackProxyBackend(backends.ProxyBackend):
             logger.info(f'{fingerprint}. No valid IP Fingerprints found. ')
             return self._new_proxy_url(fingerprint)   # Generate if no valid IP Fingerprints
 
+    @decorators.retry(retry_exceptions=exceptions.ProxyConnectionFailed, tries=3)
     def _new_proxy_url(self, fingerprint):
         logger.info(f'{fingerprint}. Generating new IP Fingerprint. ')
         proxy_url = self._test_proxy_url(fingerprint)
@@ -30,7 +32,7 @@ class ProxyRackProxyBackend(backends.ProxyBackend):
         if self._is_valid_proxy(proxies=proxies):
             self._create_ip_fingerprint(fingerprint, proxies)
             return proxy_url
-        raise exceptions.DJSpooferError(f'{fingerprint}. Failed to get a new valid proxy')
+        raise exceptions.ProxyConnectionFailed(f'{fingerprint}. Failed to get a new valid proxy')
 
     @staticmethod
     def _is_valid_proxy(proxies):
