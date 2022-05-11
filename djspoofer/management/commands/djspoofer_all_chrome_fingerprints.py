@@ -3,12 +3,11 @@ from django.core.management.base import BaseCommand
 from djstarter import utils
 
 from djspoofer.clients import DesktopChromeClient
-from djspoofer.models import Fingerprint
+from djspoofer.remote.h2fingerprint import h2fingerprint_api
+from djspoofer.remote.howsmyssl import howsmyssl_api
 from djspoofer.remote.incolumitas import incolumitas_api, incolumitas_tcpip_api, incolumitas_tls_api
 from djspoofer.remote.ja3er import ja3er_api
-from djspoofer.remote.howsmyssl import howsmyssl_api
 from djspoofer.remote.proxyrack import utils as pr_utils
-from djspoofer.remote.h2fingerprint import h2fingerprint_api
 
 
 class Command(BaseCommand):
