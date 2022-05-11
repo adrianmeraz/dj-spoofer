@@ -59,7 +59,6 @@ class ProxyRackProxyBackend(backends.ProxyBackend):
             osName=fingerprint.device_fingerprint.os,
             country=getattr(geolocation, 'country', self._weighted_proxy_country()),
             city=getattr(geolocation, 'city', None),
-            isp=getattr(geolocation, 'isp', None),
         )
 
     @staticmethod
