@@ -8,15 +8,26 @@ from djspoofer.remote.intoli import tasks
 class Command(BaseCommand):
     help = 'DJ Spoofer Init'
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--proxy-url",
+            required=True,
+            type=str,
+            help="Rotating Proxy Url (Example: premium.residential.proxyrack.net:10000)",
+        )
+        parser.add_argument(
+            "--fingerprint-count",
+            required=True,
+            type=int,
+            help="Fingerprint Count (Default 50)",
+        )
+
     def handle(self, *args, **kwargs):
         try:
-            proxy_url = input('Enter rotating proxy url (Example: premium.residential.proxyrack.net:10000): ')
-            fingerprint_count = int(input('Enter number of Desktop Fingerprints to create (Default 50): ')) or 50
-
             self.create_h2_fingerprints()
-            self.create_rotating_proxy(proxy_url)
+            self.create_rotating_proxy(kwargs['proxy_url'])
             self.store_intoli_fingerprints()
-            self.create_fingerprints(count=fingerprint_count)
+            self.create_fingerprints(count=kwargs['fingerprint_count'])
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error while running command:\n{str(e)}'))
             raise e
