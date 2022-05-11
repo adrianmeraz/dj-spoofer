@@ -39,21 +39,21 @@ class Command(BaseCommand):
             os='Windows',
             browser='Chrome',
             h2_hash='1:65536;3:1000;4:6291456;6:262144|15663105|1:1:0:256|m,a,s,p',
-            browser_min_major_version=80,
+            browser_min_major_version=70,
             browser_max_major_version=110,
         )
         utils.h2_hash_to_h2_fingerprint(
             os='Linux',
             browser='Chrome',
             h2_hash='1:65536;3:1000;4:6291456;6:262144|15663105|1:1:0:256|m,a,s,p',
-            browser_min_major_version=80,
+            browser_min_major_version=70,
             browser_max_major_version=110,
         )
         utils.h2_hash_to_h2_fingerprint(
             os='Windows',
             browser='Edge',
             h2_hash='1:65536;3:1000;4:6291456;6:262144|15663105|1:1:0:256|m,a,s,p',
-            browser_min_major_version=80,
+            browser_min_major_version=70,
             browser_max_major_version=110,
         )
         utils.h2_hash_to_h2_fingerprint(
