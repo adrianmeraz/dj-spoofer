@@ -88,3 +88,4 @@ class DesktopFirefoxClient(DesktopClient):
         return super().init_headers() | {
             'User-Agent': self.user_agent,
         }
+
