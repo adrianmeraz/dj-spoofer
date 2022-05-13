@@ -74,7 +74,7 @@ python-versions = ">=2.7"
 
 [[package]]
 name = "dj-starter"
-version = "0.1.10"
+version = "0.1.11"
 description = "Django Project Bootstraper with Common Models and Utilities"
 category = "main"
 optional = false
@@ -461,7 +461,7 @@ python-versions = "*"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "8e094ffc28a0e2821542cdc1bf9eb9a3c024d1863cdf27d261ed48ba6b9b48b0"
+content-hash = "15166b176a95d475944118b431349121e4e6bc504f2e5e013f7a827c67ef007d"
 
 [metadata.files]
 anyio = [
@@ -532,8 +532,8 @@ diff-match-patch = [
     {file = "diff_match_patch-20200713-py3-none-any.whl", hash = "sha256:8bf9d9c4e059d917b5c6312bac0c137971a32815ddbda9c682b949f2986b4d34"},
 ]
 dj-starter = [
-    {file = "dj-starter-0.1.10.tar.gz", hash = "sha256:6488db7a613a576ba0a399ccecba88801f2fc189a0cbb21c3bceb2199fbb8349"},
-    {file = "dj_starter-0.1.10-py3-none-any.whl", hash = "sha256:0ae88bece5c7a49710e5775afcefb5d36fce57614a3e54a477498c0d8a386c05"},
+    {file = "dj-starter-0.1.11.tar.gz", hash = "sha256:17218ec7cc1a6a11d28c2e1a4b2d4dee532d2a49a2b26b3f28fbc69d27b483aa"},
+    {file = "dj_starter-0.1.11-py3-none-any.whl", hash = "sha256:c4abac902a9f273dd9df7848607cf1cb4ae9ec4cfc09ba399232aa9edd0372f4"},
 ]
 django = [
     {file = "Django-3.2.13-py3-none-any.whl", hash = "sha256:b896ca61edc079eb6bbaa15cf6071eb69d6aac08cce5211583cfb41515644fdf"},
