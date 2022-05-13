@@ -2,7 +2,6 @@ from django.core.management.base import BaseCommand
 from httpx import Client
 
 from djspoofer.clients import DesktopChromeClient
-from djspoofer.models import Fingerprint
 
 
 class Command(BaseCommand):
@@ -16,20 +15,18 @@ class Command(BaseCommand):
             help="Target URL for proxies",
         )
         parser.add_argument(
-            "--no-proxies",
-            action='store_true',
-            help="Omit proxies",
+            "--proxy-enabled",
+            required=False,
+            type=bool,
+            default=True,
+            help="Proxy Enabled",
         )
 
     def handle(self, *args, **kwargs):
         url = kwargs['url']
         try:
-            if kwargs['no_proxies']:
-                with Client() as client:
-                    client.get(url)
-            else:
-                with DesktopChromeClient() as client:
-                    client.get(url)
+            with DesktopChromeClient(proxy_enabled=kwargs.get('proxy_enabled', True)) as client:
+                client.get(url)
 
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error while running command:\n{str(e)}'))
