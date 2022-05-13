@@ -158,10 +158,8 @@ class H2FingerprintTests(TestCase):
             'browser_min_major_version': 95,
             'browser_max_major_version': 100,
             'header_table_size': 65536,
-            'enable_push': True,
             'max_concurrent_streams': 1000,
             'initial_window_size': 6291456,
-            'max_frame_size': 16384,
             'max_header_list_size': 262144,
             'psuedo_header_order': 'm,a,s,p',
             'window_update_increment': 15663105,
@@ -173,7 +171,10 @@ class H2FingerprintTests(TestCase):
 
     def test_str(self):
         h2_fp = H2Fingerprint.objects.create(**self.h2_fingerprint_data)
-        self.assertEquals(str(h2_fp), f'H2Fingerprint -> oid: {h2_fp.oid}')
+        self.assertEquals(
+            str(h2_fp),
+            f'H2Fingerprint -> hash: 1:65536;3:1000;4:6291456;6:262144|15663105|1:1:0:256|m,a,s,p'
+        )
 
 
 class DeviceFingerprintTests(TestCase):
