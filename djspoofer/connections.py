@@ -40,6 +40,7 @@ def _send_request_headers(self, request: Request, stream_id: int) -> None:
     end_stream = not http2.has_body_headers(request)
 
     h2_fingerprint = _get_h2_fingerprint(request)
+    logger.debug(f'{h2_fingerprint}. Sending H2 frames')
     headers = _get_psuedo_headers(request, h2_fingerprint=h2_fingerprint) + [
         (k.lower(), v)
         for k, v in request.headers
