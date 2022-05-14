@@ -4,7 +4,7 @@ import logging
 import h2
 from h2.connection import H2Connection
 from h2.settings import Settings, SettingCodes
-from hpack import Decoder
+from hpack import Decoder, Encoder
 from hpack.table import HeaderTable
 from httpcore._models import Request, Response
 from httpcore._sync import http2
@@ -25,20 +25,6 @@ class NewH2Connection(H2Connection):
 
     def get_next_available_stream_id(self):
         return self.h2_fingerprint.priority_stream_id
-
-
-class NewDecoder(Decoder):
-    def __init__(self, h2_fingerprint, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.header_table = NewHeaderTable(h2_fingerprint)
-        self.max_header_list_size = h2_fingerprint.max_header_list_size
-        self.max_allowed_table_size = self.header_table.maxsize
-
-
-class NewHeaderTable(HeaderTable):
-    def __init__(self, h2_fingerprint):
-        super().__init__()
-        self._maxsize = h2_fingerprint.header_table_size
 
 
 class NewHTTP2Connection(http2.HTTP2Connection):
@@ -69,6 +55,7 @@ class NewHTTP2Connection(http2.HTTP2Connection):
         # frames in addition to sending the undesired defaults.
 
         self._h2_state.decoder = NewDecoder(self._h2_fingerprint)
+        self._h2_state.encoder = NewEncoder(self._h2_fingerprint)
         self._h2_state.local_settings = NewSettings(self._h2_fingerprint)
         self._h2_state.get_next_available_stream_id = lambda: self._h2_fingerprint.priority_stream_id
 
@@ -140,3 +127,23 @@ class NewSettings(h2.settings.Settings):
             SettingCodes.MAX_HEADER_LIST_SIZE: h2_fp.max_header_list_size,                      # 0x06 (Optional)
         }
         return {k: collections.deque([v]) for k, v in initial_values.items() if v is not None}
+
+
+class NewDecoder(Decoder):
+    def __init__(self, h2_fingerprint, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.header_table = NewHeaderTable(h2_fingerprint)
+        self.max_header_list_size = h2_fingerprint.max_header_list_size
+        self.max_allowed_table_size = self.header_table.maxsize
+
+
+class NewEncoder(Encoder):
+    def __init__(self, h2_fingerprint):
+        super().__init__()
+        self.header_table = NewHeaderTable(h2_fingerprint)
+
+
+class NewHeaderTable(HeaderTable):
+    def __init__(self, h2_fingerprint):
+        super().__init__()
+        self._maxsize = h2_fingerprint.header_table_size
