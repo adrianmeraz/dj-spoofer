@@ -2,6 +2,8 @@ import collections
 import logging
 
 import h2
+from hpack import Decoder
+from hpack.table import HeaderTable
 from h2.settings import Settings, SettingCodes
 from httpcore._models import Request
 from httpcore._sync import http2
@@ -16,7 +18,6 @@ H2_FINGERPRINT_HEADER = b'h2-fingerprint-id'
 
 def _send_connection_init(self, request: Request) -> None:
     """
-        ** Monkey Patched in apps.py **
         The HTTP/2 connection requires some initial setup before we can start
         using individual request/response streams on it.
     """
@@ -24,9 +25,12 @@ def _send_connection_init(self, request: Request) -> None:
     # __setitem__() otherwise the H2Connection will emit SettingsUpdate
     # frames in addition to sending the undesired defaults.
     h2_frame_fingerprint = _get_h2_fingerprint(request)
+
+    self._h2_state.decoder = H2Decoder(h2_frame_fingerprint)
     self._h2_state.local_settings = build_h2_settings(h2_frame_fingerprint)
 
     self._h2_state.get_next_available_stream_id = lambda: h2_frame_fingerprint.priority_stream_id
+
     self._h2_state.initiate_connection()
     self._h2_state.increment_flow_control_window(h2_frame_fingerprint.window_update_increment)
 
@@ -34,9 +38,6 @@ def _send_connection_init(self, request: Request) -> None:
 
 
 def _send_request_headers(self, request: Request, stream_id: int) -> None:
-    """
-        ** Monkey Patched in apps.py **
-    """
     end_stream = not http2.has_body_headers(request)
 
     h2_fingerprint = _get_h2_fingerprint(request)
@@ -101,7 +102,7 @@ def build_h2_settings(h2_settings_fingerprint):
         SettingCodes.MAX_FRAME_SIZE: h2_fp.max_frame_size,                                  # 0x05 (Required)
         SettingCodes.MAX_HEADER_LIST_SIZE: h2_fp.max_header_list_size,                      # 0x06 (Optional)
     }
-    initial_values = {k: v for k, v in initial_values.items() if v}
+    initial_values = {k: v for k, v in initial_values.items() if v is not None}
     return H2Settings(initial_values=initial_values)
 
 
@@ -114,3 +115,17 @@ class H2Settings(h2.settings.Settings):
     def __init__(self, initial_values=None):
         super().__init__()
         self._settings = {k: collections.deque([v]) for k, v in initial_values.items()}
+
+
+class H2Decoder(Decoder):
+    def __init__(self, h2_fingerprint, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.header_table = H2HeaderTable(h2_fingerprint)
+        self.max_header_list_size = h2_fingerprint.max_header_list_size
+        self.max_allowed_table_size = self.header_table.maxsize
+
+
+class H2HeaderTable(HeaderTable):
+    def __init__(self, h2_fingerprint):
+        super().__init__()
+        self._maxsize = h2_fingerprint.header_table_size
