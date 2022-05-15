@@ -12,9 +12,9 @@ jobs:
     runs-on: ubuntu-20.04
     env:
       PYTHON: '3.9'
-      DATABASE_URL: ${{secrets.DATABASE_URL}}
+      DATABASE_URL: 'postgres://postgres:postgres@localhost:5432/postgres'
       DJANGO_SETTINGS_MODULE: ${{secrets.DJANGO_SETTINGS_MODULE}}
-      LOGLEVEL: ${{secrets.LOGLEVEL}}
+      LOGLEVEL: 'DEBUG'
       PROXY_PASSWORD: ${{secrets.PROXY_PASSWORD}}
       PROXY_USERNAME: ${{secrets.PROXY_USERNAME}}
       PYTHONUNBUFFERED: ${{secrets.PYTHONUNBUFFERED}}

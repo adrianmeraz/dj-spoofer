@@ -45,7 +45,28 @@ class H2Fingerprint(BaseFingerprint):
         app_label = 'djspoofer'
 
     def __str__(self):
-        return f'H2Fingerprint -> oid: {self.oid}'
+        return f'H2Fingerprint -> hash: {self.hash}'
+
+    @property
+    def hash(self):
+        return f'{self.settings_hash}|{self.window_update_increment}|{self.priority_hash}|{self.psuedo_header_order}'
+
+    @property
+    def settings_hash(self):
+        table = [
+            self.header_table_size,
+            int(self.enable_push) if self.enable_push else None,
+            self.max_concurrent_streams,
+            self.initial_window_size,
+            self.max_frame_size,
+            self.max_header_list_size
+        ]
+        return ';'.join([f'{i+1}:{key}' for i, key in enumerate(table) if key])
+
+    @property
+    def priority_hash(self):
+        return (f'{self.priority_stream_id}:{int(self.priority_exclusive)}:{self.priority_depends_on_id}:'
+                f'{self.priority_weight}')
 
 
 class TLSFingerprint(BaseFingerprint):

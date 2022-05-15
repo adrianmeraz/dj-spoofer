@@ -10,10 +10,9 @@ class DJSpooferConfig(AppConfig):
     verbose_name = 'DJ Spoofer App'
 
     def ready(self):
-        from httpcore._sync.http2 import HTTP2Connection
+        from httpcore._sync import http2
         from djspoofer import connections
 
         # Monkey patching to allow for dynamic h2 settings frame
-        HTTP2Connection._send_connection_init = connections._send_connection_init
-        HTTP2Connection._send_request_headers = connections._send_request_headers
-        logger.debug('Monkey patched HTTP2Connection._send_connection_init')
+        http2.HTTP2Connection = connections.NewHTTP2Connection
+        logger.debug('Monkey patched HTTP2Connection')

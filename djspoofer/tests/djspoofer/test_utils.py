@@ -69,7 +69,7 @@ class UtilTests(TestCase):
         self.assertEquals(priority_frame.weight, 256)
 
     def test_h2_hash(self):
-        h2_hash = '1:65536;2:1;3:1000;4:6291456;5:16384;6:262144|15663105|1:1:0:256|m,a,s,p'
+        h2_hash = '1:65536;3:1000;4:6291456;6:262144|15663105|1:1:0:256|m,a,s,p'
         h2_fingerprint = utils.h2_hash_to_h2_fingerprint(
             os='Windows',
             browser='Chrome',
@@ -79,6 +79,7 @@ class UtilTests(TestCase):
         )
         self.assertEquals(h2_fingerprint.browser, 'Chrome')
         self.assertEquals(h2_fingerprint.os, 'Windows')
+        self.assertEquals(h2_fingerprint.enable_push, None)
         self.assertEquals(h2_fingerprint.initial_window_size, 6291456)
         self.assertEquals(h2_fingerprint.window_update_increment, 15663105)
         self.assertEquals(h2_fingerprint.priority_weight, 256)
