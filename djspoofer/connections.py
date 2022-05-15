@@ -15,18 +15,6 @@ from djspoofer.models import H2Fingerprint
 logger = logging.getLogger(__name__)
 
 
-class NewH2Connection(H2Connection):
-    def __init__(self, h2_fingerprint, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.h2_fingerprint = h2_fingerprint
-        # TODO Build custom Encoder
-        self.decoder = NewDecoder(self.h2_fingerprint)
-        self.local_settings = NewSettings(self.h2_fingerprint)
-
-    def get_next_available_stream_id(self):
-        return self.h2_fingerprint.priority_stream_id
-
-
 class NewHTTP2Connection(http2.HTTP2Connection):
     H2_FINGERPRINT_HEADER = b'h2-fingerprint-id'
 
@@ -38,11 +26,13 @@ class NewHTTP2Connection(http2.HTTP2Connection):
         for i, (h_key, h_val) in enumerate(request.headers):
             if h_key == self.H2_FINGERPRINT_HEADER:
                 self._h2_fingerprint = H2Fingerprint.objects.get_by_oid(str(h_val, 'utf-8'))
+                logger.debug(f'Using H2 Fingerprint: {self._h2_fingerprint}')
                 return
         raise exceptions.DJSpooferError(f'Header "{self.H2_FINGERPRINT_HEADER}" missing')
 
     def handle_request(self, request: Request) -> Response:
         self._init_h2_fingerprint(request)
+        self._h2_state = NewH2Connection(config=self.CONFIG, h2_fingerprint=self._h2_fingerprint)
         return super().handle_request(request)
 
     def _send_connection_init(self, request: Request) -> None:
@@ -50,14 +40,6 @@ class NewHTTP2Connection(http2.HTTP2Connection):
             The HTTP/2 connection requires some initial setup before we can start
             using individual request/response streams on it.
         """
-        # Need to set these manually here instead of manipulating via
-        # __setitem__() otherwise the H2Connection will emit SettingsUpdate
-        # frames in addition to sending the undesired defaults.
-
-        self._h2_state.decoder = NewDecoder(self._h2_fingerprint)
-        self._h2_state.encoder = NewEncoder(self._h2_fingerprint)
-        self._h2_state.local_settings = NewSettings(self._h2_fingerprint)
-        self._h2_state.get_next_available_stream_id = lambda: self._h2_fingerprint.priority_stream_id
 
         self._h2_state.initiate_connection()
         self._h2_state.increment_flow_control_window(self._h2_fingerprint.window_update_increment)
@@ -66,7 +48,6 @@ class NewHTTP2Connection(http2.HTTP2Connection):
     def _send_request_headers(self, request: Request, stream_id: int) -> None:
         end_stream = not http2.has_body_headers(request)
 
-        logger.debug(f'{self._h2_fingerprint}. Sending H2 frames')
         headers = self._get_psuedo_headers(request, h2_fingerprint=self._h2_fingerprint) + [
             (k.lower(), v)
             for k, v in request.headers
@@ -103,6 +84,19 @@ class NewHTTP2Connection(http2.HTTP2Connection):
             'p': (b":path", request.url.target),
         }
         return [header_map[k] for k in h2_fingerprint.psuedo_header_order.split(',')]
+
+
+class NewH2Connection(H2Connection):
+    def __init__(self, h2_fingerprint, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._h2_fingerprint = h2_fingerprint
+        # TODO Build custom Encoder
+        self.encoder = NewEncoder(self._h2_fingerprint)
+        self.decoder = NewDecoder(self._h2_fingerprint)
+        self.local_settings = NewSettings(self._h2_fingerprint)
+
+    def get_next_available_stream_id(self):
+        return self._h2_fingerprint.priority_stream_id
 
 
 class NewSettings(h2.settings.Settings):
