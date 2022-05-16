@@ -1,3 +1,4 @@
+import argparse
 import uuid
 
 from django.core.management.base import BaseCommand
@@ -45,7 +46,7 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             "--load-proxies",
-            type=bool,
+            action=argparse.BooleanOptionalAction,
             help="Load Proxies Into Database",
         )
         parser.add_argument(
