@@ -30,7 +30,6 @@ class Command(BaseCommand):
             "--browser",
             type=str,
             required=False,
-            default='chrome'
         )
 
     def handle(self, *args, **kwargs):
@@ -39,7 +38,6 @@ class Command(BaseCommand):
         try:
             fp = Fingerprint.objects.random_desktop(browser=kwargs.get('browser'))
             with clients.desktop_client(fingerprint=fp, proxy_enabled=proxy_enabled) as client:
-            # with clients.desktop_client(proxy_enabled=proxy_enabled) as client:
                 for url in kwargs['urls']:
                     r = client.get(url)
                     if kwargs['display_output']:
