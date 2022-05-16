@@ -2,7 +2,7 @@ import collections
 import logging
 
 import h2
-from h2.connection import H2Connection
+from h2.connection import ConnectionInputs, H2Connection, SettingsFrame
 from h2.exceptions import NoAvailableStreamIDError
 from h2.settings import Settings, SettingCodes
 from hpack import Decoder, Encoder
@@ -44,6 +44,12 @@ class NewHTTP2Connection(http2.HTTP2Connection):
 
         self._h2_state.initiate_connection()
         self._h2_state.increment_flow_control_window(self._h2_fingerprint.window_update_increment)
+        self._h2_state.prioritize(weight=201, stream_id=3, exclusive=False, depends_on=0)
+        self._h2_state.prioritize(weight=101, stream_id=5, exclusive=False, depends_on=0)
+        self._h2_state.prioritize(weight=1, stream_id=7, exclusive=False, depends_on=0)
+        self._h2_state.prioritize(weight=1, stream_id=9, exclusive=False, depends_on=7)
+        self._h2_state.prioritize(weight=1, stream_id=11, exclusive=False, depends_on=3)
+        self._h2_state.prioritize(weight=241, stream_id=13, exclusive=False, depends_on=0)
         self._write_outgoing_data(request)
 
     def _send_request_headers(self, request: Request, stream_id: int) -> None:
@@ -94,6 +100,27 @@ class NewH2Connection(H2Connection):
         self.encoder = NewEncoder(self._h2_fingerprint)
         self.decoder = NewDecoder(self._h2_fingerprint)
         self.local_settings = NewSettings(self._h2_fingerprint)
+
+    def initiate_connection(self):
+        """
+        Provides any data that needs to be sent at the start of the connection.
+        Must be called for both clients and servers.
+        """
+        self.config.logger.debug("Initializing connection")
+        self.state_machine.process_input(ConnectionInputs.SEND_SETTINGS)
+        if self.config.client_side:
+            preamble = b'PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n'
+        else:
+            preamble = b''
+
+        f = SettingsFrame(0)
+        for setting, value in self.local_settings.items():
+            f.settings[setting] = value
+        self.config.logger.debug(
+            "Send Settings frame: %s", self.local_settings
+        )
+
+        self._data_to_send += preamble + f.serialize()
 
     def get_next_available_stream_id(self):
         """

@@ -118,28 +118,34 @@ class H2HashParser:
         self.pseudo_headers = parts[3]
 
 
-def h2_hash_to_h2_fingerprint(os, browser, h2_hash, browser_min_major_version=None, browser_max_major_version=None):
-    h2_parser = H2HashParser(hash=h2_hash)
-    s_frame = h2_parser.settings_frame
-    p_frame = h2_parser.priority_frame
-    return models.H2Fingerprint.objects.create(
-        browser=browser,
-        os=os,
-        browser_min_major_version=browser_min_major_version,
-        browser_max_major_version=browser_max_major_version,
-        header_table_size=s_frame.header_table_size,
-        enable_push=bool(s_frame.push_enabled) if (s_frame.push_enabled is not None) else None,
-        max_concurrent_streams=s_frame.max_concurrent_streams,
-        initial_window_size=s_frame.initial_window_size,
-        max_frame_size=s_frame.max_frame_size,
-        max_header_list_size=s_frame.max_header_list_size,
-        psuedo_header_order=h2_parser.pseudo_headers,
-        window_update_increment=h2_parser.window_frame,
-        priority_stream_id=p_frame.stream_id,
-        priority_exclusive=p_frame.is_exclusive,
-        priority_depends_on_id=p_frame.depends_on_id,
-        priority_weight=p_frame.weight,
-    )
+def h2_hash_to_h2_fingerprint(
+        os,
+        browser,
+        h2_hash,
+        browser_min_major_version=None,
+        browser_max_major_version=None
+    ):
+        h2_parser = H2HashParser(hash=h2_hash)
+        s_frame = h2_parser.settings_frame
+        p_frame = h2_parser.priority_frame
+        return models.H2Fingerprint.objects.create(
+            browser=browser,
+            os=os,
+            browser_min_major_version=browser_min_major_version,
+            browser_max_major_version=browser_max_major_version,
+            header_table_size=s_frame.header_table_size,
+            enable_push=bool(s_frame.push_enabled) if (s_frame.push_enabled is not None) else None,
+            max_concurrent_streams=s_frame.max_concurrent_streams,
+            initial_window_size=s_frame.initial_window_size,
+            max_frame_size=s_frame.max_frame_size,
+            max_header_list_size=s_frame.max_header_list_size,
+            psuedo_header_order=h2_parser.pseudo_headers,
+            window_update_increment=h2_parser.window_frame,
+            priority_stream_id=p_frame.stream_id,
+            priority_exclusive=p_frame.is_exclusive,
+            priority_depends_on_id=p_frame.depends_on_id,
+            priority_weight=p_frame.weight,
+        )
 
 
 def proxy_dict(proxy_url):
