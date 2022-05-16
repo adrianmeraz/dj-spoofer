@@ -39,13 +39,16 @@ class TLSFingerprintManager(models.Manager):
 class FingerprintManager(models.Manager):
     # TODO Add Manager to control by browser
 
-    def desktop_only(self):
-        q = Q(device_fingerprint__device_category='desktop', device_fingerprint__browser__in=const.SUPPORTED_BROWSERS)
+    def desktop_only(self, browser=None):
+        q = Q(
+            device_fingerprint__device_category='desktop',
+            device_fingerprint__browser__in=browser or const.SUPPORTED_BROWSERS
+        )
         return super().get_queryset().filter(q)
 
-    def random_desktop(self):
+    def random_desktop(self, browser=None):
         try:
-            return self.desktop_only().order_by('?')[0]
+            return self.desktop_only(browser).order_by('?')[0]
         except Exception:
             raise exceptions.DJSpooferError('No Desktop Fingerprints Exist. Did you run the djspoofer_init command?')
 

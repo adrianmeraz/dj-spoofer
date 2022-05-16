@@ -82,4 +82,4 @@ class UtilTests(TestCase):
         self.assertEquals(h2_fingerprint.enable_push, None)
         self.assertEquals(h2_fingerprint.initial_window_size, 6291456)
         self.assertEquals(h2_fingerprint.window_update_increment, 15663105)
-        self.assertEquals(h2_fingerprint.priority_weight, 256)
+        self.assertEquals(h2_fingerprint.header_priority_weight, 256)
