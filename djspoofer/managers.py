@@ -37,6 +37,8 @@ class TLSFingerprintManager(models.Manager):
 
 
 class FingerprintManager(models.Manager):
+    # TODO Add Manager to control by browser
+
     def desktop_only(self):
         q = Q(device_fingerprint__device_category='desktop', device_fingerprint__browser__in=const.SUPPORTED_BROWSERS)
         return super().get_queryset().filter(q)

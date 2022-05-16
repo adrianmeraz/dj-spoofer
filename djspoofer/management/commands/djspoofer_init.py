@@ -23,11 +23,12 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **kwargs):
+        fingerprint_count = kwargs['fingerprint_count']
         try:
             self.create_h2_fingerprints()
             self.create_rotating_proxy(kwargs['proxy_url'])
-            self.store_intoli_fingerprints()
-            self.create_fingerprints(count=kwargs['fingerprint_count'])
+            self.store_intoli_fingerprints(fingerprint_count*2)
+            self.create_fingerprints(count=fingerprint_count)
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error while running command:\n{str(e)}'))
             raise e
@@ -61,7 +62,7 @@ class Command(BaseCommand):
             browser='Firefox',
             h2_hash='1:65536;4:131072;5:16384|12517377|15:0:13:42|m,p,a,s',
             priority_frames='3:0:0:201,5:0:0:101,7:0:0:1,9:0:7:1,11:0:3:1,13:0:0:241',
-            browser_min_major_version=70,
+            browser_min_major_version=60,
             browser_max_major_version=110,
         )
         utils.h2_hash_to_h2_fingerprint(
@@ -69,7 +70,7 @@ class Command(BaseCommand):
             browser='Firefox',
             h2_hash='1:65536;4:131072;5:16384|12517377|15:0:13:42|m,p,a,s',
             priority_frames='3:0:0:201,5:0:0:101,7:0:0:1,9:0:7:1,11:0:3:1,13:0:0:241',
-            browser_min_major_version=70,
+            browser_min_major_version=60,
             browser_max_major_version=110,
         )
         self.stdout.write(self.style.MIGRATE_LABEL(f'Successfully Created H2 Fingerprints'))
@@ -78,8 +79,8 @@ class Command(BaseCommand):
         proxy = Proxy.objects.create_rotating_proxy(url=proxy_url)
         self.stdout.write(self.style.MIGRATE_LABEL(f'Successfully Created Rotating Proxy: {proxy}'))
 
-    def store_intoli_fingerprints(self):
-        tasks.get_profiles(max_profiles=150, desktop_only=True, os_list=const.SUPPORTED_OS)
+    def store_intoli_fingerprints(self, count):
+        tasks.get_profiles(max_profiles=count, desktop_only=True, os_list=const.SUPPORTED_OS)
         self.stdout.write(self.style.MIGRATE_LABEL(f'Successfully Created Intoli Fingerprints'))
 
     def create_fingerprints(self, count):

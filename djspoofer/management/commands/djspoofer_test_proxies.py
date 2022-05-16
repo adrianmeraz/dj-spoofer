@@ -57,6 +57,6 @@ class Command(BaseCommand):
     def get_client_class(browser):
         try:
             return BROWSER_MAP[browser]
-        except IndexError:
+        except KeyError:
             raise exceptions.DJSpooferError(
-                f'Unknown browser: {browser}. Set Browser to one of the following: {BROWSER_MAP.keys()}')
+                f'Unknown browser: {browser}. Set Browser to one of the following: {list(BROWSER_MAP.keys())}')

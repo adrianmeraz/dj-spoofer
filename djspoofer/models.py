@@ -51,7 +51,7 @@ class H2Fingerprint(BaseFingerprint):
 
     @property
     def hash(self):
-        return f'{self.settings_hash}|{self.window_update_increment}|{self.priority_frames}|{self.psuedo_header_order}'
+        return f'{self.settings_hash}|{self.window_update_increment}|{self.header_frames_hash}|{self.psuedo_header_order}'
 
     @property
     def settings_hash(self):
@@ -64,6 +64,15 @@ class H2Fingerprint(BaseFingerprint):
             self.max_header_list_size
         ]
         return ';'.join([f'{i+1}:{key}' for i, key in enumerate(table) if key])
+
+    @property
+    def header_frames_hash(self):
+        return ':'.join([
+            str(self.header_priority_stream_id),
+            str(self.header_priority_exclusive_bit),
+            str(self.header_priority_depends_on_id),
+            str(self.header_priority_weight)
+         ])
 
 
 class TLSFingerprint(BaseFingerprint):

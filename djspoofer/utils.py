@@ -121,11 +121,11 @@ class H2HashParser:
 class PriorityFrameParser:
     class PriorityFrame:
         def __init__(self, data):
-            self._parts = data.split('0')
-            self.stream_id = self._parts[0]
-            self.exclusivity_bit = self._parts[1]
-            self.dependent_stream_id = self._parts[2]
-            self.weight = self._parts[3]
+            self._parts = data.split(':')
+            self.stream_id = int(self._parts[0])
+            self.exclusivity_bit = int(self._parts[1])
+            self.dependent_stream_id = int(self._parts[2])
+            self.weight = int(self._parts[3])
 
     def __init__(self, data):
         self._data = data
