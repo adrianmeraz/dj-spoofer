@@ -5,17 +5,17 @@ import httpx
 from django.conf import settings
 from djstarter.clients import RetryClient
 
-from djspoofer import utils
+from djspoofer import exceptions, utils
 from djspoofer.models import Fingerprint
 from djspoofer.remote.proxyrack import backends
 
 logger = logging.getLogger(__name__)
 
 
-class DesktopClient(RetryClient, backends.ProxyRackProxyBackend):
+class GenericDesktopClient(RetryClient, backends.ProxyRackProxyBackend):
     def __init__(self, fingerprint=None, proxy_enabled=True, *args, **kwargs):
         self._proxy_enabled = proxy_enabled
-        self.fingerprint = fingerprint or Fingerprint.objects.random_desktop()
+        self.fingerprint = fingerprint
         logger.info(f'Starting session with fingerprint: {self.fingerprint}')
         self.user_agent = self.fingerprint.device_fingerprint.user_agent
         super().__init__(
@@ -54,9 +54,10 @@ class DesktopClient(RetryClient, backends.ProxyRackProxyBackend):
         return super().send(*args, **kwargs)
 
 
-class DesktopChromeClient(DesktopClient):
+class DesktopChromeClient(GenericDesktopClient):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fingerprint = self.fingerprint or Fingerprint.objects.random_desktop(browser='Chrome')
         self.ua_parser = utils.UserAgentParser(self.user_agent)
 
     def init_headers(self):
@@ -79,12 +80,28 @@ class DesktopChromeClient(DesktopClient):
         return f'"{platform}"'
 
 
-class DesktopFirefoxClient(DesktopClient):
+class DesktopFirefoxClient(GenericDesktopClient):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fingerprint = self.fingerprint or Fingerprint.objects.random_desktop(browser='Firefox')
 
     def init_headers(self):
         return super().init_headers() | {
             'User-Agent': self.user_agent,
         }
 
+
+BROWSER_MAP = {
+    'Chrome': DesktopChromeClient,
+    'Firefox': DesktopFirefoxClient
+}
+
+
+def desktop_client(fingerprint):
+    browser = fingerprint.device_fingerprint.browser
+    try:
+        return BROWSER_MAP[browser]
+    except KeyError:
+        raise exceptions.DJSpooferError(
+            f'{fingerprint}, Unknown browser: {browser}. Available browsers: {list(BROWSER_MAP.keys())}'
+        )
