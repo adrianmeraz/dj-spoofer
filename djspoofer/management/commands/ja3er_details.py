@@ -1,17 +1,33 @@
+import argparse
+
 from django.core.management.base import BaseCommand
 from djstarter import utils
 
-from djspoofer.clients import DesktopChromeClient
+from djspoofer import clients
+from djspoofer.models import Fingerprint
 from djspoofer.remote.ja3er import ja3er_api
 
 
 class Command(BaseCommand):
     help = 'Ja3er Check'
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--browser",
+            type=str,
+            required=False,
+        )
+        parser.add_argument(
+            "--proxy-enabled",
+            action=argparse.BooleanOptionalAction,
+            help="Proxy Enabled",
+        )
+
     def handle(self, *args, **kwargs):
         try:
-            with DesktopChromeClient() as chrome_client:
-                self.show_ja3er_details(chrome_client)
+            fp = Fingerprint.objects.random_desktop(browser=kwargs.get('browser'))
+            with clients.desktop_client(fingerprint=fp, proxy_enabled=kwargs['proxy_enabled']) as client:
+                self.show_ja3er_details(client)
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error while running command:\n{str(e)}'))
             raise e
