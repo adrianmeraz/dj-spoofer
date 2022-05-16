@@ -16,6 +16,7 @@ logger = logging.getLogger(__name__)
 class ProxyRackProxyBackend(backends.ProxyBackend):
     def get_proxy_url(self, fingerprint):
         for ip in fingerprint.get_last_n_ips(count=3):
+            logger.info(f'Testing prior IP Fingerprint: {ip}')
             proxy_url = self._build_proxy_url(proxyIp=ip.address)
             if self._is_valid_proxy(proxies=utils.proxy_dict(proxy_url)):
                 logger.info(f'Found valid IP Fingerprint: {ip}')
@@ -24,7 +25,7 @@ class ProxyRackProxyBackend(backends.ProxyBackend):
             logger.info(f'{fingerprint}. No valid IP Fingerprints found. ')
             return self._new_proxy_url(fingerprint)   # Generate if no valid IP Fingerprints
 
-    @decorators.retry(retry_exceptions=exceptions.ProxyConnectionFailed, tries=3)
+    @decorators.retry(retry_exceptions=exceptions.ProxyConnectionFailed, tries=3, delay=0)
     def _new_proxy_url(self, fingerprint):
         logger.info(f'{fingerprint}. Generating new IP Fingerprint. ')
         proxy_url = self._test_proxy_url(fingerprint)

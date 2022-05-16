@@ -261,6 +261,37 @@ poetry run zappa manage <STAGE_NAME> "migrate"
 poetry run zappa manage <STAGE_NAME> "createsuperuser --noinput"
 ```
 
+## Wireshark Setup (Optional)
+
+You will need to decrypt the TLS traffic to be able to properly see the http/2 frames.
+
+The instructions below will export the keys used in the TLS handshake to a file 
+that can be used by Wireshark.
+
+### Update bashrc
+
+```
+nano ~/.bashrc
+```
+
+At the end of the file, add this line:
+
+```
+export SSLKEYLOGFILE=~/.ssl-key.log
+```
+
+Next, save the changes:
+
+```
+source ~/.bashrc
+```
+
+Confirm the changes were applied:
+
+```
+echo $SSLKEYLOGFILE
+```
+
 ## Admin Commands
 
 ### Add Rotating Proxy

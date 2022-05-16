@@ -34,8 +34,6 @@ class DesktopClient(RetryClient, backends.ProxyRackProxyBackend):
         }
 
     def _get_proxies(self):
-        if settings.PROXY_URL == 'False':
-            return dict()
         proxy_url = settings.PROXY_URL or self.get_proxy_url(self.fingerprint)
         return utils.proxy_dict(proxy_url)
 
@@ -46,6 +44,7 @@ class DesktopClient(RetryClient, backends.ProxyRackProxyBackend):
         context.minimum_version = TLSVersion.TLSv1_2
         context.set_ciphers(tls_fingerprint.ciphers)
         context.options = tls_fingerprint.extensions
+        context.keylog_filename = settings.KEYLOG_FILENAME
 
         return context
 
