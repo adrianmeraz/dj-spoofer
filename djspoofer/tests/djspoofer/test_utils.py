@@ -62,9 +62,9 @@ class UtilTests(TestCase):
         windows_frame = parser.window_frame
         self.assertEquals(windows_frame, 15663105)
 
-        priority_frame = parser.priority_frame
+        priority_frame = parser.header_priority_flags
         self.assertEquals(priority_frame.stream_id, 1)
-        self.assertEquals(priority_frame.is_exclusive, 1)
+        self.assertEquals(priority_frame.is_exclusive_bit, 1)
         self.assertEquals(priority_frame.depends_on_id, 0)
         self.assertEquals(priority_frame.weight, 256)
 

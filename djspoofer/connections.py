@@ -10,7 +10,7 @@ from hpack.table import HeaderTable
 from httpcore._models import Request, Response
 from httpcore._sync import http2
 
-from djspoofer import exceptions
+from djspoofer import exceptions, utils as sp_utils
 from djspoofer.models import H2Fingerprint
 
 logger = logging.getLogger(__name__)
@@ -44,13 +44,19 @@ class NewHTTP2Connection(http2.HTTP2Connection):
 
         self._h2_state.initiate_connection()
         self._h2_state.increment_flow_control_window(self._h2_fingerprint.window_update_increment)
-        self._h2_state.prioritize(weight=201, stream_id=3, exclusive=False, depends_on=0)
-        self._h2_state.prioritize(weight=101, stream_id=5, exclusive=False, depends_on=0)
-        self._h2_state.prioritize(weight=1, stream_id=7, exclusive=False, depends_on=0)
-        self._h2_state.prioritize(weight=1, stream_id=9, exclusive=False, depends_on=7)
-        self._h2_state.prioritize(weight=1, stream_id=11, exclusive=False, depends_on=3)
-        self._h2_state.prioritize(weight=241, stream_id=13, exclusive=False, depends_on=0)
+        self._add_priority_frames()
+
         self._write_outgoing_data(request)
+
+    def _add_priority_frames(self):
+        if priority_frames := self._h2_fingerprint.priority_frames:
+            for pf in sp_utils.PriorityFrameParser(priority_frames).frames:
+                self._h2_state.prioritize(
+                    stream_id=pf.stream_id,
+                    exclusive=bool(pf.exclusivity_bit),
+                    depends_on=pf.dependent_stream_id,
+                    weight=pf.weight
+                )
 
     def _send_request_headers(self, request: Request, stream_id: int) -> None:
         end_stream = not http2.has_body_headers(request)

@@ -60,6 +60,7 @@ class Command(BaseCommand):
             os='Windows',
             browser='Firefox',
             h2_hash='1:65536;4:131072;5:16384|12517377|15:0:13:42|m,p,a,s',
+            priority_frames='3:0:0:201,5:0:0:101,7:0:0:1,9:0:7:1,11:0:3:1,13:0:0:241',
             browser_min_major_version=70,
             browser_max_major_version=110,
         )
@@ -67,6 +68,7 @@ class Command(BaseCommand):
             os='Linux',
             browser='Firefox',
             h2_hash='1:65536;4:131072;5:16384|12517377|15:0:13:42|m,p,a,s',
+            priority_frames='3:0:0:201,5:0:0:101,7:0:0:1,9:0:7:1,11:0:3:1,13:0:0:241',
             browser_min_major_version=70,
             browser_max_major_version=110,
         )

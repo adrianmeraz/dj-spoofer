@@ -102,11 +102,11 @@ class H2HashParser:
             self.max_frame_size = kv_map.get('5')
             self.max_header_list_size = kv_map.get('6')
 
-    class PriorityFrame:
+    class HeaderPriorityFlags:
         def __init__(self, data):
             parts = [int(v) for v in data.split(':')]
             self.stream_id = parts[0]
-            self.is_exclusive = parts[1]
+            self.is_exclusive_bit = parts[1]
             self.depends_on_id = parts[2]
             self.weight = parts[3]
 
@@ -114,38 +114,54 @@ class H2HashParser:
         parts = hash.split('|')
         self.settings_frame = self.SettingsFrame(parts[0])
         self.window_frame = int(parts[1] or 0)
-        self.priority_frame = self.PriorityFrame(parts[2])
+        self.header_priority_flags = self.HeaderPriorityFlags(parts[2])
         self.pseudo_headers = parts[3]
+
+
+class PriorityFrameParser:
+    class PriorityFrame:
+        def __init__(self, data):
+            self._parts = data.split('0')
+            self.stream_id = self._parts[0]
+            self.exclusivity_bit = self._parts[1]
+            self.dependent_stream_id = self._parts[2]
+            self.weight = self._parts[3]
+
+    def __init__(self, data):
+        self._data = data
+        self.frames = [self.PriorityFrame(p) for p in self._data.split(',')]
 
 
 def h2_hash_to_h2_fingerprint(
         os,
         browser,
         h2_hash,
+        priority_frames=None,
         browser_min_major_version=None,
         browser_max_major_version=None
-    ):
-        h2_parser = H2HashParser(hash=h2_hash)
-        s_frame = h2_parser.settings_frame
-        p_frame = h2_parser.priority_frame
-        return models.H2Fingerprint.objects.create(
-            browser=browser,
-            os=os,
-            browser_min_major_version=browser_min_major_version,
-            browser_max_major_version=browser_max_major_version,
-            header_table_size=s_frame.header_table_size,
-            enable_push=bool(s_frame.push_enabled) if (s_frame.push_enabled is not None) else None,
-            max_concurrent_streams=s_frame.max_concurrent_streams,
-            initial_window_size=s_frame.initial_window_size,
-            max_frame_size=s_frame.max_frame_size,
-            max_header_list_size=s_frame.max_header_list_size,
-            psuedo_header_order=h2_parser.pseudo_headers,
-            window_update_increment=h2_parser.window_frame,
-            priority_stream_id=p_frame.stream_id,
-            priority_exclusive=p_frame.is_exclusive,
-            priority_depends_on_id=p_frame.depends_on_id,
-            priority_weight=p_frame.weight,
-        )
+):
+    h2_parser = H2HashParser(hash=h2_hash)
+    s_frame = h2_parser.settings_frame
+    hp_flags = h2_parser.header_priority_flags
+    return models.H2Fingerprint.objects.create(
+        browser=browser,
+        os=os,
+        browser_min_major_version=browser_min_major_version,
+        browser_max_major_version=browser_max_major_version,
+        header_table_size=s_frame.header_table_size,
+        enable_push=bool(s_frame.push_enabled) if (s_frame.push_enabled is not None) else None,
+        max_concurrent_streams=s_frame.max_concurrent_streams,
+        initial_window_size=s_frame.initial_window_size,
+        max_frame_size=s_frame.max_frame_size,
+        max_header_list_size=s_frame.max_header_list_size,
+        psuedo_header_order=h2_parser.pseudo_headers,
+        window_update_increment=h2_parser.window_frame,
+        header_priority_stream_id=hp_flags.stream_id,
+        header_priority_exclusive_bit=hp_flags.is_exclusive_bit,
+        header_priority_depends_on_id=hp_flags.depends_on_id,
+        header_priority_weight=hp_flags.weight,
+        priority_frames=priority_frames
+    )
 
 
 def proxy_dict(proxy_url):

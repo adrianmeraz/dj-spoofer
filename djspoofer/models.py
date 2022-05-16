@@ -34,6 +34,11 @@ class H2Fingerprint(BaseFingerprint):
 
     window_update_increment = models.IntegerField()
 
+    header_priority_stream_id = models.IntegerField()
+    header_priority_exclusive_bit = models.IntegerField()
+    header_priority_depends_on_id = models.IntegerField()
+    header_priority_weight = models.IntegerField()
+
     priority_frames = models.TextField(blank=True, null=True)
 
     class Meta:
