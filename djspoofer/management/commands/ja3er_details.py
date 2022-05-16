@@ -1,27 +1,12 @@
-import argparse
-
-from django.core.management.base import BaseCommand
 from djstarter import utils
 
-from djspoofer import clients
+from djspoofer import clients, commands
 from djspoofer.models import Fingerprint
 from djspoofer.remote.ja3er import ja3er_api
 
 
-class Command(BaseCommand):
+class Command(commands.ProxyCommand):
     help = 'Ja3er Check'
-
-    def add_arguments(self, parser):
-        parser.add_argument(
-            "--browser",
-            type=str,
-            required=False,
-        )
-        parser.add_argument(
-            "--proxy-disabled",
-            action=argparse.BooleanOptionalAction,
-            help="Proxy Disabled",
-        )
 
     def handle(self, *args, **kwargs):
         try:

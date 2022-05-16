@@ -1,9 +1,7 @@
 from django.conf import settings
-from django.core.management.base import BaseCommand
 from djstarter import utils
 
-import argparse
-from djspoofer import clients
+from djspoofer import clients, commands
 from djspoofer.models import Fingerprint
 from djspoofer.remote.h2fingerprint import h2fingerprint_api
 from djspoofer.remote.howsmyssl import howsmyssl_api
@@ -12,20 +10,8 @@ from djspoofer.remote.ja3er import ja3er_api
 from djspoofer.remote.proxyrack import utils as pr_utils
 
 
-class Command(BaseCommand):
+class Command(commands.ProxyCommand):
     help = 'Get All Chrome Fingerprints'
-
-    def add_arguments(self, parser):
-        parser.add_argument(
-            "--proxy-disabled",
-            action=argparse.BooleanOptionalAction,
-            help="Proxy Disabled",
-        )
-        parser.add_argument(
-            "--browser",
-            type=str,
-            required=False,
-        )
 
     def handle(self, *args, **kwargs):
         try:

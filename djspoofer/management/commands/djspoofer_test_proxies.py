@@ -1,15 +1,14 @@
 import argparse
 
-from django.core.management.base import BaseCommand
-
-from djspoofer import clients
+from djspoofer import clients, commands
 from djspoofer.models import Fingerprint
 
 
-class Command(BaseCommand):
+class Command(commands.ProxyCommand):
     help = 'Test Proxies'
 
     def add_arguments(self, parser):
+        super().add_arguments(parser)
         parser.add_argument(
             "--urls",
             required=True,
@@ -17,19 +16,9 @@ class Command(BaseCommand):
             help="Target URLs for proxies",
         )
         parser.add_argument(
-            "--proxy-disabled",
-            action=argparse.BooleanOptionalAction,
-            help="Proxy Disabled",
-        )
-        parser.add_argument(
             "--display-output",
             action=argparse.BooleanOptionalAction,
             help="Display Output",
-        )
-        parser.add_argument(
-            "--browser",
-            type=str,
-            required=False,
         )
 
     def handle(self, *args, **kwargs):
