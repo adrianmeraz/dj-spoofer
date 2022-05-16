@@ -40,7 +40,7 @@ class FingerprintManager(models.Manager):
     def desktop_only(self, browser=None):
         q = Q(
             device_fingerprint__device_category='desktop',
-            device_fingerprint__browser__in=(browser, ) or const.SUPPORTED_BROWSERS
+            device_fingerprint__browser__in=[browser] if browser else const.SUPPORTED_BROWSERS
         )
         return super().get_queryset().filter(q)
 
