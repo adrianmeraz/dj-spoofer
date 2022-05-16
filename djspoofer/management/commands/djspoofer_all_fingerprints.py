@@ -2,7 +2,8 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from djstarter import utils
 
-from djspoofer.clients import DesktopChromeClient
+from djspoofer import clients
+from djspoofer.models import Fingerprint
 from djspoofer.remote.h2fingerprint import h2fingerprint_api
 from djspoofer.remote.howsmyssl import howsmyssl_api
 from djspoofer.remote.incolumitas import incolumitas_api, incolumitas_tcpip_api, incolumitas_tls_api
@@ -29,7 +30,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         try:
-            with DesktopChromeClient() as client:
+            fp = Fingerprint.objects.random_desktop(browser=kwargs.get('browser'))
+            with clients.desktop_client(fingerprint=fp) as client:
                 self.show_ja3er_details(client)
                 self.show_ssl_check(client)
                 self.show_ip_fingerprint(client)
