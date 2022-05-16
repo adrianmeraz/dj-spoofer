@@ -1,24 +1,19 @@
-from django.core.management.base import BaseCommand
-from httpx import Client
 import argparse
 
-from djspoofer.clients import DesktopChromeClient
+from djspoofer import clients, commands
+from djspoofer.models import Fingerprint
 
 
-class Command(BaseCommand):
+class Command(commands.ProxyCommand):
     help = 'Test Proxies'
 
     def add_arguments(self, parser):
+        super().add_arguments(parser)
         parser.add_argument(
             "--urls",
             required=True,
             nargs='*',
             help="Target URLs for proxies",
-        )
-        parser.add_argument(
-            "--proxy-enabled",
-            action=argparse.BooleanOptionalAction,
-            help="Proxy Enabled",
         )
         parser.add_argument(
             "--display-output",
@@ -27,12 +22,10 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **kwargs):
-        urls = kwargs['urls']
-        proxy_enabled = kwargs['proxy_enabled']
-        self.stdout.write(self.style.MIGRATE_LABEL(f'Proxy enabled: {proxy_enabled}'))
         try:
-            with DesktopChromeClient(proxy_enabled=proxy_enabled) as client:
-                for url in urls:
+            fp = Fingerprint.objects.random_desktop(browser=kwargs.get('browser'))
+            with clients.desktop_client(fingerprint=fp, proxy_enabled=not kwargs['proxy_disabled']) as client:
+                for url in kwargs['urls']:
                     r = client.get(url)
                     if kwargs['display_output']:
                         self.stdout.write(r.text)

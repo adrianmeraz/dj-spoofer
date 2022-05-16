@@ -294,10 +294,11 @@ echo $SSLKEYLOGFILE
 
 Launch Chrome from the command prompt and point to the output key file:
 
+
 ### Launch Chrome
 
 ```
-google-chrome https://mediasploit.com
+google-chrome https://www.mediasploit.com
 ```
 
 ## Admin Commands

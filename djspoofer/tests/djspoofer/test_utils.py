@@ -62,9 +62,9 @@ class UtilTests(TestCase):
         windows_frame = parser.window_frame
         self.assertEquals(windows_frame, 15663105)
 
-        priority_frame = parser.priority_frame
+        priority_frame = parser.header_priority_flags
         self.assertEquals(priority_frame.stream_id, 1)
-        self.assertEquals(priority_frame.is_exclusive, 1)
+        self.assertEquals(priority_frame.is_exclusive_bit, 1)
         self.assertEquals(priority_frame.depends_on_id, 0)
         self.assertEquals(priority_frame.weight, 256)
 
@@ -82,4 +82,4 @@ class UtilTests(TestCase):
         self.assertEquals(h2_fingerprint.enable_push, None)
         self.assertEquals(h2_fingerprint.initial_window_size, 6291456)
         self.assertEquals(h2_fingerprint.window_update_increment, 15663105)
-        self.assertEquals(h2_fingerprint.priority_weight, 256)
+        self.assertEquals(h2_fingerprint.header_priority_weight, 256)

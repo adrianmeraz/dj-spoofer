@@ -42,10 +42,10 @@ class FingerprintTests(TestCase):
             'max_header_list_size': 262144,
             'psuedo_header_order': 'm,a,s,p',
             'window_update_increment': 15663105,
-            'priority_stream_id': 1,
-            'priority_exclusive': True,
-            'priority_depends_on_id': 0,
-            'priority_weight': 256
+            'header_priority_stream_id': 1,
+            'header_priority_exclusive_bit': 1,
+            'header_priority_depends_on_id': 0,
+            'header_priority_weight': 256
         }
 
     def test_str(self):
@@ -163,10 +163,10 @@ class H2FingerprintTests(TestCase):
             'max_header_list_size': 262144,
             'psuedo_header_order': 'm,a,s,p',
             'window_update_increment': 15663105,
-            'priority_stream_id': 1,
-            'priority_exclusive': True,
-            'priority_depends_on_id': 0,
-            'priority_weight': 256
+            'header_priority_stream_id': 1,
+            'header_priority_exclusive_bit': 1,
+            'header_priority_depends_on_id': 0,
+            'header_priority_weight': 256
         }
 
     def test_str(self):

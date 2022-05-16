@@ -34,10 +34,12 @@ class H2Fingerprint(BaseFingerprint):
 
     window_update_increment = models.IntegerField()
 
-    priority_stream_id = models.IntegerField()
-    priority_exclusive = models.BooleanField()
-    priority_depends_on_id = models.IntegerField()
-    priority_weight = models.IntegerField()
+    header_priority_stream_id = models.IntegerField()
+    header_priority_exclusive_bit = models.IntegerField()
+    header_priority_depends_on_id = models.IntegerField()
+    header_priority_weight = models.IntegerField()
+
+    priority_frames = models.TextField(blank=True, null=True)
 
     class Meta:
         db_table = 'djspoofer_h2_fingerprint'
@@ -49,7 +51,7 @@ class H2Fingerprint(BaseFingerprint):
 
     @property
     def hash(self):
-        return f'{self.settings_hash}|{self.window_update_increment}|{self.priority_hash}|{self.psuedo_header_order}'
+        return f'{self.settings_hash}|{self.window_update_increment}|{self.header_frames_hash}|{self.psuedo_header_order}'
 
     @property
     def settings_hash(self):
@@ -64,9 +66,13 @@ class H2Fingerprint(BaseFingerprint):
         return ';'.join([f'{i+1}:{key}' for i, key in enumerate(table) if key])
 
     @property
-    def priority_hash(self):
-        return (f'{self.priority_stream_id}:{int(self.priority_exclusive)}:{self.priority_depends_on_id}:'
-                f'{self.priority_weight}')
+    def header_frames_hash(self):
+        return ':'.join([
+            str(self.header_priority_stream_id),
+            str(self.header_priority_exclusive_bit),
+            str(self.header_priority_depends_on_id),
+            str(self.header_priority_weight)
+         ])
 
 
 class TLSFingerprint(BaseFingerprint):

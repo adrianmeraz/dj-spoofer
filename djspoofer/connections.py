@@ -2,7 +2,7 @@ import collections
 import logging
 
 import h2
-from h2.connection import H2Connection
+from h2.connection import ConnectionInputs, H2Connection, SettingsFrame
 from h2.exceptions import NoAvailableStreamIDError
 from h2.settings import Settings, SettingCodes
 from hpack import Decoder, Encoder
@@ -10,7 +10,7 @@ from hpack.table import HeaderTable
 from httpcore._models import Request, Response
 from httpcore._sync import http2
 
-from djspoofer import exceptions
+from djspoofer import exceptions, utils as sp_utils
 from djspoofer.models import H2Fingerprint
 
 logger = logging.getLogger(__name__)
@@ -44,6 +44,8 @@ class NewHTTP2Connection(http2.HTTP2Connection):
 
         self._h2_state.initiate_connection()
         self._h2_state.increment_flow_control_window(self._h2_fingerprint.window_update_increment)
+        self._add_priority_frames()
+
         self._write_outgoing_data(request)
 
     def _send_request_headers(self, request: Request, stream_id: int) -> None:
@@ -63,12 +65,22 @@ class NewHTTP2Connection(http2.HTTP2Connection):
             stream_id,
             headers,
             end_stream=end_stream,
-            priority_weight=self._h2_fingerprint.priority_weight,
-            priority_depends_on=self._h2_fingerprint.priority_depends_on_id,
-            priority_exclusive=self._h2_fingerprint.priority_exclusive
+            priority_exclusive=bool(self._h2_fingerprint.header_priority_exclusive_bit),
+            priority_depends_on=self._h2_fingerprint.header_priority_depends_on_id,
+            priority_weight=self._h2_fingerprint.header_priority_weight,
         )
         self._h2_state.increment_flow_control_window(self._h2_fingerprint.window_update_increment, stream_id=stream_id)
         self._write_outgoing_data(request)
+
+    def _add_priority_frames(self):
+        if priority_frames := self._h2_fingerprint.priority_frames:
+            for pf in sp_utils.PriorityFrameParser(priority_frames).frames:
+                self._h2_state.prioritize(
+                    stream_id=pf.stream_id,
+                    exclusive=bool(pf.exclusivity_bit),
+                    depends_on=pf.dependent_stream_id,
+                    weight=pf.weight
+                )
 
     @staticmethod
     def _get_psuedo_headers(request, h2_fingerprint):
@@ -95,6 +107,27 @@ class NewH2Connection(H2Connection):
         self.decoder = NewDecoder(self._h2_fingerprint)
         self.local_settings = NewSettings(self._h2_fingerprint)
 
+    def initiate_connection(self):
+        """
+        Provides any data that needs to be sent at the start of the connection.
+        Must be called for both clients and servers.
+        """
+        self.config.logger.debug("Initializing connection")
+        self.state_machine.process_input(ConnectionInputs.SEND_SETTINGS)
+        if self.config.client_side:
+            preamble = b'PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n'
+        else:
+            preamble = b''
+
+        f = SettingsFrame(0)
+        for setting, value in self.local_settings.items():
+            f.settings[setting] = value
+        self.config.logger.debug(
+            "Send Settings frame: %s", self.local_settings
+        )
+
+        self._data_to_send += preamble + f.serialize()
+
     def get_next_available_stream_id(self):
         """
         Returns an integer suitable for use as the stream ID for the next
@@ -120,7 +153,7 @@ class NewH2Connection(H2Connection):
         # No streams have been opened yet, so return the lowest allowed stream
         # ID.
         if not self.highest_outbound_stream_id:
-            next_stream_id = self._h2_fingerprint.priority_stream_id if self.config.client_side else 2
+            next_stream_id = self._h2_fingerprint.header_priority_stream_id if self.config.client_side else 2
         else:
             next_stream_id = self.highest_outbound_stream_id + 2
         self.config.logger.debug(
@@ -160,7 +193,7 @@ class NewDecoder(Decoder):
     def __init__(self, h2_fingerprint, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.header_table = NewHeaderTable(h2_fingerprint)
-        self.max_header_list_size = h2_fingerprint.max_header_list_size
+        # self.max_header_list_size = h2_fingerprint.max_header_list_size   # Firefox has no max header list size
         self.max_allowed_table_size = self.header_table.maxsize
 
 

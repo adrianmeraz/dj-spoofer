@@ -5,7 +5,7 @@ import httpx
 from django.conf import settings
 from djstarter.clients import RetryClient
 
-from djspoofer import utils
+from djspoofer import exceptions, utils
 from djspoofer.models import Fingerprint
 from djspoofer.remote.proxyrack import backends
 
@@ -13,9 +13,9 @@ logger = logging.getLogger(__name__)
 
 
 class DesktopClient(RetryClient, backends.ProxyRackProxyBackend):
-    def __init__(self, fingerprint=None, proxy_enabled=True, *args, **kwargs):
+    def __init__(self, fingerprint, proxy_enabled=True, *args, **kwargs):
         self._proxy_enabled = proxy_enabled
-        self.fingerprint = fingerprint or Fingerprint.objects.random_desktop()
+        self.fingerprint = fingerprint
         logger.info(f'Starting session with fingerprint: {self.fingerprint}')
         self.user_agent = self.fingerprint.device_fingerprint.user_agent
         super().__init__(
@@ -88,3 +88,19 @@ class DesktopFirefoxClient(DesktopClient):
             'User-Agent': self.user_agent,
         }
 
+
+BROWSER_MAP = {
+    'Chrome': DesktopChromeClient,
+    'Firefox': DesktopFirefoxClient
+}
+
+
+def desktop_client(fingerprint=None, *args, **kwargs):
+    fingerprint = fingerprint or Fingerprint.objects.random_desktop()
+    browser = fingerprint.device_fingerprint.browser
+    try:
+        return BROWSER_MAP[browser](fingerprint=fingerprint, *args, **kwargs)
+    except KeyError:
+        raise exceptions.DJSpooferError(
+            f'{fingerprint}, Unknown browser: {browser}. Available browsers: {list(BROWSER_MAP.keys())}'
+        )

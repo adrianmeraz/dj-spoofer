@@ -1,38 +1,17 @@
-from django.conf import settings
-from django.core.management.base import BaseCommand
 from djstarter import utils
 
-from djspoofer.clients import DesktopChromeClient
+from djspoofer import clients, commands
+from djspoofer.models import Fingerprint
 from djspoofer.remote.incolumitas import incolumitas_tcpip_api
-from djspoofer.remote.proxyrack import utils as pr_utils
 
 
-class Command(BaseCommand):
+class Command(commands.ProxyCommand):
     help = 'Get TCP/IP Fingerprint'
 
-    def add_arguments(self, parser):
-        parser.add_argument(
-            "--proxy-url",
-            required=True,
-            type=str,
-            help="Set the proxy url",
-        )
-        parser.add_argument(
-            "--proxy-args",
-            required=False,
-            nargs='*',
-            help="Set the proxy password",
-        )
-
     def handle(self, *args, **kwargs):
-        proxy_builder = pr_utils.ProxyBuilder(
-            netloc=kwargs.pop('proxy_url'),
-            password=settings.PROXY_PASSWORD,
-            username=settings.PROXY_USERNAME,
-            **self.proxy_options(kwargs.get('proxy_args', list())),
-        )
         try:
-            with DesktopChromeClient(proxy_url=proxy_builder.http_url) as client:
+            fp = Fingerprint.objects.random_desktop(browser=kwargs.get('browser'))
+            with clients.desktop_client(fingerprint=fp, proxy_enabled=not kwargs['proxy_disabled']) as client:
                 r_tcpip = incolumitas_tcpip_api.tcpip_fingerprint(client)
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error while running command:\n{str(e)}'))
