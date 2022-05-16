@@ -9,10 +9,10 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--url",
+            "--urls",
             required=True,
-            type=str,
-            help="Target URL for proxies",
+            nargs='*',
+            help="Target URLs for proxies",
         )
         parser.add_argument(
             "--proxy-enabled",
@@ -30,12 +30,13 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **kwargs):
-        url = kwargs['url']
+        urls = kwargs['urls']
         try:
             with DesktopChromeClient(proxy_enabled=kwargs['proxy_enabled']) as client:
-                r = client.get(url)
-                if kwargs['display_output']:
-                    self.stdout.write(r.text)
+                for url in urls:
+                    r = client.get(url)
+                    if kwargs['display_output']:
+                        self.stdout.write(r.text)
 
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error while running command:\n{str(e)}'))
