@@ -128,6 +128,7 @@ TEMPLATES = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+KEYLOG_FILENAME = env.get_value('KEYLOG_FILENAME', default=None)
 SSL_VERIFY = env.bool('SSL_VERIFY')
 PROXY_URL = env.get_value('PROXY_URL', default=None)
 PROXY_USERNAME = env('PROXY_USERNAME')
