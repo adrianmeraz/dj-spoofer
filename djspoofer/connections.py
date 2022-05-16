@@ -91,7 +91,6 @@ class NewH2Connection(H2Connection):
     def __init__(self, h2_fingerprint, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self._h2_fingerprint = h2_fingerprint
-        # TODO Build custom Encoder
         self.encoder = NewEncoder(self._h2_fingerprint)
         self.decoder = NewDecoder(self._h2_fingerprint)
         self.local_settings = NewSettings(self._h2_fingerprint)
