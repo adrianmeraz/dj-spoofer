@@ -33,11 +33,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **kwargs):
-        proxy_enabled = kwargs['proxy_enabled']
-        self.stdout.write(self.style.MIGRATE_LABEL(f'Proxy enabled: {proxy_enabled}'))
         try:
             fp = Fingerprint.objects.random_desktop(browser=kwargs.get('browser'))
-            with clients.desktop_client(fingerprint=fp, proxy_enabled=proxy_enabled) as client:
+            with clients.desktop_client(fingerprint=fp, proxy_enabled=kwargs['proxy_enabled']) as client:
                 for url in kwargs['urls']:
                     r = client.get(url)
                     if kwargs['display_output']:

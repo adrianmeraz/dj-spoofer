@@ -12,7 +12,7 @@ from djspoofer.remote.proxyrack import backends
 logger = logging.getLogger(__name__)
 
 
-class GenericDesktopClient(RetryClient, backends.ProxyRackProxyBackend):
+class DesktopClient(RetryClient, backends.ProxyRackProxyBackend):
     def __init__(self, fingerprint, proxy_enabled=True, *args, **kwargs):
         self._proxy_enabled = proxy_enabled
         self.fingerprint = fingerprint
@@ -54,7 +54,7 @@ class GenericDesktopClient(RetryClient, backends.ProxyRackProxyBackend):
         return super().send(*args, **kwargs)
 
 
-class DesktopChromeClient(GenericDesktopClient):
+class DesktopChromeClient(DesktopClient):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.ua_parser = utils.UserAgentParser(self.user_agent)
@@ -79,7 +79,7 @@ class DesktopChromeClient(GenericDesktopClient):
         return f'"{platform}"'
 
 
-class DesktopFirefoxClient(GenericDesktopClient):
+class DesktopFirefoxClient(DesktopClient):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 

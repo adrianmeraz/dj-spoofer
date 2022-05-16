@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from djstarter import utils
 
-from djspoofer.clients import DesktopChromeClient
+from djspoofer import clients
 from djspoofer.remote.h2fingerprint import h2fingerprint_api
 
 
@@ -10,7 +10,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         try:
-            with DesktopChromeClient() as client:
+            with clients.desktop_client() as client:
                 r_h2 = h2fingerprint_api.get_h2_fingerprint(client)
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error while running command:\n{str(e)}'))
