@@ -1,4 +1,7 @@
+import argparse
+
 from django.core.management.base import BaseCommand
+
 from djspoofer.remote.intoli import tasks
 
 
@@ -14,9 +17,7 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             "--desktop-only",
-            default=False,
-            required=False,
-            type=bool,
+            action=argparse.BooleanOptionalAction,
             help="Only Desktop Intoli Profiles",
         )
         parser.add_argument(

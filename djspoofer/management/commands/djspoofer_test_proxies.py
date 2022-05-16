@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand
 from httpx import Client
+import argparse
 
 from djspoofer.clients import DesktopChromeClient
 
@@ -16,23 +17,21 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             "--proxy-enabled",
-            required=False,
-            type=bool,
-            default=True,
+            action=argparse.BooleanOptionalAction,
             help="Proxy Enabled",
         )
         parser.add_argument(
             "--display-output",
-            required=False,
-            type=bool,
-            default=False,
+            action=argparse.BooleanOptionalAction,
             help="Display Output",
         )
 
     def handle(self, *args, **kwargs):
         urls = kwargs['urls']
+        proxy_enabled = kwargs['proxy_enabled']
+        self.stdout.write(self.style.MIGRATE_LABEL(f'Proxy enabled: {proxy_enabled}'))
         try:
-            with DesktopChromeClient(proxy_enabled=kwargs['proxy_enabled']) as client:
+            with DesktopChromeClient(proxy_enabled=proxy_enabled) as client:
                 for url in urls:
                     r = client.get(url)
                     if kwargs['display_output']:
