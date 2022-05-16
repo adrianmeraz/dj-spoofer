@@ -2,6 +2,7 @@ from django.conf import settings
 from django.core.management.base import BaseCommand
 from djstarter import utils
 
+import argparse
 from djspoofer import clients
 from djspoofer.models import Fingerprint
 from djspoofer.remote.h2fingerprint import h2fingerprint_api
@@ -16,22 +17,20 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument(
-            "--proxy-url",
-            required=True,
-            type=str,
-            help="Set the proxy url",
+            "--proxy-disabled",
+            action=argparse.BooleanOptionalAction,
+            help="Proxy Disabled",
         )
         parser.add_argument(
-            "--proxy-args",
+            "--browser",
+            type=str,
             required=False,
-            nargs='*',
-            help="Set the proxy password",
         )
 
     def handle(self, *args, **kwargs):
         try:
             fp = Fingerprint.objects.random_desktop(browser=kwargs.get('browser'))
-            with clients.desktop_client(fingerprint=fp) as client:
+            with clients.desktop_client(fingerprint=fp, proxy_enabled=not kwargs['proxy_disabled']) as client:
                 self.show_ja3er_details(client)
                 self.show_ssl_check(client)
                 self.show_ip_fingerprint(client)

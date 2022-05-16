@@ -17,9 +17,9 @@ class Command(BaseCommand):
             help="Target URLs for proxies",
         )
         parser.add_argument(
-            "--proxy-enabled",
+            "--proxy-disabled",
             action=argparse.BooleanOptionalAction,
-            help="Proxy Enabled",
+            help="Proxy Disabled",
         )
         parser.add_argument(
             "--display-output",
@@ -35,7 +35,7 @@ class Command(BaseCommand):
     def handle(self, *args, **kwargs):
         try:
             fp = Fingerprint.objects.random_desktop(browser=kwargs.get('browser'))
-            with clients.desktop_client(fingerprint=fp, proxy_enabled=kwargs['proxy_enabled']) as client:
+            with clients.desktop_client(fingerprint=fp, proxy_enabled=not kwargs['proxy_disabled']) as client:
                 for url in kwargs['urls']:
                     r = client.get(url)
                     if kwargs['display_output']:

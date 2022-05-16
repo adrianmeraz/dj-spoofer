@@ -18,15 +18,15 @@ class Command(BaseCommand):
             required=False,
         )
         parser.add_argument(
-            "--proxy-enabled",
+            "--proxy-disabled",
             action=argparse.BooleanOptionalAction,
-            help="Proxy Enabled",
+            help="Proxy Disabled",
         )
 
     def handle(self, *args, **kwargs):
         try:
             fp = Fingerprint.objects.random_desktop(browser=kwargs.get('browser'))
-            with clients.desktop_client(fingerprint=fp, proxy_enabled=kwargs['proxy_enabled']) as client:
+            with clients.desktop_client(fingerprint=fp, proxy_enabled=not kwargs['proxy_disabled']) as client:
                 r_tls = incolumitas_tls_api.tls_fingerprint(client)
         except Exception as e:
             self.stdout.write(self.style.ERROR(f'Error while running command:\n{str(e)}'))
