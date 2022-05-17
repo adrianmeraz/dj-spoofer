@@ -141,7 +141,7 @@ PROXYRACK_COUNTRY_WEIGHTS = [
     ('AU', .06),
 ]
 
-H2_FINGERPRINT_API_BASE_URL = 'https://mediasploit.com'
+H2_FINGERPRINT_API_BASE_URL = 'https://www.mediasploit.com'
 HOWSMYSSL_API_BASE_URL = 'https://www.howsmyssl.com'
 INCOLUMITAS_API_BASE_URL = 'https://api.incolumitas.com'
 INCOLUMITAS_TCPIP_API_BASE_URL = 'https://tcpip.incolumitas.com'

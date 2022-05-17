@@ -298,7 +298,13 @@ Launch Chrome from the command prompt and point to the output key file:
 ### Launch Chrome
 
 ```
-google-chrome https://www.mediasploit.com
+google-chrome https://www.mediasploit.com --incognito
+```
+
+### Launch Firefox
+
+```
+firefox https://www.mediasploit.com
 ```
 
 ## Admin Commands
