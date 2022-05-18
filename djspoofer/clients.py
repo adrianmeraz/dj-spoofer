@@ -83,7 +83,7 @@ class DesktopChromeClient(DesktopClient):
 
     @property
     def sec_ch_ua_platform(self):
-        return f'"{self.fingerprint.os}"'
+        return f'"{self.fingerprint.device_fingerprint.os}"'
 
 
 class DesktopFirefoxClient(DesktopClient):

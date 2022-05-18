@@ -31,7 +31,7 @@ class DetailsTests(TestCase):
         self.assertEquals(r_response.window_frame, '15663105')
         self.assertEquals(r_response.header_priority_frame, '1:1:0:256')
         self.assertEquals(r_response.pseudo_headers, 'm,a,s,p')
-        self.assertEquals(r_response.user_agent, 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.54 Safari/537.36')
+        self.assertEquals(r_response.user_agent, 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/101.0.4951.67 Safari/537.36')
 
     @mock.patch.object(httpx, 'Client')
     def test_400(self, mock_client):
