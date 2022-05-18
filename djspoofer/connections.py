@@ -71,11 +71,15 @@ class NewHTTP2Connection(http2.HTTP2Connection):
             priority_depends_on=self._h2_fingerprint.header_priority_depends_on_id,
             priority_weight=self._h2_fingerprint.header_priority_weight,
         )
-        self._h2_state.increment_flow_control_window(self._h2_fingerprint.window_update_increment, stream_id=stream_id)
+        if self._h2_fingerprint.browser in ('Firefox',):
+            self._h2_state.increment_flow_control_window(
+                self._h2_fingerprint.window_update_increment, stream_id=stream_id
+            )
         self._write_outgoing_data(request)
 
     def _write_outgoing_data(self, request: Request) -> None:
         time.sleep(random.uniform(.06, .1))     # Small delay ensures packets are chunked into separate packets
+        # TODO Investigate better way to separate packets
         super()._write_outgoing_data(request)
 
     def _add_priority_frames(self):
