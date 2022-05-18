@@ -65,6 +65,14 @@ class DesktopChromeClient(DesktopClient):
         }
 
     @property
+    def sec_ch_headers(self):
+        return {
+            'sec-ch-ua': self.sec_ch_ua,
+            'sec-ch-ua-mobile': self.sec_ch_ua_mobile,
+            'sec-ch-ua-platform': self.sec_ch_ua_platform,
+        }
+
+    @property
     def sec_ch_ua(self):
         version = self.ua_parser.browser_major_version
         return f'" Not;A Brand";v="99", "Google Chrome";v="{version}", "Chromium";v="{version}"'
@@ -75,8 +83,7 @@ class DesktopChromeClient(DesktopClient):
 
     @property
     def sec_ch_ua_platform(self):
-        platform = self.ua_parser.os
-        return f'"{platform}"'
+        return f'"{self.fingerprint.device_fingerprint.os}"'
 
 
 class DesktopFirefoxClient(DesktopClient):

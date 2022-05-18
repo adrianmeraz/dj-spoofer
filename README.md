@@ -70,7 +70,7 @@ sudo curl -sSL https://install.python-poetry.org | python3 -
 
 Append the following to `~/.profile`
 
-`export PATH="/home/adrian/.local/bin:$PATH`
+`export PATH="~/.local/bin:$PATH`
 
 Test the poetry install:
 
@@ -223,7 +223,7 @@ Run the command from the project root to create the database and service user
 
 `poetry run python manage.py create_db --db-url="<DB_INSTANCE_URL>" --db-name="<NEW_DB_NAME>" --db-username="<NEW_DB_USERNAME>" --db-password="<NEW_DB_PASSWORD>"`
 
-## PG Admin 4
+## PG Admin 4 (Postgres Database Admin Tool)
 
 ### Installation
 
@@ -261,6 +261,12 @@ poetry run zappa manage <STAGE_NAME> "migrate"
 poetry run zappa manage <STAGE_NAME> "createsuperuser --noinput"
 ```
 
+### Initialize DJ Spoofer
+
+```
+poetry run python manage.py djspoofer_init
+```
+
 ## Wireshark Setup (Optional)
 
 You will need to decrypt the TLS traffic to be able to properly see the http/2 frames.
@@ -295,10 +301,16 @@ echo $SSLKEYLOGFILE
 Launch Chrome from the command prompt and point to the output key file:
 
 
-### Launch Chrome
+### Launch Chrome with output to SSLKEYLOGFILE
 
 ```
-google-chrome https://www.mediasploit.com
+google-chrome https://www.mediasploit.com --incognito
+```
+
+### Launch Firefox with output to SSLKEYLOGFILE
+
+```
+firefox https://www.mediasploit.com
 ```
 
 ## Admin Commands
