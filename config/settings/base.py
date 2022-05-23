@@ -148,3 +148,7 @@ INCOLUMITAS_TCPIP_API_BASE_URL = 'https://tcpip.incolumitas.com'
 INCOLUMITAS_TLS_API_BASE_URL = 'https://tls.incolumitas.com'
 INTOLI_API_BASE_URL = 'https://raw.githubusercontent.com'
 PROXYRACK_API_BASE_URL = 'http://api.proxyrack.net'
+
+# Captcha Solving Settings
+TWO_CAPTCHA_API_KEY = env('TWOCAPTCHA_API_KEY')
+TWO_CAPTCHA_BASE_URL = 'http://2captcha.com'
