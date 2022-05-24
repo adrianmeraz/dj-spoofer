@@ -150,5 +150,6 @@ INTOLI_API_BASE_URL = 'https://raw.githubusercontent.com'
 PROXYRACK_API_BASE_URL = 'http://api.proxyrack.net'
 
 # Captcha Solving Settings
-TWO_CAPTCHA_API_KEY = env('TWOCAPTCHA_API_KEY')
+env.get_value('PROXY_URL', default=None)
+TWO_CAPTCHA_API_KEY = env.get_value('TWOCAPTCHA_API_KEY', default=None)
 TWO_CAPTCHA_BASE_URL = 'http://2captcha.com'

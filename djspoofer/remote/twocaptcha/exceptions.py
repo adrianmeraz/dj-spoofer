@@ -5,8 +5,12 @@ class TwoCaptchaError(exceptions.ApiError):
     """Indicate generic exception that involve 2Captcha's API."""
 
 
+class WarnError(TwoCaptchaError):
+    """Indicate warn exception that involve 2Captcha's API."""
+
+
 class CriticalError(TwoCaptchaError):
-    """Indicate generic exception that involve 2Captcha's API."""
+    """Indicate critical exception that involve 2Captcha's API."""
 
 
 class CaptchaUnsolvable(TwoCaptchaError):
