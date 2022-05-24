@@ -32,7 +32,7 @@ def get_solved_captcha(client, proxy, site_key, page_url):
         return get_solved_token(session=client, captcha_id=captcha_id)
     except Exception:
         report_bad_captcha(captcha_id)
-        raise CaptchaUnsolvable(f'Captcha ID: {captcha_id}')
+        raise CaptchaUnsolvable(captcha_id=captcha_id)
 
 
 @decorators.retry(retry_exceptions=(CaptchaNotReady,), tries=60, delay=5, backoff=1)
@@ -60,7 +60,7 @@ def get_captcha_id(client, proxy, site_key, page_url):
         raise TwoCaptchaError(f'Cannot solve captcha with proxy "{proxy}" - Response: {r.text}')
 
     r_info = TwoCaptchaResponse(r.json())
-    captcha_error_check(r_info, captcha_id=r_info.request)
+    captcha_error_check(r_info)
     return r_info.request
 
 
@@ -77,8 +77,8 @@ def get_solved_token(client, captcha_id):
     r = client.get(url, params=params)
 
     r_info = TwoCaptchaResponse(r.json())
-    captcha_error_check(r_info, captcha_id=captcha_id)
-    return SolvedTokenResponse(r_info.request, captcha_id)
+    captcha_error_check(r_info)
+    return SolvedTokenResponse(g_token=r_info.request, captcha_id=captcha_id)
 
 
 @decorators.retry(retry_exceptions=(CaptchaNotReady,), tries=60, delay=5, backoff=1)
@@ -93,20 +93,20 @@ def report_bad_captcha(client, captcha_id):
 
     r = client.get(url, params=params)
 
-    r_info = TwoCaptchaResponse(r.json())
-    captcha_error_check(r_info, captcha_id=r_info.request)
-    if r_info.bad_captcha_reported:
+    r_report = TwoCaptchaResponse(r.json())
+    captcha_error_check(r_report)
+    if r_report.bad_captcha_reported:
         logger.info(f'Reported bad captcha id: {captcha_id}')
-        return r_info
+        return r_report
     else:
         raise TwoCaptchaError(f'Problem while reporting bad captcha: {r.text}')
 
 
-def captcha_error_check(r_info, captcha_id):
+def captcha_error_check(r_info):
     if r_info.status != 1:
-        raise InvalidResponse(f'Captcha ID: {captcha_id}')
+        raise InvalidResponse(r_info)
     if exc := EXC_MAP.get(r_info.request):
-        raise exc(f'Captcha ID: {captcha_id}')
+        raise exc()
 
 
 class TwoCaptchaResponse:

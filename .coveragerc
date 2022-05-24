@@ -9,6 +9,7 @@ omit =
     *tests*
     *apps.py
     *manage.py
+    *commands.py
     *__init__.py
     *migrations*
     *management*
