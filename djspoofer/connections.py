@@ -117,27 +117,6 @@ class NewH2Connection(connection.H2Connection):
         self.decoder = NewDecoder(self._h2_fingerprint)
         self.local_settings = NewSettings(self._h2_fingerprint)
 
-    def initiate_connection(self):
-        """
-        Provides any data that needs to be sent at the start of the connection.
-        Must be called for both clients and servers.
-        """
-        self.config.logger.debug("Initializing connection")
-        self.state_machine.process_input(connection.ConnectionInputs.SEND_SETTINGS)
-        if self.config.client_side:
-            preamble = b'PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n'
-        else:
-            preamble = b''
-
-        f = connection.SettingsFrame(0)
-        for setting, value in self.local_settings.items():
-            f.settings[setting] = value
-        self.config.logger.debug(
-            "Send Settings frame: %s", self.local_settings
-        )
-
-        self._data_to_send += preamble + f.serialize()
-
     def get_next_available_stream_id(self):
         """
         Returns an integer suitable for use as the stream ID for the next

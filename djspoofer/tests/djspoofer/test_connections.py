@@ -8,49 +8,39 @@ from httpcore.backends import sync
 
 from djspoofer.models import H2Fingerprint
 from djspoofer.connections import NewHTTP2Connection
+from djspoofer import utils
 
 
 class ConnectionTests(TestCase):
     @classmethod
     def setUpTestData(cls):
-        cls.h2_fingerprint_data = {
-            'os': 'Windows',
-            'browser': 'Chrome',
-            'browser_min_major_version': 95,
-            'browser_max_major_version': 100,
-            'header_table_size': 65536,
-            'enable_push': True,
-            'max_concurrent_streams': 1000,
-            'initial_window_size': 6291456,
-            'max_frame_size': 16384,
-            'max_header_list_size': 262144,
-            'psuedo_header_order': 'm,a,s,p',
-            'window_update_increment': 15663105,
-            'header_priority_stream_id': 1,
-            'header_priority_exclusive_bit': 1,
-            'header_priority_depends_on_id': 0,
-            'header_priority_weight': 256
-        }
+        cls.h2_fingerprint = utils.h2_hash_to_h2_fingerprint(
+            os='Windows',
+            browser='Firefox',
+            h2_hash='1:65536;4:131072;5:16384|12517377|15:0:13:42|m,p,a,s',
+            priority_frames='3:0:0:201,5:0:0:101,7:0:0:1,9:0:7:1,11:0:3:1,13:0:0:241',
+            browser_min_major_version=60,
+            browser_max_major_version=110,
+        )
 
     @mock.patch.object(sync, 'SyncStream')
     def test_ok(self, mock_sync_stream):
         mock_sync_stream.write.return_value = None
 
-        h2_fingerprint = H2Fingerprint.objects.create(**self.h2_fingerprint_data)
         origin = Origin(
             scheme=b'http',
-            host=b'www.example.com',
+            host=b'www.example123xyz.com',
             port=80,
         )
         url = URL(
-            url='http://www.example.com'
+            url='http://www.example123xyz.com'
         )
         req = Request(
             url=url,
             method='GET',
             headers={
-                b'host': 'www.example.com',
-                b'h2-fingerprint-id': str(h2_fingerprint.oid)
+                b'host': 'www.example123xyz.com',
+                b'h2-fingerprint-id': str(self.h2_fingerprint.oid)
             })
         new_http2_connection = NewHTTP2Connection(
             origin=origin,
@@ -59,4 +49,5 @@ class ConnectionTests(TestCase):
         )
 
         new_http2_connection._receive_response = lambda *args, **kwargs: (200, list())
-        new_http2_connection.handle_request(req)
+        r = new_http2_connection.handle_request(req)
+        self.assertEquals(r.status, 200)
