@@ -259,3 +259,50 @@ class GetSolvedTokenTests(BaseTestCase):
                 mock_client,
                 captcha_id='2122988149'
             )
+
+
+class ReportBadCaptchaTests(BaseTestCase):
+    """
+        Report Bad Captcha Tests
+    """
+
+    @classmethod
+    def setUpTestData(cls):
+        super().setUpTestData()
+        cls.request = Request(url='', method='')  # Must add a non null request to avoid raising Runtime exception
+
+    @mock.patch.object(httpx, 'Client')
+    def test_ok(self, mock_client):
+        mock_client.get.return_value = Response(
+            request=self.request,
+            status_code=codes.OK,
+            json={
+                "status": 1,
+                "request": "OK_REPORT_RECORDED"
+            }
+        )
+
+        r_report = twocaptcha_api.report_bad_captcha(
+            mock_client,
+            captcha_id='2122988149',
+        )
+        self.assertEquals(r_report.request, 'OK_REPORT_RECORDED')
+
+    @mock.patch.object(httpx, 'Client')
+    def test_invalid_response(self, mock_client):
+        mock_client.post.return_value = Response(
+            request=self.request,
+            status_code=codes.OK,
+            json={
+                "status": 0,
+                "request": "2122988149"
+            }
+        )
+
+        with self.assertRaises(exceptions.InvalidResponse):
+            twocaptcha_api.get_captcha_id(
+                mock_client,
+                proxy='http://example.com:1000',
+                site_key='6Le-wvkSVVABCPBMRTvw0Q4Muexq1bi0DJwx_mJ-',
+                page_url='https://example.com'
+            )
