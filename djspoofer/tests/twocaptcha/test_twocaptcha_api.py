@@ -330,7 +330,7 @@ class ReportBadCaptchaTests(BaseTestCase):
             request=self.request,
             status_code=codes.OK,
             json={
-                "status": 0,
+                "status": 1,
                 "request": "bad_response"
             }
         )
