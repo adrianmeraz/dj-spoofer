@@ -35,20 +35,20 @@ def get_solved_captcha(client, proxy, site_key, page_url):
         raise CaptchaUnsolvable(captcha_id=captcha_id)
 
 
-@decorators.retry(retry_exceptions=(CaptchaNotReady,), tries=60, delay=5, backoff=1)
-def get_captcha_id(client, proxy, site_key, page_url):
+def get_captcha_id(client, proxy, site_key, page_url, pingback=None):
     url = f'{BASE_URL}/in.php'
     proxy_type = urlparse(proxy).scheme.upper()
 
-    params = (
-        ('key', API_KEY),
-        ('method', 'userrecaptcha'),
-        ('googlekey', site_key),
-        ('pageurl', page_url),
-        ('json', '1'),
-        ('proxy', proxy),
-        ('proxytype', proxy_type)
-    )
+    params = {
+        'key', API_KEY,
+        'method', 'userrecaptcha',
+        'googlekey', site_key,
+        'pageurl', page_url,
+        'json', '1',
+        'proxy', proxy,
+        'proxytype', proxy_type,
+        'pingback', pingback
+    }
     data = {
         'proxy': proxy,
         'proxytype': proxy_type
@@ -80,15 +80,15 @@ def get_solved_token(client, captcha_id):
     return SolvedTokenResponse(g_token=r_info.request, captcha_id=captcha_id)
 
 
-@decorators.retry(retry_exceptions=(CaptchaNotReady,), tries=60, delay=5, backoff=1)
+@decorators.retry(retry_exceptions=(TwoCaptchaError,))
 def report_bad_captcha(client, captcha_id):
     url = f'{BASE_URL}/res.php'
-    params = (
-        ('key', API_KEY),
-        ('action', 'reportbad'),
-        ('id', captcha_id),
-        ('json', '1'),
-    )
+    params = {
+        'key', API_KEY,
+        'action', 'reportbad',
+        'id', captcha_id,
+        'json', '1',
+    }
 
     r = client.get(url, params=params)
 
@@ -99,6 +99,22 @@ def report_bad_captcha(client, captcha_id):
         return r_report
     else:
         raise TwoCaptchaError(f'Problem while reporting bad captcha: {r.text}')
+
+
+@decorators.retry(retry_exceptions=(CaptchaNotReady,))
+def register_pingback(client, addr):
+    url = f'{BASE_URL}/res.php'
+    params = (
+        ('key', API_KEY),
+        ('action', 'add_pingback'),
+        ('addr', addr),
+        ('json', '1'),
+    )
+
+    r = client.get(url, params=params)
+
+    r_report = TwoCaptchaResponse(r.json())
+    captcha_error_check(r_report)
 
 
 def captcha_error_check(r_info):

@@ -3,12 +3,10 @@ from unittest import mock
 
 from django.test import TestCase
 from httpcore._models import Origin, Request, URL
-from httpcore._sync import HTTPConnection, HTTP2Connection
 from httpcore.backends import sync
 
-from djspoofer.models import H2Fingerprint
-from djspoofer.connections import NewHTTP2Connection
 from djspoofer import utils
+from djspoofer.connections import NewHTTP2Connection
 
 
 class ConnectionTests(TestCase):
