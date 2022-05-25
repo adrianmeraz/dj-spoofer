@@ -7,6 +7,7 @@ from httpcore._sync import HTTPConnection, HTTP2Connection
 from httpcore.backends import sync
 
 from djspoofer.models import H2Fingerprint
+from djspoofer.connections import NewHTTP2Connection
 
 
 class ConnectionTests(TestCase):
@@ -32,8 +33,7 @@ class ConnectionTests(TestCase):
         }
 
     @mock.patch.object(sync, 'SyncStream')
-    @mock.patch.object(HTTPConnection, 'handle_request')
-    def test_ok(self, mock_handle_request, mock_sync_stream):
+    def test_ok(self, mock_sync_stream):
         mock_sync_stream.write.return_value = None
 
         h2_fingerprint = H2Fingerprint.objects.create(**self.h2_fingerprint_data)
@@ -52,11 +52,11 @@ class ConnectionTests(TestCase):
                 b'host': 'www.example.com',
                 b'h2-fingerprint-id': str(h2_fingerprint.oid)
             })
-        http2_connection = HTTP2Connection(
+        new_http2_connection = NewHTTP2Connection(
             origin=origin,
             stream=mock_sync_stream(),
             keepalive_expiry=10.0
         )
 
-        http2_connection._receive_response = lambda *args, **kwargs: (200, list())
-        mock_handle_request.return_value = http2_connection.handle_request(req)
+        new_http2_connection._receive_response = lambda *args, **kwargs: (200, list())
+        new_http2_connection.handle_request(req)
