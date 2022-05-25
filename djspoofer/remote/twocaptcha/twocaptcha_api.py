@@ -55,9 +55,8 @@ def get_captcha_id(client, proxy, site_key, page_url):
     }
 
     r = client.post(url, params=params, data=data, allow_redirects=False)  # Disable redirects to network splash pages
-    # Fail fast as each attempt costs a captcha solve
     if not r.status_code == 200:
-        raise TwoCaptchaError(f'Cannot solve captcha with proxy "{proxy}" - Response: {r.text}')
+        raise TwoCaptchaError(f'Non 200 Response. Proxy: {proxy}, Response: {r.text}')
 
     r_info = TwoCaptchaResponse(r.json())
     captcha_error_check(r_info)

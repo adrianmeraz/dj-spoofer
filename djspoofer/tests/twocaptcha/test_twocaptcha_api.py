@@ -109,6 +109,25 @@ class GetCaptchaIDTests(BaseTestCase):
         self.assertEquals(captcha_id, '2122988149')
 
     @mock.patch.object(httpx, 'Client')
+    def test_redirect(self, mock_client):
+        mock_client.post.return_value = Response(
+            request=self.request,
+            status_code=codes.MOVED_PERMANENTLY,
+            json={
+                "status": 0,
+                "request": "2122988149"
+            }
+        )
+
+        with self.assertRaises(exceptions.TwoCaptchaError):
+            twocaptcha_api.get_captcha_id(
+                mock_client,
+                proxy='http://example.com:1000',
+                site_key='6Le-wvkSVVABCPBMRTvw0Q4Muexq1bi0DJwx_mJ-',
+                page_url='https://example.com'
+            )
+
+    @mock.patch.object(httpx, 'Client')
     def test_invalid_response(self, mock_client):
         mock_client.post.return_value = Response(
             request=self.request,
@@ -290,19 +309,34 @@ class ReportBadCaptchaTests(BaseTestCase):
 
     @mock.patch.object(httpx, 'Client')
     def test_invalid_response(self, mock_client):
-        mock_client.post.return_value = Response(
+        mock_client.get.return_value = Response(
             request=self.request,
             status_code=codes.OK,
             json={
                 "status": 0,
-                "request": "2122988149"
+                "request": "OK_REPORT_RECORDED"
             }
         )
 
         with self.assertRaises(exceptions.InvalidResponse):
-            twocaptcha_api.get_captcha_id(
+            twocaptcha_api.report_bad_captcha(
                 mock_client,
-                proxy='http://example.com:1000',
-                site_key='6Le-wvkSVVABCPBMRTvw0Q4Muexq1bi0DJwx_mJ-',
-                page_url='https://example.com'
+                captcha_id='2122988149',
+            )
+
+    @mock.patch.object(httpx, 'Client')
+    def test_invalid_report(self, mock_client):
+        mock_client.get.return_value = Response(
+            request=self.request,
+            status_code=codes.OK,
+            json={
+                "status": 0,
+                "request": "bad_response"
+            }
+        )
+
+        with self.assertRaises(exceptions.TwoCaptchaError):
+            twocaptcha_api.report_bad_captcha(
+                mock_client,
+                captcha_id='2122988149',
             )
