@@ -110,8 +110,8 @@ class H2HashParser:
             self.depends_on_id = parts[2]
             self.weight = parts[3]
 
-    def __init__(self, hash):
-        parts = hash.split('|')
+    def __init__(self, h2_hash):
+        parts = h2_hash.split('|')
         self.settings_frame = self.SettingsFrame(parts[0])
         self.window_frame = int(parts[1] or 0)
         self.header_priority_flags = self.HeaderPriorityFlags(parts[2])
