@@ -140,7 +140,7 @@ def h2_hash_to_h2_fingerprint(
         browser_min_major_version=None,
         browser_max_major_version=None
 ):
-    h2_parser = H2HashParser(hash=h2_hash)
+    h2_parser = H2HashParser(h2_hash=h2_hash)
     s_frame = h2_parser.settings_frame
     hp_flags = h2_parser.header_priority_flags
     return models.H2Fingerprint.objects.create(
