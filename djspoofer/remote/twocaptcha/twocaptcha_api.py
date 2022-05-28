@@ -40,14 +40,14 @@ def get_captcha_id(client, proxy, site_key, page_url, pingback=None):
     proxy_type = urlparse(proxy).scheme.upper()
 
     params = {
-        'key', API_KEY,
-        'method', 'userrecaptcha',
-        'googlekey', site_key,
-        'pageurl', page_url,
-        'json', '1',
-        'proxy', proxy,
-        'proxytype', proxy_type,
-        'pingback', pingback
+        'key': API_KEY,
+        'method': 'userrecaptcha',
+        'googlekey': site_key,
+        'pageurl': page_url,
+        'json': '1',
+        'proxy': proxy,
+        'proxytype': proxy_type,
+        'pingback': pingback
     }
     data = {
         'proxy': proxy,
@@ -66,12 +66,12 @@ def get_captcha_id(client, proxy, site_key, page_url, pingback=None):
 @decorators.retry(retry_exceptions=(CaptchaNotReady,), tries=60, delay=5, backoff=1)
 def get_solved_token(client, captcha_id):
     url = f'{BASE_URL}/res.php'
-    params = (
-        ('key', API_KEY),
-        ('action', 'get'),
-        ('id', captcha_id),
-        ('json', 1),
-    )
+    params = {
+        'key': API_KEY,
+        'action': 'get',
+        'id': captcha_id,
+        'json': 1,
+    }
 
     r = client.get(url, params=params)
 
@@ -84,10 +84,10 @@ def get_solved_token(client, captcha_id):
 def report_bad_captcha(client, captcha_id):
     url = f'{BASE_URL}/res.php'
     params = {
-        'key', API_KEY,
-        'action', 'reportbad',
-        'id', captcha_id,
-        'json', '1',
+        'key': API_KEY,
+        'action': 'reportbad',
+        'id': captcha_id,
+        'json': '1',
     }
 
     r = client.get(url, params=params)
@@ -104,12 +104,12 @@ def report_bad_captcha(client, captcha_id):
 @decorators.retry(retry_exceptions=(CaptchaNotReady,))
 def register_pingback(client, addr):
     url = f'{BASE_URL}/res.php'
-    params = (
-        ('key', API_KEY),
-        ('action', 'add_pingback'),
-        ('addr', addr),
-        ('json', '1'),
-    )
+    params = {
+        'key': API_KEY,
+        'action': 'add_pingback',
+        'addr': addr,
+        'json': '1',
+    }
 
     r = client.get(url, params=params)
 
