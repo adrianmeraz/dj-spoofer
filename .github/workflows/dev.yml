@@ -13,13 +13,13 @@ jobs:
     env:
       PYTHON: '3.9'
       DATABASE_URL: 'postgres://postgres:postgres@localhost:5432/postgres'
-      DJANGO_SETTINGS_MODULE: ${{secrets.DJANGO_SETTINGS_MODULE}}
+      DJANGO_SETTINGS_MODULE: 'config.settings.dev'
       LOGLEVEL: 'DEBUG'
-      PROXY_PASSWORD: ${{secrets.PROXY_PASSWORD}}
-      PROXY_USERNAME: ${{secrets.PROXY_USERNAME}}
-      PYTHONUNBUFFERED: ${{secrets.PYTHONUNBUFFERED}}
+      PROXY_PASSWORD: ''
+      PROXY_USERNAME: ''
+      PYTHONUNBUFFERED: 'True'
       SECRET_KEY: ${{secrets.SECRET_KEY}}
-      SSL_VERIFY: ${{secrets.SSL_VERIFY}}
+      SSL_VERIFY: 'True'
     services:
       postgres:
         image: postgres:13.4
