@@ -77,8 +77,10 @@ class FingerprintManagerTests(TestCase):
         with self.assertRaises(exceptions.DJSpooferError):
             Fingerprint.objects.random_mobile()
 
-        Fingerprint.objects.create(device_fingerprint=DeviceFingerprint.objects.create(
-            **self.mobile_device_fingerprint_data)
+        Fingerprint.objects.create(
+            device_fingerprint=DeviceFingerprint.objects.create(
+                **self.mobile_device_fingerprint_data
+            )
         )
         self.assertIsInstance(Fingerprint.objects.random_mobile(), Fingerprint)
 

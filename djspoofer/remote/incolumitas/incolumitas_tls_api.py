@@ -7,7 +7,7 @@ from .exceptions import IncolumitasError
 
 logger = logging.getLogger(__name__)
 
-BASE_URL = settings.INCOLUMITAS_TLS_API_BASE_URL
+BASE_URL = 'https://tls.incolumitas.com'
 
 
 @decorators.wrap_exceptions(raise_as=IncolumitasError)
