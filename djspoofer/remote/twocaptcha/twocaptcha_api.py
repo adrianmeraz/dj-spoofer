@@ -9,7 +9,7 @@ from .exceptions import CaptchaNotReady, CaptchaUnsolvable, CriticalError, WarnE
 logger = logging.getLogger(__name__)
 
 API_KEY = settings.TWO_CAPTCHA_API_KEY
-BASE_URL = settings.TWO_CAPTCHA_BASE_URL
+BASE_URL = 'http://2captcha.com'
 
 EXC_MAP = {
     'ERROR_WRONG_CAPTCHA_ID': WarnError,

@@ -144,4 +144,3 @@ PROXYRACK_COUNTRY_WEIGHTS = [
 # Captcha Solving Settings
 env.get_value('PROXY_URL', default=None)
 TWO_CAPTCHA_API_KEY = env.get_value('TWOCAPTCHA_API_KEY', default=None)
-TWO_CAPTCHA_BASE_URL = 'http://2captcha.com'
