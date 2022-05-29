@@ -95,7 +95,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.MIGRATE_LABEL(f'Successfully Created Rotating Proxy: {proxy}'))
 
     def store_intoli_fingerprints(self, count):
-        tasks.get_profiles(max_profiles=count, desktop_only=True, os_list=const.SUPPORTED_OS)
+        tasks.get_profiles(max_profiles=count)
         self.stdout.write(self.style.MIGRATE_LABEL(f'Successfully Created Intoli Fingerprints'))
 
     def create_fingerprints(self, count):

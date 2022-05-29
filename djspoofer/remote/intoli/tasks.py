@@ -3,7 +3,7 @@ import logging
 from djstarter import decorators
 from httpx import Client
 
-from djspoofer import utils as s_utils
+from djspoofer import const as s_const, utils as s_utils
 from djspoofer.remote.intoli import intoli_api, const
 from djspoofer.remote.intoli.exceptions import IntoliError
 from djspoofer.models import IntoliFingerprint
@@ -19,8 +19,6 @@ def get_profiles(*args, **kwargs):
 class GetProfiles:
     def __init__(self, *args, **kwargs):
         self.max_profiles = kwargs.get('max_profiles', const.MAX_PROFILES)
-        self.desktop_only = kwargs.get('desktop_only')
-        self.os_list = kwargs.get('os_list')
 
     def start(self):
         with Client() as client:
@@ -40,6 +38,8 @@ class GetProfiles:
 
     def build_profiles(self, r_profiles):
         new_profiles = list()
+        # TODO Use SUPPORTED_OS_BROWSER_MAP to filter profiles
+        # Take the OS, and if the browser is in the list, store it
         for profile in self.filtered_profiles(r_profiles):
             ua_parser = s_utils.UserAgentParser(profile.user_agent)
             temp_profile = IntoliFingerprint(
@@ -59,10 +59,6 @@ class GetProfiles:
         return new_profiles
 
     def filtered_profiles(self, r_profiles):
-        if self.desktop_only:
-            profiles = r_profiles.valid_desktop_profiles
-        else:
-            profiles = r_profiles.valid_profiles
-        if self.os_list:
-            profiles = [p for p in profiles if p.os in self.os_list]
+        profiles = r_profiles.valid_profiles
+        profiles = [p for p in profiles if p.browser in s_const.SUPPORTED_OS_BROWSER_MAP.get(p.os, list())]
         return profiles[:self.max_profiles]

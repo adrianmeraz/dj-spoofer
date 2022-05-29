@@ -40,8 +40,9 @@ class FingerprintManager(models.Manager):
     def desktop_only(self, browser=None):
         q = Q(
             device_fingerprint__device_category='desktop',
-            device_fingerprint__browser__in=[browser] if browser else const.SUPPORTED_BROWSERS
         )
+        if browser:
+            q &= Q(device_fingerprint__browser=browser)
         return super().get_queryset().filter(q)
 
     def random_desktop(self, browser=None):
@@ -97,11 +98,7 @@ class IntoliFingerprintManager(models.Manager):
         return super().get_queryset().values_list('user_agent', flat=True)
 
     def all_desktop(self):
-        return super().get_queryset().filter(
-            device_category='desktop',
-            browser__in=const.SUPPORTED_BROWSERS,
-            os__in=const.SUPPORTED_OS,
-        )
+        return super().get_queryset().filter(device_category='desktop')
 
     def all_mobile(self):
         return super().get_queryset().filter(device_category='mobile')
