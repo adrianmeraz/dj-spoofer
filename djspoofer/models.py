@@ -24,7 +24,7 @@ class BaseFingerprint(BaseModel):
 class H2Fingerprint(BaseFingerprint):
     objects = managers.H2FingerprintManager()
 
-    header_table_size = models.IntegerField()
+    header_table_size = models.IntegerField(blank=True, null=True)
     enable_push = models.BooleanField(blank=True, null=True)
     max_concurrent_streams = models.IntegerField(blank=True, null=True)
     initial_window_size = models.IntegerField()

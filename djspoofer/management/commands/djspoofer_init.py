@@ -84,8 +84,8 @@ class Command(BaseCommand):
         utils.h2_hash_to_h2_fingerprint(
             os='iOS',
             browser='Safari',
-            h2_hash='4:2097152;3:100|10485760|1:0:0:255|m,s,p,a',
-            browser_min_major_version=10,
+            h2_hash='4:65535;3:100|10485760|1:0:0:255|m,s,p,a',
+            browser_min_major_version=11,
             browser_max_major_version=999
         )
         self.stdout.write(self.style.MIGRATE_LABEL(f'Successfully Created H2 Fingerprints'))
