@@ -136,9 +136,9 @@ def h2_hash_to_h2_fingerprint(
         os,
         browser,
         h2_hash,
+        browser_min_major_version,
+        browser_max_major_version,
         priority_frames=None,
-        browser_min_major_version=None,
-        browser_max_major_version=None
 ):
     h2_parser = H2HashParser(h2_hash=h2_hash)
     s_frame = h2_parser.settings_frame
