@@ -439,6 +439,24 @@ save_h2_hash --hash "1:65536;2:1;3:1000;4:6291456;5:16384;6:262144|15663105|1:1:
 djspoofer_all_chrome_fingerprints --proxy-url "premium.residential.proxyrack.net:10000" --proxy-args "country=US" --settings=config.settings.local
 ```
 
+## Mitm Proxy
+
+### Installation
+
+#### Windows 
+
+Download the installer from https://mitmproxy.org/
+
+Install via the Wizard
+
+#### Starting mitmweb
+
+From the Command Prompt, enter:
+
+`mitmweb -p 8898`
+
+This will launch the web UI at http://localhost:8081/#/flows
+
 ## Poetry Utilities
 
 ### Create Initial Poetry File
