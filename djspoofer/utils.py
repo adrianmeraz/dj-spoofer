@@ -110,8 +110,8 @@ class H2HashParser:
             self.depends_on_id = parts[2]
             self.weight = parts[3]
 
-    def __init__(self, hash):
-        parts = hash.split('|')
+    def __init__(self, h2_hash):
+        parts = h2_hash.split('|')
         self.settings_frame = self.SettingsFrame(parts[0])
         self.window_frame = int(parts[1] or 0)
         self.header_priority_flags = self.HeaderPriorityFlags(parts[2])
@@ -136,11 +136,11 @@ def h2_hash_to_h2_fingerprint(
         os,
         browser,
         h2_hash,
+        browser_min_major_version,
+        browser_max_major_version,
         priority_frames=None,
-        browser_min_major_version=None,
-        browser_max_major_version=None
 ):
-    h2_parser = H2HashParser(hash=h2_hash)
+    h2_parser = H2HashParser(h2_hash=h2_hash)
     s_frame = h2_parser.settings_frame
     hp_flags = h2_parser.header_priority_flags
     return models.H2Fingerprint.objects.create(

@@ -12,7 +12,7 @@ from . import const
 
 logger = logging.getLogger(__name__)
 
-BASE_URL = settings.INTOLI_API_BASE_URL
+BASE_URL = 'https://raw.githubusercontent.com'
 
 
 @decorators.wrap_exceptions(raise_as=IntoliError)

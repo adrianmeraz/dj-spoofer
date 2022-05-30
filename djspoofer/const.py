@@ -76,12 +76,18 @@ TLS_EXTENSIONS = [
     ssl.OP_ENABLE_MIDDLEBOX_COMPAT,
 ]
 
-SUPPORTED_BROWSERS = (
-    'Chrome',
-    'Firefox',
-)
-SUPPORTED_OS = (
-    'Windows',
-    'Linux',
-    'FreeBSD'
-)
+SUPPORTED_OS_BROWSER_MAP = {
+    'Windows': [
+        'Chrome',
+        'Edge',
+        'Firefox'
+    ],
+    'Linux': [
+        'Chrome',
+        'Firefox'
+    ],
+    'iOS': [
+        'Chrome',
+        'Safari',
+    ]
+}

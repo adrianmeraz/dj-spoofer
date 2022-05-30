@@ -37,19 +37,38 @@ class TLSFingerprintManager(models.Manager):
 
 
 class FingerprintManager(models.Manager):
-    def desktop_only(self, browser=None):
-        q = Q(
-            device_fingerprint__device_category='desktop',
-            device_fingerprint__browser__in=[browser] if browser else const.SUPPORTED_BROWSERS
-        )
+    def desktop_only(self, browser=None, os=None):
+        q = Q(device_fingerprint__device_category='desktop')
+        if browser:
+            q &= Q(device_fingerprint__browser=browser)
+        if os:
+            q &= Q(device_fingerprint__os=os)
         return super().get_queryset().filter(q)
 
-    def random_desktop(self, browser=None):
+    def mobile_only(self, browser=None, os=None):
+        q = Q(device_fingerprint__device_category='mobile')
+        if browser:
+            q &= Q(device_fingerprint__browser=browser)
+        if os:
+            q &= Q(device_fingerprint__os=os)
+        return super().get_queryset().filter(q)
+
+    def random_desktop(self, browser=None, os=None):
         try:
-            return self.desktop_only(browser).order_by('?')[0]
+            return self.desktop_only(browser=browser, os=os).order_by('?')[0]
         except Exception:
             raise exceptions.DJSpooferError(
-                f'No desktop fingerprints exist for browser: {browser}. Did you run the djspoofer_init command?'
+                f'No desktop fingerprints exist for browser: {browser}, os: {os}. '
+                f'Did you run the djspoofer_init command?'
+            )
+
+    def random_mobile(self, browser=None, os=None):
+        try:
+            return self.mobile_only(browser=browser, os=os).order_by('?')[0]
+        except Exception:
+            raise exceptions.DJSpooferError(
+                f'No mobile fingerprints exist for browser: {browser}, os: {os}. '
+                f'Did you run the djspoofer_init command?'
             )
 
 
@@ -97,11 +116,7 @@ class IntoliFingerprintManager(models.Manager):
         return super().get_queryset().values_list('user_agent', flat=True)
 
     def all_desktop(self):
-        return super().get_queryset().filter(
-            device_category='desktop',
-            browser__in=const.SUPPORTED_BROWSERS,
-            os__in=const.SUPPORTED_OS,
-        )
+        return super().get_queryset().filter(device_category='desktop')
 
     def all_mobile(self):
         return super().get_queryset().filter(device_category='mobile')

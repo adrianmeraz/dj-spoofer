@@ -7,7 +7,7 @@ from .exceptions import HowsMySSLError
 
 logger = logging.getLogger(__name__)
 
-BASE_URL = settings.HOWSMYSSL_API_BASE_URL
+BASE_URL = 'https://www.howsmyssl.com'
 
 
 @decorators.wrap_exceptions(raise_as=HowsMySSLError)

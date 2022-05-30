@@ -8,7 +8,7 @@ from djspoofer.remote.proxyrack import exceptions
 
 logger = logging.getLogger(__name__)
 
-BASE_URL = settings.PROXYRACK_API_BASE_URL
+BASE_URL = 'http://api.proxyrack.net'
 
 
 @decorators.wrap_exceptions(raise_as=exceptions.ProxyRackError)

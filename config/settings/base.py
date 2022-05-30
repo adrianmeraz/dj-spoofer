@@ -129,7 +129,7 @@ TEMPLATES = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 KEYLOG_FILENAME = env.get_value('KEYLOG_FILENAME', default=None)
-SSL_VERIFY = env.bool('SSL_VERIFY')
+SSL_VERIFY = env.bool('SSL_VERIFY', default=True)
 PROXY_URL = env.get_value('PROXY_URL', default=None)
 PROXY_USERNAME = env('PROXY_USERNAME')
 PROXY_PASSWORD = env('PROXY_PASSWORD')
@@ -141,10 +141,6 @@ PROXYRACK_COUNTRY_WEIGHTS = [
     ('AU', .06),
 ]
 
-H2_FINGERPRINT_API_BASE_URL = 'https://www.mediasploit.com'
-HOWSMYSSL_API_BASE_URL = 'https://www.howsmyssl.com'
-INCOLUMITAS_API_BASE_URL = 'https://api.incolumitas.com'
-INCOLUMITAS_TCPIP_API_BASE_URL = 'https://tcpip.incolumitas.com'
-INCOLUMITAS_TLS_API_BASE_URL = 'https://tls.incolumitas.com'
-INTOLI_API_BASE_URL = 'https://raw.githubusercontent.com'
-PROXYRACK_API_BASE_URL = 'http://api.proxyrack.net'
+# Captcha Solving Settings
+env.get_value('PROXY_URL', default=None)
+TWO_CAPTCHA_API_KEY = env.get_value('TWOCAPTCHA_API_KEY', default=None)

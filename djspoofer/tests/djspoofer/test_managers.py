@@ -11,7 +11,7 @@ class FingerprintManagerTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        cls.device_fingerprint_data = {
+        cls.desktop_device_fingerprint_data = {
             'browser': 'Chrome',
             'device_category': 'desktop',
             'platform': 'US',
@@ -22,19 +22,67 @@ class FingerprintManagerTests(TestCase):
             'viewport_height': 768,
             'viewport_width': 1024,
         }
-        cls.ip_fingerprint_data = {
-            'city': 'Dallas',
-            'country': 'US',
-            'isp': 'Spectrum',
-            'ip': '194.60.86.250',
+        cls.mobile_device_fingerprint_data = {
+            'browser': 'Safari',
+            'device_category': 'mobile',
+            'platform': 'US',
+            'screen_height': 1920,
+            'screen_width': 1080,
+            'user_agent': ('Mozilla/5.0 (Macintosh; Intel Mac OS X 12_4) AppleWebKit/605.1.15 (KHTML, like Gecko) '
+                           'Version/15.4 Safari/605.1.15'),
+            'viewport_height': 768,
+            'viewport_width': 1024,
         }
+
+    def test_desktop_only(self):
+        with self.assertRaises(exceptions.DJSpooferError):
+            Fingerprint.objects.random_desktop()
+
+        new_fingerprint = Fingerprint.objects.create(device_fingerprint=DeviceFingerprint.objects.create(
+            **self.desktop_device_fingerprint_data)
+        )
+        self.assertEquals(
+            Fingerprint.objects.desktop_only(
+                browser=new_fingerprint.device_fingerprint.browser,
+                os=new_fingerprint.device_fingerprint.os,
+            ).first(),
+            new_fingerprint
+        )
+
+    def test_mobile_only(self):
+        with self.assertRaises(exceptions.DJSpooferError):
+            Fingerprint.objects.random_mobile()
+
+        new_fingerprint = Fingerprint.objects.create(device_fingerprint=DeviceFingerprint.objects.create(
+            **self.mobile_device_fingerprint_data)
+        )
+        self.assertEquals(
+            Fingerprint.objects.mobile_only(
+                browser=new_fingerprint.device_fingerprint.browser,
+                os=new_fingerprint.device_fingerprint.os,
+            ).first(),
+            new_fingerprint
+        )
 
     def test_get_random_desktop_fingerprint(self):
         with self.assertRaises(exceptions.DJSpooferError):
             Fingerprint.objects.random_desktop()
 
-        Fingerprint.objects.create(device_fingerprint=DeviceFingerprint.objects.create(**self.device_fingerprint_data))
-        self.assertIsNotNone(Fingerprint.objects.random_desktop())
+        Fingerprint.objects.create(device_fingerprint=DeviceFingerprint.objects.create(
+            **self.desktop_device_fingerprint_data)
+        )
+        self.assertIsInstance(Fingerprint.objects.random_desktop(), Fingerprint)
+
+    def test_get_random_mobile_fingerprint(self):
+        with self.assertRaises(exceptions.DJSpooferError):
+            Fingerprint.objects.random_mobile()
+
+        Fingerprint.objects.create(
+            device_fingerprint=DeviceFingerprint.objects.create(
+                **self.mobile_device_fingerprint_data
+            )
+        )
+        self.assertIsInstance(Fingerprint.objects.random_mobile(), Fingerprint)
 
 
 class H2FingerprintManagerTests(TestCase):

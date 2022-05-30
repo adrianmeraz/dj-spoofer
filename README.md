@@ -48,9 +48,27 @@ cd /opt/jetbrains-toolbox-<VERSION>
 
 Follow prompts and install Pycharm Community IDE
 
+### Enable Powershell Script Execution (Windows)
+
+Run Powershell as Administrator and run the following:
+
+```
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy Unrestricted
+```
+
 ### Install Curl
 
+#### Linux/Mac OS
+
 `sudo snap install curl`
+
+### Install Python
+
+#### Windows
+
+Use installer [Here](https://www.python.org/downloads/)
+
+Check the "Set Path Variable" box
 
 ### Install python-venv
 
@@ -62,8 +80,16 @@ Follow prompts and install Pycharm Community IDE
 
 ### Install Poetry
 
+#### Via Ubuntu/Mac
+
 ```
 sudo curl -sSL https://install.python-poetry.org | python3 -
+```
+
+#### Via Windows Powershell
+
+```
+(Invoke-WebRequest -Uri https://raw.githubusercontent.com/python-poetry/poetry/master/install-poetry.py -UseBasicParsing).Content | python -
 ```
 
 ### Add Poetry Env Variable
@@ -140,12 +166,22 @@ Add to .env file as _SECRET_KEY_ environment variable
 
 ## Local Database Setup
 
-### Setup Postgres Local Instance (Ubuntu)
+### Setup Postgres Local Instance
+
+#### Ubuntu
 
 ```
 sudo apt update
 sudo apt install postgresql postgresql-client
 ```
+
+#### Windows
+
+Download installer [Here](https://www.enterprisedb.com/downloads/postgres-postgresql-downloads)
+
+Choose Postgres Version 13.7
+
+Use the Wizard to install Postgres
 
 ### Check Instance Status
 
@@ -164,15 +200,34 @@ psql -c "alter user postgres with password '<DB_PASSWORD>'"
 
 ### Start PSQL Shell
 
+#### Ubuntu
+
 `psql`
+
+#### Windows 
+
+Start "SQL Shell (psql)"
+
+Press Enter on all The Defaults
+
+Use the master password that was setup earlier
 
 ### Get Connection Details
 
 `\conninfo`
 
 Details should look similar to this:
+
+#### Ubuntu
+
 ```
 You are connected to database "postgres" as user "postgres" via socket in "/var/run/postgresql" at port "5432".
+```
+
+#### Windows
+
+```
+You are connected to database "postgres" as user "postgres" on host "localhost" (address "::1") at port "5432".
 ```
 
 ### Create Local Postgres Database
@@ -190,13 +245,30 @@ Replace placeholder values with real values
 ```
 create database <DB_NAME>;
 create user <DB_USERNAME> with encrypted password '<DB_PASSWORD>';
-postgres=# grant all privileges on database <DB_NAME> to <DB_USERNAME>;
-postgres=# ALTER USER <DB_USERNAME> CREATEDB;
+grant all privileges on database <DB_NAME> to <DB_USERNAME>;
+ALTER USER <DB_USERNAME> CREATEDB;
+```
+
+Example:
+
+```
+create database djspoofer;
+create user djspoofer with encrypted password 'djspoofer';
+grant all privileges on database djspoofer to djspoofer;
+ALTER USER djspoofer CREATEDB;
 ```
 
 ### Local jdbc string
 
-`postgres://<DB_USERNAME>:<DB_PASSWORD>@localhost:5432/<DB_NAME>`
+```
+postgres://<DB_USERNAME>:<DB_PASSWORD>@localhost:5432/<DB_NAME>
+```
+
+Example:
+
+```
+postgres://djspoofer:djspoofer@localhost:5432/djspoofer
+```
 
 ### Deleting Local Database (Optional)
 
@@ -227,9 +299,17 @@ Run the command from the project root to create the database and service user
 
 ### Installation
 
+#### Ubuntu
+
 Follow Guide [HERE](https://www.pgadmin.org/download/pgadmin-4-python/)
 
+#### Windows
+
+https://www.postgresql.org/ftp/pgadmin/pgadmin4/v6.9/windows/
+
 ### Start
+
+#### Ubuntu
 
 Run the following:
 
@@ -274,7 +354,11 @@ You will need to decrypt the TLS traffic to be able to properly see the http/2 f
 The instructions below will export the keys used in the TLS handshake to a file 
 that can be used by Wireshark.
 
-### Update bashrc
+## Set SSLKEYLOGFILE environment variable
+
+### Ubuntu
+
+Update bashrc
 
 ```
 nano ~/.bashrc
@@ -283,20 +367,30 @@ nano ~/.bashrc
 At the end of the file, add this line:
 
 ```
-export SSLKEYLOGFILE=~/.ssl-key.log
+export SSLKEYLOGFILE=~/sslkey.log
 ```
 
-Next, save the changes:
+Save the changes:
 
 ```
 source ~/.bashrc
 ```
 
-Confirm the changes were applied:
+3. Confirm the changes were applied:
 
 ```
 echo $SSLKEYLOGFILE
 ```
+
+#### Windows 
+
+Add User Environment Variable named `SSLKEYLOGFILE`
+
+Set the value to `%USERPROFILE%\Documents\sslkey.log`
+
+1. Close Chrome or Firefox completely. Make sure all instances are closed.
+
+2. Open the Start menu, and type env, select "Edit environment variables for your account".
 
 Launch Chrome from the command prompt and point to the output key file:
 
